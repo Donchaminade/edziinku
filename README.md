@@ -82,7 +82,7 @@ Le web et l’API ne vont pas au même endroit. Le front est une SPA Vite. L’A
 3. `edziinku/vercel.json` renvoie toutes les routes (`/carte`, `/admin`, …) vers `index.html`. Les fichiers réels (images, `sw.js`) restent servis tels quels.
 4. Variable d’environnement **`VITE_API_URL`** : l’URL publique de l’API, sans barre finale, par exemple `https://edzii-api.onrender.com`. Vite l’inscrit dans le JavaScript **au build**. Après un changement, il faut redéployer.
 
-Ajouter cette origine Vercel à `FRONTEND_URL` côté API, sinon le navigateur bloque les appels.
+Ajouter l’origine Vercel à `FRONTEND_URL` côté API, sinon le navigateur bloque les appels. Un motif est accepté, y compris en production : `https://edziinku.vercel.app,https://*.vercel.app` couvre le site et les previews.
 
 ### API sur Render
 
@@ -92,7 +92,7 @@ Render héberge le service Java. Vercel ne lance pas Spring Boot.
 2. Dockerfile : `edzii-api/Dockerfile` (contexte `edzii-api`). Le processus écoute `0.0.0.0` et le port `PORT`.
 3. Contrôle de santé : `/actuator/health`.
 4. Base **PostgreSQL** avec l’extension **PostGIS** (la première migration exécute `CREATE EXTENSION IF NOT EXISTS postgis`).
-5. Variables : celles de `.env.example` (`DATABASE_URL`, `DATABASE_USER`, `DATABASE_PASSWORD`, `JWT_SECRET`, `FRONTEND_URL`, WhatsApp, `GOOGLE_CLIENT_ID`). `APP_ENV=prod` désactive les origines localhost automatiques : lister explicitement l’URL Vercel dans `FRONTEND_URL`.
+5. Variables : celles de `.env.example` (`DATABASE_URL`, `DATABASE_USER`, `DATABASE_PASSWORD`, `JWT_SECRET`, `FRONTEND_URL`, WhatsApp, `GOOGLE_CLIENT_ID`). `APP_ENV=prod` désactive les origines localhost automatiques. `FRONTEND_URL` est une liste séparée par des virgules ; les jokers Spring (`https://*.vercel.app`) sont lus comme des motifs d’origine.
 6. Les photos déposées dans `UPLOAD_DIR` disparaissent au redémarrage du disque éphémère. Pour les garder, attacher un disque persistant Render et pointer `UPLOAD_DIR` dessus.
 
 Le client web lit uniquement `VITE_API_URL`. Le mobile lit `API_BASE` (`--dart-define=API_BASE=https://edzii-api.onrender.com`).
