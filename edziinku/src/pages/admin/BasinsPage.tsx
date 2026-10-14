@@ -5,7 +5,7 @@ import { AdminPage } from '../../components/layout/AdminLayout';
 import { useDocumentTitle } from '../../components/layout/common';
 import { MapView, type MapPin } from '../../components/MapView';
 import { EmptyState } from '../../components/ui/Decor';
-import { Segmented } from '../../components/ui/Form';
+import { ScrollRow, Segmented } from '../../components/ui/Form';
 import { CountUp, Meter, Reveal, Skeleton, Stagger } from '../../components/ui/motion';
 import { photos } from '../../data/photos';
 import { basinTone } from '../../lib/format';
@@ -43,7 +43,7 @@ export function BasinsPage() {
         long="Bassins de rétention et caniveaux suivis, avec le taux d’obstruction remonté par les équipes terrain."
       />
 
-      <Stagger className="grid grid-cols-2 gap-3 lg:grid-cols-3">
+      <Stagger className="grid grid-cols-2 gap-3 lg:grid-cols-3 [&>:nth-child(3)]:col-span-2 lg:[&>:nth-child(3)]:col-span-1">
         <Kpi accent label="Bassins suivis" value={basins.length} hint="Grand Lomé" icon={Droplets} />
         <Kpi label="Critiques" value={critical} hint="à curer en priorité" icon={ShieldAlert} tone="alert" />
         <Kpi label="Obstruction moyenne" value={average} suffix=" %" hint="tous bassins" icon={Wrench} tone="water" />
@@ -51,7 +51,7 @@ export function BasinsPage() {
 
       <div className="grid gap-4 xl:grid-cols-[1fr_1fr]">
         <div className="flex flex-col gap-3">
-          <div className="scroll-x -mx-1 px-1">
+          <ScrollRow>
             <Segmented
               label="Filtrer les bassins"
               value={filter}
@@ -64,7 +64,7 @@ export function BasinsPage() {
                 { value: 'OTHER', label: 'Sous contrôle', count: basins.filter((basin) => basin.status !== 'CRITIQUE' && basin.status !== 'ELEVE').length },
               ]}
             />
-          </div>
+          </ScrollRow>
           {loading ? <Skeleton className="h-64" /> : visible.length === 0 ? (
             <EmptyState icon={<Droplets size={20} />} title="Aucun bassin" text="Aucun bassin dans cette catégorie." />
           ) : (

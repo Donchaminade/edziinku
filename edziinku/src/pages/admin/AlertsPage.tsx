@@ -6,7 +6,7 @@ import { AdminPage } from '../../components/layout/AdminLayout';
 import { LogoMark, useDocumentTitle } from '../../components/layout/common';
 import { Button } from '../../components/ui/Button';
 import { EmptyState } from '../../components/ui/Decor';
-import { Field, Segmented, Select, TextArea, TextInput } from '../../components/ui/Form';
+import { Field, ScrollRow, Segmented, Select, TextArea, TextInput } from '../../components/ui/Form';
 import { Reveal, Stagger, StaggerItem, ease } from '../../components/ui/motion';
 import { useToast } from '../../components/ui/Overlay';
 import { photos } from '../../data/photos';
@@ -78,7 +78,7 @@ export function AlertsPage() {
           <Panel title={<span className="inline-flex items-center gap-2"><Megaphone size={18} className="text-cyan" /> Nouvelle alerte</span>}>
             <form className="flex flex-col gap-4" onSubmit={publish}>
               <Field label="Niveau">
-                <div className="scroll-x -mx-1 px-1">
+                <ScrollRow>
                   <Segmented
                     label="Niveau de l’alerte"
                     value={level}
@@ -86,7 +86,7 @@ export function AlertsPage() {
                     className="min-w-max"
                     options={(['INFO', 'VIGILANCE', 'ELEVE', 'CRITIQUE'] as Level[]).map((value) => ({ value, label: alertLevelLabel(value) }))}
                   />
-                </div>
+                </ScrollRow>
               </Field>
               <div className="grid gap-4 sm:grid-cols-2">
                 <Field label="Titre" htmlFor="alert-title">

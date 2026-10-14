@@ -4,7 +4,7 @@ import { PageHero } from '../../components/Hero';
 import { AdminPage } from '../../components/layout/AdminLayout';
 import { useDocumentTitle } from '../../components/layout/common';
 import { EmptyState } from '../../components/ui/Decor';
-import { Segmented } from '../../components/ui/Form';
+import { ScrollRow, Segmented } from '../../components/ui/Form';
 import { Reveal, Skeleton } from '../../components/ui/motion';
 import { demoTimeline } from '../../data/demo';
 import { photos } from '../../data/photos';
@@ -41,7 +41,7 @@ export function HistoryPage() {
         long="Alertes, signalements, équipes et bassins, du plus récent au plus ancien. Utile pour le bilan d’une saison."
       />
       {kinds.length > 1 && (
-        <div className="scroll-x -mx-1 px-1">
+        <ScrollRow>
           <Segmented
             label="Filtrer par type"
             value={kind}
@@ -49,7 +49,7 @@ export function HistoryPage() {
             className="min-w-max"
             options={[{ value: 'ALL', label: 'Tout', count: items?.length ?? 0 }, ...kinds.map((value) => ({ value, label: kindLabel(value), count: items?.filter((item) => item.kind === value).length ?? 0 }))]}
           />
-        </div>
+        </ScrollRow>
       )}
       {!items ? <Skeleton className="h-64" /> : groups.length === 0 ? (
         <EmptyState icon={<History size={20} />} title="Aucun événement" text="La chronologie se remplira avec les alertes et les signalements." />
