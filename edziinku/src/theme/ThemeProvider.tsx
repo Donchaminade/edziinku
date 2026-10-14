@@ -1,5 +1,5 @@
-import { createContext, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
-import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
+import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
+import { flushSync } from 'react-dom';
 import type { ThemeName } from '../types';
 import { api, sessionToken } from '../lib/api';
 
@@ -7,7 +7,7 @@ const KEY = 'edzii-theme';
 
 interface ThemeContextValue {
   theme: ThemeName;
-  toggle: () => void;
+  toggle: (origin?: { x: number; y: number }) => void;
   setTheme: (theme: ThemeName) => void;
 }
 
@@ -23,57 +23,51 @@ function paint(theme: ThemeName) {
   document.querySelector('meta[name="theme-color"]')?.setAttribute('content', bg);
 }
 
+type ViewTransitionDocument = Document & {
+  startViewTransition?: (update: () => void) => { ready: Promise<void> };
+};
+
 export function ThemeProvider({ children }: { children: ReactNode }) {
   const [theme, setThemeState] = useState<ThemeName>(readTheme);
-  const [veil, setVeil] = useState(0);
-  const first = useRef(true);
-  const reduce = useReducedMotion();
-  const reduceRef = useRef(reduce);
-  reduceRef.current = reduce;
 
   useEffect(() => {
     paint(theme);
-    localStorage.setItem(KEY, theme);
-    if (first.current) {
-      first.current = false;
-      return;
+    try {
+      localStorage.setItem(KEY, theme);
+    } catch {
+      /* stockage indisponible (navigation privée) : le thème vaut pour la session */
     }
-    if (!reduceRef.current) setVeil((value) => value + 1);
   }, [theme]);
 
-  const value = useMemo<ThemeContextValue>(() => ({
-    theme,
-    setTheme: setThemeState,
-    toggle: () => {
-      setThemeState((current) => {
-        const next = current === 'dark' ? 'light' : 'dark';
-        if (sessionToken()) {
-          void api('/api/me/theme', { method: 'PUT', body: JSON.stringify({ theme: next }) }).catch(() => undefined);
-        }
-        return next;
-      });
-    },
-  }), [theme]);
+  const toggle = useCallback((origin?: { x: number; y: number }) => {
+    const next: ThemeName = readTheme() === 'dark' ? 'light' : 'dark';
+    if (sessionToken()) {
+      void api('/api/me/theme', { method: 'PUT', body: JSON.stringify({ theme: next }) }).catch(() => undefined);
+    }
+    const doc = document as ViewTransitionDocument;
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (!doc.startViewTransition || reduce) {
+      setThemeState(next);
+      return;
+    }
+    const x = origin?.x ?? window.innerWidth - 40;
+    const y = origin?.y ?? 40;
+    const radius = Math.hypot(Math.max(x, window.innerWidth - x), Math.max(y, window.innerHeight - y));
+    const transition = doc.startViewTransition(() => {
+      flushSync(() => setThemeState(next));
+      paint(next);
+    });
+    void transition.ready.then(() => {
+      document.documentElement.animate(
+        { clipPath: [`circle(0px at ${x}px ${y}px)`, `circle(${radius}px at ${x}px ${y}px)`] },
+        { duration: 520, easing: 'cubic-bezier(0.16, 1, 0.3, 1)', pseudoElement: '::view-transition-new(root)' },
+      );
+    });
+  }, []);
 
-  return (
-    <ThemeContext.Provider value={value}>
-      {children}
-      <AnimatePresence>
-        {veil > 0 && (
-          <motion.div
-            key={veil}
-            aria-hidden
-            className="pointer-events-none fixed inset-0 z-[80]"
-            style={{ background: 'var(--bg)' }}
-            initial={{ opacity: 0.42 }}
-            animate={{ opacity: 0 }}
-            transition={{ duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
-            onAnimationComplete={() => setVeil(0)}
-          />
-        )}
-      </AnimatePresence>
-    </ThemeContext.Provider>
-  );
+  const value = useMemo<ThemeContextValue>(() => ({ theme, toggle, setTheme: setThemeState }), [theme, toggle]);
+
+  return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
 }
 
 export function useTheme() {

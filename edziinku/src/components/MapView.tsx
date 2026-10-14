@@ -1,37 +1,64 @@
-import { useEffect } from 'react';
-import { CircleMarker, MapContainer, TileLayer, Tooltip, useMap } from 'react-leaflet';
-import { useReducedMotion } from 'framer-motion';
+import { useEffect, useMemo } from 'react';
+import L from 'leaflet';
+import { MapContainer, Marker, TileLayer, Tooltip, useMap, useMapEvents, ZoomControl } from 'react-leaflet';
+import { useReducedMotion } from 'motion/react';
+import { useTheme } from '../theme/ThemeProvider';
+import type { Tone } from '../types';
 
 export interface MapPin {
   id: string;
   lat: number;
   lng: number;
   label: string;
-  tone: 'alert' | 'warn' | 'info' | 'ok';
+  tone: Tone;
+  kind?: 'report' | 'basin' | 'me';
 }
 
-function token(name: string) {
-  return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+const LOME: [number, number] = [6.1725, 1.2314];
+
+const ESRI = 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas';
+const tiles: Record<'dark' | 'light', { base: string; labels: string | null }> = {
+  dark: { base: `${ESRI}/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}`, labels: `${ESRI}/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}` },
+  light: { base: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}', labels: null },
+};
+const attribution = 'Fond &copy; Esri, HERE, Garmin &middot; &copy; contributeurs OpenStreetMap';
+
+function icon(pin: MapPin, selected: boolean) {
+  return L.divIcon({
+    className: 'map-pin-wrap',
+    html: `<span class="map-pin" data-tone="${pin.tone}" data-kind="${pin.kind ?? 'report'}" data-selected="${selected}"></span>`,
+    iconSize: [18, 18],
+    iconAnchor: [9, 9],
+    tooltipAnchor: [0, -12],
+  });
 }
 
-function toneColor(tone: MapPin['tone']) {
-  if (tone === 'alert') return token('--alert-solid');
-  if (tone === 'warn') return token('--amber-solid');
-  if (tone === 'ok') return token('--ok');
-  return token('--cyan');
-}
-
-function Focus({ pin }: { pin: MapPin | null }) {
+function Focus({ pin, pins, fit }: { pin: MapPin | null; pins: MapPin[]; fit: boolean }) {
   const map = useMap();
   const reduce = useReducedMotion();
+
   useEffect(() => {
-    const timer = window.setTimeout(() => map.invalidateSize(), 180);
-    return () => window.clearTimeout(timer);
+    const observer = new ResizeObserver(() => map.invalidateSize());
+    observer.observe(map.getContainer());
+    return () => observer.disconnect();
   }, [map]);
+
+  useEffect(() => {
+    if (!fit || pin || pins.length < 2) return;
+    map.fitBounds(L.latLngBounds(pins.map((item) => [item.lat, item.lng])), { padding: [40, 40], maxZoom: 14, animate: !reduce });
+    // Recentrage seulement quand le nombre de points change.
+  }, [map, fit, pins.length]);
+
   useEffect(() => {
     if (!pin) return;
-    map.flyTo([pin.lat, pin.lng], 14, { duration: reduce ? 0 : 0.7 });
+    map.flyTo([pin.lat, pin.lng], Math.max(map.getZoom(), 14), { duration: reduce ? 0 : 0.8 });
   }, [map, pin, reduce]);
+
+  return null;
+}
+
+function ClickToPlace({ onPick }: { onPick: (lat: number, lng: number) => void }) {
+  useMapEvents({ click: (event) => onPick(event.latlng.lat, event.latlng.lng) });
   return null;
 }
 
@@ -40,38 +67,74 @@ export function MapView({
   selectedId,
   onSelect,
   className,
+  zoom = 12,
+  fit = true,
+  interactive = true,
+  onPick,
 }: {
   pins: MapPin[];
   selectedId?: string | null;
   onSelect?: (id: string) => void;
   className?: string;
+  zoom?: number;
+  fit?: boolean;
+  interactive?: boolean;
+  onPick?: (lat: number, lng: number) => void;
 }) {
+  const { theme } = useTheme();
   const selected = pins.find((pin) => pin.id === selectedId) ?? null;
+  const markers = useMemo(
+    () => pins.map((pin) => ({ pin, icon: icon(pin, pin.id === selectedId) })),
+    [pins, selectedId],
+  );
+
   return (
     <div className={`map-frame ${className ?? ''}`}>
-      <MapContainer center={[6.1725, 1.2314]} zoom={12} scrollWheelZoom className="h-full w-full">
-        <TileLayer
-          attribution='&copy; OpenStreetMap &copy; CARTO'
-          url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
-        />
-        <Focus pin={selected} />
-        {pins.map((pin) => (
-          <CircleMarker
+      <MapContainer
+        center={LOME}
+        zoom={zoom}
+        zoomControl={false}
+        scrollWheelZoom={interactive}
+        dragging={interactive}
+        className="h-full w-full"
+        attributionControl
+      >
+        <TileLayer key={`${theme}-base`} className="map-base" attribution={attribution} url={tiles[theme].base} maxNativeZoom={theme === 'dark' ? 16 : 19} maxZoom={19} />
+        {tiles[theme].labels && <TileLayer key={`${theme}-labels`} className="map-labels" url={tiles[theme].labels} maxNativeZoom={16} maxZoom={19} />}
+        {interactive && <ZoomControl position="bottomright" />}
+        <Focus pin={selected} pins={pins} fit={fit} />
+        {onPick && <ClickToPlace onPick={onPick} />}
+        {markers.map(({ pin, icon: markerIcon }) => (
+          <Marker
             key={pin.id}
-            center={[pin.lat, pin.lng]}
-            radius={selectedId === pin.id ? 12 : 8}
-            pathOptions={{
-              color: token('--map-text'),
-              weight: 2,
-              fillColor: toneColor(pin.tone),
-              fillOpacity: 0.95,
-            }}
+            position={[pin.lat, pin.lng]}
+            icon={markerIcon}
+            zIndexOffset={pin.id === selectedId ? 1000 : 0}
             eventHandlers={{ click: () => onSelect?.(pin.id) }}
+            keyboard
+            title={pin.label}
           >
-            <Tooltip>{pin.label}</Tooltip>
-          </CircleMarker>
+            <Tooltip direction="top">{pin.label}</Tooltip>
+          </Marker>
         ))}
       </MapContainer>
+    </div>
+  );
+}
+
+export function MapLegend({ className }: { className?: string }) {
+  const items: [Tone, string][] = [['info', 'Cheville'], ['warn', 'Genou'], ['alert', 'Taille']];
+  return (
+    <div className={`glass-strong flex items-center gap-3 rounded-2xl px-3 py-2 text-xs font-semibold ${className ?? ''}`}>
+      {items.map(([tone, label]) => (
+        <span key={tone} className="inline-flex items-center gap-1.5">
+          <span
+            className="inline-block h-2.5 w-2.5 rounded-full"
+            style={{ background: tone === 'info' ? 'var(--cyan)' : tone === 'warn' ? 'var(--warn)' : 'var(--alert)' }}
+          />
+          {label}
+        </span>
+      ))}
     </div>
   );
 }

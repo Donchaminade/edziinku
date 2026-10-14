@@ -1,11 +1,16 @@
-import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
+import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 import { api } from './api';
 import { demoAlerts, demoBasins, demoNeighborhoods, demoReports, demoWeather } from '../data/demo';
 import type { AlertItem, Basin, HourlyResponse, Neighborhood, Page, ReportItem, WeatherResponse } from '../types';
 
 export interface Catalog {
   loading: boolean;
+  /** « api » : données réelles ; « demo » : jeu de démonstration en attendant (ou à défaut de) l’API. */
   source: 'api' | 'demo';
+  /** Vrai tant que l’API n’a ni répondu ni échoué (démarrage à froid de l’hébergeur). */
+  waking: boolean;
+  /** Vrai si l’API répond mais qu’une partie des ressources a échoué. */
+  partial: boolean;
   neighborhoods: Neighborhood[];
   alerts: AlertItem[];
   reports: ReportItem[];
@@ -15,63 +20,82 @@ export interface Catalog {
   reload: () => void;
 }
 
+type State = Omit<Catalog, 'reload'>;
+
+/** Délai au-delà duquel on affiche la démo, sans abandonner la requête en cours. */
+const WAKE_TIMEOUT = 8000;
+
+const demoState: State = {
+  loading: false,
+  source: 'demo',
+  waking: false,
+  partial: false,
+  neighborhoods: demoNeighborhoods,
+  alerts: demoAlerts,
+  reports: demoReports,
+  basins: demoBasins,
+  weather: demoWeather,
+  hourly: { source: 'demo', demo: true, hours: demoAlerts[0]?.rainSeries ?? [] },
+};
+
 export function useCatalog(): Catalog {
   const [tick, setTick] = useState(0);
-  const [state, setState] = useState<Omit<Catalog, 'reload'>>({
+  const [state, setState] = useState<State>({
+    ...demoState,
     loading: true,
-    source: 'demo',
     neighborhoods: [],
     alerts: [],
     reports: [],
     basins: [],
-    weather: demoWeather,
-    hourly: { source: 'demo', demo: true, hours: demoAlerts[0]?.rainSeries ?? [] },
   });
 
   useEffect(() => {
     let cancel = false;
-    setState((current) => ({ ...current, loading: true }));
+    let settled = false;
+    setState((current) => ({ ...current, loading: current.source !== 'api' }));
+    const timer = window.setTimeout(() => {
+      if (!cancel && !settled) setState({ ...demoState, waking: true });
+    }, WAKE_TIMEOUT);
+
     (async () => {
-      try {
-        const [neighborhoods, alerts, reports, basins, weather, hourly] = await Promise.all([
-          api<Neighborhood[]>('/api/neighborhoods'),
-          api<AlertItem[]>('/api/alerts'),
-          api<Page<ReportItem>>('/api/reports?size=50'),
-          api<Basin[]>('/api/basins'),
-          api<WeatherResponse>('/api/weather/daily'),
-          api<HourlyResponse>('/api/weather/hourly'),
-        ]);
-        if (cancel) return;
-        setState({
-          loading: false,
-          source: 'api',
-          neighborhoods,
-          alerts,
-          reports: reports.items,
-          basins,
-          weather,
-          hourly,
-        });
-      } catch {
-        if (cancel) return;
-        setState({
-          loading: false,
-          source: 'demo',
-          neighborhoods: demoNeighborhoods,
-          alerts: demoAlerts,
-          reports: demoReports,
-          basins: demoBasins,
-          weather: demoWeather,
-          hourly: { source: 'demo', demo: true, hours: demoAlerts[0]?.rainSeries ?? [] },
-        });
+      const results = await Promise.allSettled([
+        api<Neighborhood[]>('/api/neighborhoods'),
+        api<AlertItem[]>('/api/alerts'),
+        api<Page<ReportItem>>('/api/reports?size=50'),
+        api<Basin[]>('/api/basins'),
+        api<WeatherResponse>('/api/weather/daily'),
+        api<HourlyResponse>('/api/weather/hourly'),
+      ]);
+      settled = true;
+      window.clearTimeout(timer);
+      if (cancel) return;
+      if (results.every((result) => result.status === 'rejected')) {
+        setState(demoState);
+        return;
       }
+      const [neighborhoods, alerts, reports, basins, weather, hourly] = results;
+      const ok = <T,>(result: PromiseSettledResult<T>, fallback: T) => (result.status === 'fulfilled' ? result.value : fallback);
+      setState({
+        loading: false,
+        source: 'api',
+        waking: false,
+        partial: results.some((result) => result.status === 'rejected'),
+        neighborhoods: ok(neighborhoods, []),
+        alerts: ok(alerts, []),
+        reports: ok(reports, { items: [], page: 0, size: 0, total: 0 }).items,
+        basins: ok(basins, []),
+        weather: ok(weather, demoWeather),
+        hourly: ok(hourly, demoState.hourly),
+      });
     })();
+
     return () => {
       cancel = true;
+      window.clearTimeout(timer);
     };
   }, [tick]);
 
-  return { ...state, reload: () => setTick((value) => value + 1) };
+  return useMemo(() => ({ ...state, reload: () => setTick((value) => value + 1) }), [state]);
 }
 
 const CatalogContext = createContext<Catalog | null>(null);
