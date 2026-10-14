@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="" />
+    <meta
+      name="description"
+      content="Edzii-Nku, l’œil de la pluie : alertes d’inondation à Lomé, en français et en éwé."
+    />
+    <link rel="icon" href="/logo-mark.svg" type="image/svg+xml" />
+    <title>Edzii-Nku — L’œil de la pluie</title>
+    <script>
+      (function () {
+        try {
+          var stored = localStorage.getItem('edzii-theme');
+          document.documentElement.dataset.theme = stored === 'light' ? 'light' : 'dark';
+        } catch (e) {
+          document.documentElement.dataset.theme = 'dark';
+        }
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
