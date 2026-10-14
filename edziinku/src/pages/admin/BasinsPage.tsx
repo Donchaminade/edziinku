@@ -80,7 +80,7 @@ export function BasinsPage() {
                   >
                     <div className="flex items-start justify-between gap-2">
                       <div className="min-w-0">
-                        <p className="truncate font-semibold">{basin.name}</p>
+                        <p className="font-semibold leading-snug">{basin.name}</p>
                         <p className="truncate text-xs text-muted">{basin.commune}</p>
                       </div>
                       <span className="badge badge-dot shrink-0" data-tone={basinTone(basin.status)}>{basin.statusLabel}</span>

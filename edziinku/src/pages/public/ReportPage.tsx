@@ -190,7 +190,7 @@ export function ReportPage() {
                 <li key={label}>
                   <button
                     type="button"
-                    className="flex w-full flex-col gap-2 text-left disabled:cursor-default"
+                    className="flex min-h-11 w-full flex-col justify-center gap-2 text-left disabled:cursor-default"
                     onClick={() => index < step && goTo(index)}
                     disabled={index >= step}
                     aria-current={state === 'current' ? 'step' : undefined}

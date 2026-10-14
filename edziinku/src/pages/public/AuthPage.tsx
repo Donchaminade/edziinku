@@ -87,7 +87,7 @@ export function AuthPage() {
               <div className="note" data-tone="info">
                 <UserRound size={16} />
                 <span className="flex-1">Session ouverte : <strong>{user.displayName}</strong> ({roleLabel(user.role)}).</span>
-                <button type="button" className="font-semibold underline" onClick={() => { void logout(); }}>Quitter</button>
+                <button type="button" className="-my-2 min-h-11 px-1 font-semibold underline" onClick={() => { void logout(); }}>Quitter</button>
               </div>
             )}
 

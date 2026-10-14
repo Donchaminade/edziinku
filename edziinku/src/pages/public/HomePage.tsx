@@ -136,7 +136,7 @@ function Problem() {
     { icon: Users, title: 'Les habitants voient en premier', text: 'Photo, lieu et niveau d’eau remontent à la mairie en direct.' },
   ];
   return (
-    <section className="relative py-16 md:py-24">
+    <section className="relative overflow-hidden py-16 md:py-24">
       <Curves className="top-10 -left-40 h-72 w-[720px] max-w-none" />
       <Container className="relative grid items-center gap-10 lg:grid-cols-2 lg:gap-16">
         <Reveal className="relative">
@@ -281,6 +281,10 @@ function AlertNow() {
                     </div>
                   ))}
                 </div>
+                <div className="mt-auto flex flex-col gap-2 border-t border-line pt-5 sm:flex-row sm:items-center sm:justify-between">
+                  <p className="text-sm text-muted">Recevez la prochaine directement sur votre téléphone.</p>
+                  <Button to="/whatsapp" variant="whatsapp" size="sm"><MessageCircle size={16} /> Recevoir sur WhatsApp</Button>
+                </div>
               </>
             )}
           </Reveal>
@@ -319,7 +323,7 @@ function MapTeaser() {
     <section className="pb-16 md:pb-24">
       <Container>
         <Reveal className="card grid overflow-hidden p-0 lg:grid-cols-[1fr_380px]">
-          <MapView pins={pins} className="h-72 md:h-[420px]" interactive={false} />
+          <MapView pins={pins} className="h-72 md:h-[420px] lg:h-full lg:min-h-[440px]" interactive={false} />
           <div className="flex flex-col gap-4 p-5 md:p-7">
             <span className="t-eyebrow">Carte live</span>
             <h2 className="t-h2">Voir l’eau déjà signalée</h2>

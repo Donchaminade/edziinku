@@ -99,7 +99,7 @@ export function HeroCarousel({ children }: { children: (slide: StockPhoto) => Re
 
       {lead && (
         <motion.aside
-          className="glass-strong absolute right-6 bottom-28 z-[4] hidden w-[340px] rounded-[22px] p-4 lg:block xl:right-[max(24px,calc((100vw-1200px)/2+24px))]"
+          className="glass-strong absolute right-6 bottom-[156px] z-[4] hidden w-[340px] rounded-[22px] p-4 lg:block xl:right-[max(24px,calc((100vw-1200px)/2+24px))]"
           initial={reduce ? false : { opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.9, ease }}
@@ -120,7 +120,7 @@ export function HeroCarousel({ children }: { children: (slide: StockPhoto) => Re
         </motion.aside>
       )}
 
-      <div className="absolute inset-x-0 top-[calc(var(--header-h)+20px)] z-[4] flex justify-center md:top-auto md:right-6 md:bottom-8 md:left-auto md:justify-end xl:right-[max(24px,calc((100vw-1200px)/2+24px))]">
+      <div className="absolute inset-x-0 top-[calc(var(--header-h)+20px)] z-[4] flex justify-center md:top-auto md:right-6 md:bottom-[92px] md:left-auto md:justify-end xl:right-[max(24px,calc((100vw-1200px)/2+24px))]">
         <div className="flex items-center gap-1">
           <button type="button" className="btn glass btn-icon hidden rounded-full md:inline-flex" onClick={() => go(index - 1, -1)} aria-label="Photo précédente">
             <ChevronLeft size={20} />
@@ -130,7 +130,7 @@ export function HeroCarousel({ children }: { children: (slide: StockPhoto) => Re
               <button
                 key={item.id}
                 type="button"
-                className="grid h-11 w-8 place-items-center md:w-9"
+                className="grid h-11 w-11 place-items-center"
                 aria-label={`Photo ${itemIndex + 1} : ${item.place}`}
                 aria-current={itemIndex === index}
                 onClick={() => go(itemIndex)}
@@ -153,7 +153,7 @@ export function HeroCarousel({ children }: { children: (slide: StockPhoto) => Re
             {!reduce && (
               <button
                 type="button"
-                className="grid h-11 w-9 place-items-center text-text2"
+                className="grid h-11 w-11 place-items-center text-text2"
                 onClick={() => setPaused((state) => !state)}
                 aria-label={paused ? 'Reprendre le défilement' : 'Mettre en pause'}
               >

@@ -97,17 +97,7 @@ export function OverviewPage() {
       <div className="grid gap-4 lg:grid-cols-3">
         <Reveal>
           <Panel title="Statut des signalements" className="h-full">
-            <div className="flex flex-col items-center gap-5 sm:flex-row lg:flex-col 2xl:flex-row">
-              <Donut segments={statuses} label="signalements" />
-              <ul className="grid w-full flex-1 grid-cols-2 gap-2 sm:grid-cols-1 lg:grid-cols-2 2xl:grid-cols-1">
-                {statuses.map((segment) => (
-                  <li key={segment.key} className="flex items-center justify-between gap-2 rounded-xl border border-line px-3 py-2 text-sm">
-                    <span className="inline-flex min-w-0 items-center gap-2"><span className="h-2.5 w-2.5 shrink-0 rounded-full" style={{ background: segment.color }} /><span className="truncate">{segment.label}</span></span>
-                    <span className="t-num font-semibold">{segment.value}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
+            <Donut segments={statuses} label="signalements" />
           </Panel>
         </Reveal>
         <Reveal delay={0.05}>

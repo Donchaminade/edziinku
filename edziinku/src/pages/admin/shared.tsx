@@ -41,9 +41,9 @@ export function Kpi({
         transition={{ type: 'spring', stiffness: 380, damping: 28 }}
       >
         <div className="flex items-start justify-between gap-3">
-          <span className={`text-[13px] font-semibold ${accent ? '' : 'text-text2'}`}>{label}</span>
+          <span className={`min-w-0 text-[13px] leading-snug font-semibold [overflow-wrap:normal] ${accent ? '' : 'text-text2'}`}>{label}</span>
           <span
-            className="icon-tile icon-tile-sm"
+            className="icon-tile icon-tile-sm shrink-0 max-sm:hidden"
             data-tone={accent ? undefined : tone}
             style={accent ? { background: 'color-mix(in srgb, var(--on-primary) 14%, transparent)', color: 'var(--on-primary)' } : undefined}
           >
@@ -106,10 +106,12 @@ export function TeamRow({ team }: { team: Team }) {
     <div className="flex items-center gap-3">
       <span className="icon-tile icon-tile-sm" data-tone={status.tone === 'info' ? undefined : status.tone}><Users size={16} /></span>
       <div className="min-w-0 flex-1">
-        <p className="truncate font-semibold">{team.name}</p>
-        <p className="truncate text-xs text-muted">{team.zone ?? 'Sans zone'}{team.assignment ? ` · ${team.assignment}` : ''}</p>
+        <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+          <p className="font-semibold">{team.name}</p>
+          <span className="badge badge-dot" data-tone={status.tone === 'info' ? undefined : status.tone}>{status.label}</span>
+        </div>
+        <p className="mt-0.5 truncate text-xs text-muted">{team.zone ?? 'Sans zone'}{team.assignment ? ` · ${team.assignment}` : ''}</p>
       </div>
-      <span className="badge badge-dot shrink-0" data-tone={status.tone === 'info' ? undefined : status.tone}>{status.label}</span>
     </div>
   );
 }

@@ -203,7 +203,7 @@ export function ModerationPage() {
                 {visible.map((row) => (
                   <motion.li key={row.id} layout initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, scale: 0.97 }} transition={{ duration: 0.3, ease }}>
                     <div className="rounded-2xl border border-line p-3">
-                      <button type="button" className="flex w-full items-start gap-3 text-left" onClick={() => setCurrentId(row.id)}>
+                      <button type="button" className="flex min-h-11 w-full items-start gap-3 text-left" onClick={() => setCurrentId(row.id)}>
                         <span className="map-pin mt-1 shrink-0" data-tone={waterTone(row.waterLevel)} style={{ animation: 'none' }} />
                         <span className="min-w-0 flex-1">
                           <span className="block truncate font-semibold">{row.placeLabel}</span>

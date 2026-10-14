@@ -37,7 +37,7 @@ const groups: { title: string; links: AdminLink[] }[] = [
   {
     title: 'Opérations',
     links: [
-      { to: '/admin/signalements', label: 'Signalements', short: 'Signalements', icon: ShieldAlert, count: 'pending' },
+      { to: '/admin/signalements', label: 'Signalements', short: 'Modérer', icon: ShieldAlert, count: 'pending' },
       { to: '/admin/alertes', label: 'Alertes', short: 'Alertes', icon: Bell },
       { to: '/admin/points-noirs', label: 'Points noirs', short: 'Bassins', icon: CloudRain },
       { to: '/admin/equipes', label: 'Équipes terrain', short: 'Équipes', icon: Users },
