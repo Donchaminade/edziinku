@@ -4,7 +4,7 @@ import { useCallback, useEffect, useState, type ReactNode } from 'react';
 import { photos, type StockPhoto } from '../data/photos';
 import { alertTone } from '../lib/format';
 import { useLive } from '../lib/useCatalog';
-import { Photo } from './Hero';
+import { Photo, SMALL_PHOTO_MAX } from './Hero';
 import { ease } from './ui/motion';
 
 const slides: StockPhoto[] = [photos.apresPluie, photos.grandMarche, photos.bassin, photos.routePlage, photos.hedzranawoe];
@@ -33,7 +33,9 @@ export function HeroCarousel({ children }: { children: (slide: StockPhoto) => Re
   }, [go, index, running]);
 
   useEffect(() => {
-    slides.forEach((item) => { const img = new Image(); img.src = window.innerWidth < 800 ? item.srcSm : item.src; });
+    // Préchargement des autres photos, dans la version que <Photo> servira réellement.
+    const small = window.innerWidth <= SMALL_PHOTO_MAX;
+    slides.slice(1).forEach((item) => { const img = new Image(); img.src = small ? item.srcSm : item.src; });
   }, []);
 
   return (
