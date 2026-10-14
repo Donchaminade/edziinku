@@ -2,22 +2,39 @@
 <html lang="fr">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, viewport-fit=cover, interactive-widget=resizes-visual"
+    />
+    <meta name="theme-color" content="#030b1e" />
+    <meta name="color-scheme" content="dark light" />
     <meta
       name="description"
       content="Edzii-Nku, l’œil de la pluie : alertes d’inondation à Lomé, en français et en éwé."
     />
+    <meta name="application-name" content="Edzii-Nku" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="Edzii-Nku" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="format-detection" content="telephone=yes" />
     <link rel="icon" href="/logo-mark.svg" type="image/svg+xml" />
+    <link rel="icon" href="/icons/icon-192.png" type="image/png" sizes="192x192" />
+    <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
+    <link rel="preconnect" href="https://server.arcgisonline.com" crossorigin />
+    <link rel="dns-prefetch" href="https://server.arcgisonline.com" />
     <title>Edzii-Nku — L’œil de la pluie</title>
     <script>
       (function () {
+        var theme = 'dark';
         try {
-          var stored = localStorage.getItem('edzii-theme');
-          document.documentElement.dataset.theme = stored === 'light' ? 'light' : 'dark';
+          theme = localStorage.getItem('edzii-theme') === 'light' ? 'light' : 'dark';
         } catch (e) {
-          document.documentElement.dataset.theme = 'dark';
+          /* stockage indisponible */
         }
+        document.documentElement.dataset.theme = theme;
+        var meta = document.querySelector('meta[name="theme-color"]');
+        if (meta) meta.setAttribute('content', theme === 'light' ? '#f4f7fb' : '#030b1e');
       })();
     </script>
   </head>
