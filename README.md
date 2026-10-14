@@ -11,7 +11,7 @@ Trois applications partagent la même API :
 | `edzii-api/` | API Spring Boot 3, PostgreSQL + PostGIS, JWT, WhatsApp Cloud API, Open-Meteo |
 | `design/` | Maquettes, logos et fiche projet |
 
-Le thème **nuit** est le défaut. Un thème clair reprend les mêmes jetons (variables CSS côté web, `ThemeExtension` côté Flutter). Le choix est mémorisé sur l’appareil et, une fois connecté, renvoyé au profil. Les animations respectent `prefers-reduced-motion`. Les couleurs de l’interface sont des aplats de la charte : pas de dégradé, ni sur le web ni sur le mobile.
+Le thème **clair** (bleu et blanc) est le défaut sur le web. Un thème sombre « bleu nuit » reprend les mêmes jetons (variables CSS côté web, `ThemeExtension` côté Flutter). Le choix est mémorisé sur l’appareil et, une fois connecté, renvoyé au profil. Les animations respectent `prefers-reduced-motion`. Les couleurs de l’interface sont des aplats de la charte : pas de dégradé, ni sur le web ni sur le mobile.
 
 L’accueil public est une vitrine mobile d’abord : carrousel photo, voile flou aux courbes douces pour le texte, image nette à côté, puis un hero photo par section. Les photos sont des clichés réels Unsplash ou Pexels (pas des vues de Lomé) : le lieu, l’auteur et la source sont indiqués sur chaque image, fichiers dans `edziinku/public/photos/`. Il n’y a pas d’illustration SVG, ni de dégradé.
 

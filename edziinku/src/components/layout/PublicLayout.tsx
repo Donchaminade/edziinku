@@ -39,15 +39,15 @@ const mainLinks = [
 
 export function DataStatus({ compact }: { compact?: boolean }) {
   const live = useLive();
-  const label = live.loading ? 'Connexion…' : live.source === 'api' ? (live.partial ? 'En direct, partiel' : 'Données en direct') : live.waking ? 'Réveil du serveur…' : 'Démonstration';
-  const tone = live.source === 'api' ? (live.partial ? 'warn' : 'ok') : live.loading || live.waking ? 'info' : 'warn';
+  const label = live.loading ? 'Connexion…' : live.source === 'api' ? 'Données à jour' : live.waking ? 'Réveil du serveur…' : 'Démonstration';
+  const tone = live.source === 'api' ? 'ok' : live.loading || live.waking ? 'info' : 'warn';
   const title = live.source === 'demo'
     ? 'L’API ne répond pas : jeu de démonstration affiché.'
     : live.partial ? 'L’API répond, mais certaines données n’ont pas pu être chargées.' : 'Données servies par l’API Edzii-Nku.';
   return (
     <span className="pill" title={title}>
       <LiveDot tone={tone} />
-      {compact ? (live.source === 'api' ? 'Live' : 'Démo') : label}
+      {compact ? (live.source === 'api' ? 'À jour' : 'Démo') : label}
     </span>
   );
 }
@@ -70,18 +70,22 @@ function AccountButton() {
   );
 }
 
+const photoHeroPaths = ['/', '/carte', '/signaler', '/comment', '/communes', '/whatsapp', '/credits'];
+
 function Header() {
   const location = useLocation();
   const reduce = useReducedMotion();
   const { scrollY } = useScroll();
   const [solid, setSolid] = useState(false);
   useMotionValueEvent(scrollY, 'change', (value) => setSolid(value > 24));
+  const overHero = !solid && photoHeroPaths.some((path) => (path === '/' ? location.pathname === '/' : location.pathname.startsWith(path)));
 
   return (
     <header className="site-header">
       <motion.div
         className="site-header-bar glass"
         data-solid={solid}
+        data-over-hero={overHero}
         initial={reduce ? false : { y: -24, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
@@ -108,6 +112,11 @@ function Header() {
           <span className="hidden xl:inline-flex"><DataStatus /></span>
           <ThemeToggle />
           <AccountButton />
+          {solid && (
+            <Button to="/signaler" variant="primary" size="sm" className="btn-header-cta hidden lg:inline-flex">
+              <Camera size={16} /> Signaler
+            </Button>
+          )}
         </div>
       </motion.div>
     </header>
@@ -269,8 +278,9 @@ function Footer() {
     { title: 'Infos', links: [['/credits', 'Crédits photos'], ['https://open-meteo.com', 'Open-Meteo'], ['https://www.openstreetmap.org/copyright', 'OpenStreetMap']] },
   ];
   return (
-    <footer className="relative mt-20 overflow-hidden border-t border-line section-alt">
-      <Curves className="-top-10 right-0 h-56 w-[640px] max-w-none opacity-60" variant="b" />
+    <footer className="site-footer relative mt-20 overflow-hidden">
+      <div className="px-4 pt-1 sm:px-6"><div className="footer-band mx-auto max-w-[1200px]" aria-hidden><i /><i /><i /></div></div>
+      <Curves className="-top-10 right-0 h-56 w-[640px] max-w-none opacity-40" variant="b" />
       <Container className="relative grid gap-10 py-12 md:grid-cols-[1.4fr_1fr_1fr_1fr] md:py-16">
         <div className="flex flex-col gap-4">
           <Brand />

@@ -4,8 +4,8 @@ import tailwindcss from '@tailwindcss/vite';
 import { VitePWA } from 'vite-plugin-pwa';
 
 // Le manifeste PWA n’accepte pas de variable CSS. Ces deux valeurs sont le
-// jeton --bg du thème nuit, thème par défaut. L’interface, elle, ne les répète pas.
-const nightBackground = '#030B1E';
+// jeton --bg du thème clair, thème par défaut. L’interface, elle, ne les répète pas.
+const defaultBackground = '#f5f8fc';
 
 export default defineConfig({
   plugins: [
@@ -13,7 +13,7 @@ export default defineConfig({
     tailwindcss(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['logo-mark.svg', 'icons/*.png'],
+      includeAssets: ['logo-mark.svg', 'icons/*.png', 'og-preview.jpg'],
       manifest: {
         id: '/',
         name: 'Edzii-Nku — L’œil de la pluie',
@@ -26,8 +26,8 @@ export default defineConfig({
         orientation: 'portrait',
         start_url: '/?source=pwa',
         scope: '/',
-        theme_color: nightBackground,
-        background_color: nightBackground,
+        theme_color: defaultBackground,
+        background_color: defaultBackground,
         categories: ['weather', 'news', 'utilities'],
         icons: [
           { src: 'logo-mark.svg', sizes: 'any', type: 'image/svg+xml', purpose: 'any' },
@@ -61,7 +61,7 @@ export default defineConfig({
         ],
       },
       workbox: {
-        globPatterns: ['**/*.{js,css,html,svg,png,woff2}'],
+        globPatterns: ['**/*.{js,css,html,svg,png,jpg,woff2}'],
         navigateFallbackDenylist: [/^\/api\//],
         runtimeCaching: [
           {
