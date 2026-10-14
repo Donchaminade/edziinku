@@ -5,11 +5,19 @@ import type { StockPhoto } from '../data/photos';
 import { Copy } from './ui/Decor';
 import { ease } from './ui/motion';
 
+/** Largeur d’écran (CSS) jusqu’à laquelle la version réduite « -sm » suffit, quelle que soit la densité. */
+export const SMALL_PHOTO_MAX = 800;
+
+/**
+ * Photo responsive : jusqu’à 800 px de large, la version « -sm.webp » (800 px)
+ * est toujours servie, même sur écran haute densité ; au-delà, le navigateur
+ * choisit entre 800 et 1600 px selon `sizes`.
+ */
 export function Photo({
   photo,
   className,
   priority,
-  sizes = '(min-width: 768px) 100vw, 100vw',
+  sizes = '100vw',
 }: {
   photo: StockPhoto;
   className?: string;
@@ -17,17 +25,19 @@ export function Photo({
   sizes?: string;
 }) {
   return (
-    <img
-      src={photo.src}
-      srcSet={`${photo.srcSm} 800w, ${photo.src} 1600w`}
-      sizes={sizes}
-      alt={photo.alt}
-      className={className}
-      style={{ objectPosition: photo.focus ?? '50% 50%' }}
-      loading={priority ? 'eager' : 'lazy'}
-      fetchPriority={priority ? 'high' : 'auto'}
-      decoding="async"
-    />
+    <picture className="contents">
+      <source media={`(max-width: ${SMALL_PHOTO_MAX}px)`} srcSet={photo.srcSm} type="image/webp" />
+      <source srcSet={`${photo.srcSm} 800w, ${photo.src} 1600w`} sizes={sizes} type="image/webp" />
+      <img
+        src={photo.src}
+        alt={photo.alt}
+        className={className}
+        style={{ objectPosition: photo.focus ?? '50% 50%' }}
+        loading={priority ? 'eager' : 'lazy'}
+        fetchPriority={priority ? 'high' : 'auto'}
+        decoding="async"
+      />
+    </picture>
   );
 }
 
