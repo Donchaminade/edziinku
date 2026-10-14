@@ -1,0 +1,30 @@
+# Dépendances et builds
+node_modules/
+dist/
+.vite/
+target/
+build/
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+*.iml
+**/.idea/
+**/*.iml
+**/*.ipr
+**/local.properties
+.vscode/
+
+# Secrets et données locales
+.env
+.env.local
+.env.*.local
+!.env.example
+storage/
+uploads/
+
+# Système
+.DS_Store
+*.log
+__pycache__/
+*.pyc
