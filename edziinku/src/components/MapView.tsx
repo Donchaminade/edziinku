@@ -16,10 +16,12 @@ export interface MapPin {
 
 const LOME: [number, number] = [6.1725, 1.2314];
 
-const tiles = {
-  dark: 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
-  light: 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',
+const ESRI = 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas';
+const tiles: Record<'dark' | 'light', { base: string; labels: string | null }> = {
+  dark: { base: `${ESRI}/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}`, labels: `${ESRI}/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}` },
+  light: { base: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}', labels: null },
 };
+const attribution = 'Fond &copy; Esri, HERE, Garmin &middot; &copy; contributeurs OpenStreetMap';
 
 function icon(pin: MapPin, selected: boolean) {
   return L.divIcon({
@@ -97,7 +99,8 @@ export function MapView({
         className="h-full w-full"
         attributionControl
       >
-        <TileLayer key={theme} attribution="&copy; OpenStreetMap &copy; CARTO" url={tiles[theme]} />
+        <TileLayer key={`${theme}-base`} className="map-base" attribution={attribution} url={tiles[theme].base} maxNativeZoom={theme === 'dark' ? 16 : 19} maxZoom={19} />
+        {tiles[theme].labels && <TileLayer key={`${theme}-labels`} className="map-labels" url={tiles[theme].labels} maxNativeZoom={16} maxZoom={19} />}
         {interactive && <ZoomControl position="bottomright" />}
         <Focus pin={selected} pins={pins} fit={fit} />
         {onPick && <ClickToPlace onPick={onPick} />}

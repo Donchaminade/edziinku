@@ -206,15 +206,15 @@ function Footer() {
         </div>
         <div className="grid grid-cols-2 gap-8 md:contents">
           {columns.map((column) => (
-            <div key={column.title} className="flex flex-col gap-1">
+            <div key={column.title} className="flex flex-col">
               <p className="t-eyebrow mb-2 text-muted">{column.title}</p>
               {column.links.map(([to, label]) => (
                 to.startsWith('http') ? (
-                  <a key={to} href={to} target="_blank" rel="noreferrer" className="inline-flex min-h-9 items-center gap-1 text-sm text-text2 hover:text-text">
+                  <a key={to} href={to} target="_blank" rel="noreferrer" className="inline-flex min-h-11 items-center gap-1 text-sm text-text2 hover:text-text">
                     {label} <ArrowUpRight size={13} />
                   </a>
                 ) : (
-                  <NavLink key={to} to={to} className="inline-flex min-h-9 items-center text-sm text-text2 hover:text-text">{label}</NavLink>
+                  <NavLink key={to} to={to} className="inline-flex min-h-11 items-center text-sm text-text2 hover:text-text">{label}</NavLink>
                 )
               ))}
             </div>
@@ -223,7 +223,7 @@ function Footer() {
       </Container>
       <Container className="relative flex flex-col gap-2 border-t border-line py-6 text-xs text-muted sm:flex-row sm:items-center sm:justify-between">
         <span>© 2026 Edzii-Nku · Hackathon Climat & Innovation, Lomé</span>
-        <span className="inline-flex items-center gap-2"><Droplets size={14} /> Pluie prévue : Open-Meteo · Fonds de carte : OSM, CARTO</span>
+        <span className="inline-flex items-center gap-2"><Droplets size={14} /> Pluie prévue : Open-Meteo · Fonds de carte : Esri, OpenStreetMap</span>
       </Container>
     </footer>
   );
