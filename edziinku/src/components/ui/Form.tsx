@@ -1,6 +1,7 @@
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
-import { Check, ChevronDown } from 'lucide-react';
+import { Check, ChevronDown, ChevronLeft, ChevronRight } from 'lucide-react';
 import {
+  useCallback,
   useEffect,
   useId,
   useRef,
@@ -11,6 +12,85 @@ import {
   type TextareaHTMLAttributes,
 } from 'react';
 import { ease } from './motion';
+
+/**
+ * Rangée défilante horizontalement (filtres segmentés, puces). Un bouton-indice
+ * apparaît du côté où il reste du contenu hors champ et fait défiler d’un écran.
+ */
+export function ScrollRow({ children, className }: { children: ReactNode; className?: string }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [edges, setEdges] = useState({ left: false, right: false });
+  const reduce = useReducedMotion();
+
+  const measure = useCallback(() => {
+    const el = ref.current;
+    if (!el) return;
+    const max = el.scrollWidth - el.clientWidth;
+    setEdges({ left: el.scrollLeft > 6, right: max > 6 && el.scrollLeft < max - 6 });
+  }, []);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(el);
+    Array.from(el.children).forEach((child) => observer.observe(child));
+    el.addEventListener('scroll', measure, { passive: true });
+    return () => {
+      observer.disconnect();
+      el.removeEventListener('scroll', measure);
+    };
+  }, [measure]);
+
+  function nudge(direction: 1 | -1) {
+    const el = ref.current;
+    if (!el) return;
+    el.scrollBy({ left: direction * el.clientWidth * 0.7, behavior: reduce ? 'auto' : 'smooth' });
+  }
+
+  return (
+    <div className={`scroll-row ${className ?? ''}`}>
+      <div ref={ref} className="scroll-x -mx-1 px-1">{children}</div>
+      <AnimatePresence>
+        {edges.left && (
+          <motion.button
+            key="left"
+            type="button"
+            className="scroll-hint"
+            data-side="left"
+            aria-label="Voir les filtres précédents"
+            onClick={() => nudge(-1)}
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.8 }}
+            transition={{ duration: 0.2 }}
+            whileTap={reduce ? undefined : { scale: 0.9 }}
+          >
+            <ChevronLeft size={18} />
+          </motion.button>
+        )}
+        {edges.right && (
+          <motion.button
+            key="right"
+            type="button"
+            className="scroll-hint"
+            data-side="right"
+            aria-label="Voir les filtres suivants"
+            onClick={() => nudge(1)}
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.8 }}
+            transition={{ duration: 0.2 }}
+            whileTap={reduce ? undefined : { scale: 0.9 }}
+          >
+            <ChevronRight size={18} />
+          </motion.button>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
 
 export function Field({
   label,
