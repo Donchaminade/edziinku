@@ -1,0 +1,13 @@
+package tg.edziinku.domain;
+
+public enum BotState {
+    NEW,
+    AWAITING_LANGUAGE,
+    AWAITING_QUARTER,
+    AWAITING_CONFIRM,
+    SUBSCRIBED,
+    AWAITING_PHOTO,
+    AWAITING_LOCATION,
+    AWAITING_LEVEL,
+    UNSUBSCRIBED
+}

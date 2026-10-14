@@ -1,0 +1,51 @@
+<!doctype html><html><head><meta charset="utf-8"><style>*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Work Sans',sans-serif;overflow:hidden;position:relative;-webkit-font-smoothing:antialiased}
+body.dark{--bg:#030B1E;--bg2:#061433;--card:rgba(255,255,255,.045);--card2:rgba(255,255,255,.07);--line:rgba(127,216,255,.13);--tx:#EAF6FF;--mut:#8FA6C8;--c:#5CE1F2;--b:#2F86E8;--ink:#03132f;background:radial-gradient(120% 60% at 70% -10%,#0E3470 0%,#061433 45%,#030B1E 100%);color:var(--tx)}
+body.light{--bg:#F3F7FC;--bg2:#FFFFFF;--card:#FFFFFF;--card2:#EEF4FB;--line:#DCE6F2;--tx:#071733;--mut:#5B6F8F;--c:#0E9DB8;--b:#2F86E8;--ink:#03132f;background:#F3F7FC;color:var(--tx)}
+h1,h2,h3,h4,.sora{font-family:Sora,sans-serif;letter-spacing:-.02em}
+.mut{color:var(--mut)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:20px}
+.light .card{box-shadow:0 1px 2px rgba(7,23,51,.04),0 8px 24px -12px rgba(7,23,51,.12)}
+.grad{background:linear-gradient(135deg,#2F86E8,#5CE1F2);color:#03132f}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:12px 20px;border-radius:14px;font-weight:600;font-size:15px;border:1px solid var(--line);background:var(--card2);color:var(--tx)}
+.btn.p{background:linear-gradient(135deg,#2F86E8,#5CE1F2);color:#03132f;border:0;box-shadow:0 10px 24px -10px rgba(92,225,242,.6)}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:99px;font-size:13px;font-weight:600;border:1px solid var(--line);background:var(--card2);color:var(--tx)}
+.chip.on{background:rgba(92,225,242,.16);border-color:rgba(92,225,242,.6);color:var(--c)}
+.tag{display:inline-block;font-size:12px;font-weight:600;padding:4px 10px;border-radius:99px}
+.r{background:rgba(255,92,122,.15);color:#FF8FA3}.a{background:rgba(245,184,75,.17);color:#E9A93A}.c{background:rgba(92,225,242,.14);color:var(--c)}.g{background:rgba(52,211,153,.15);color:#34D399}
+.light .r{color:#E0435F}.light .a{color:#B97A12}.light .g{color:#0F9F6E}
+.dot{width:8px;height:8px;border-radius:50%;display:inline-block}
+.demo{position:absolute;right:16px;bottom:10px;font-size:11px;color:var(--mut);opacity:.75;z-index:50}
+.sb{display:flex;justify-content:space-between;align-items:center;padding:0 30px 0 36px;height:54px;font:600 16px 'Work Sans';position:relative;z-index:20}
+.isl{position:absolute;left:50%;top:11px;transform:translateX(-50%);width:124px;height:36px;border-radius:20px;background:#000}
+.home{position:absolute;bottom:8px;left:50%;transform:translateX(-50%);width:136px;height:5px;border-radius:3px;background:var(--tx);opacity:.55;z-index:30}
+.mapw{position:relative;overflow:hidden}.mapw>svg{position:absolute;inset:0;width:100%;height:100%}
+.inp{display:flex;align-items:center;gap:10px;padding:13px 16px;border-radius:14px;border:1px solid var(--line);background:var(--card2);font-size:15px;color:var(--mut)}
+.lab{font:600 14px Sora;margin-bottom:8px}
+.lvls{display:flex;gap:10px}.lvl{flex:1;border-radius:18px;padding:12px 6px;text-align:center;border:1px solid var(--line);background:var(--card2);font-weight:600;font-size:14px;color:var(--tx)}
+.lvl svg{display:block;margin:0 auto 6px}.lvl small{display:block;color:var(--mut);font-size:11px;font-weight:400;margin-top:2px}
+.lvl.on{background:linear-gradient(160deg,rgba(47,134,232,.35),rgba(92,225,242,.15));border:1.5px solid var(--c);box-shadow:0 0 22px -8px #5CE1F2}
+.tabbar{position:absolute;left:0;right:0;bottom:0;height:88px;display:flex;justify-content:space-around;padding-top:10px;border-top:1px solid var(--line);background:rgba(3,11,30,.88);backdrop-filter:blur(20px);z-index:25}
+.light .tabbar{background:rgba(255,255,255,.92)}
+.tabbar div{display:flex;flex-direction:column;align-items:center;gap:4px;font-size:11px;color:var(--mut);width:70px}.tabbar .on{color:var(--c)}
+.tabbar .fab{width:54px;height:54px;border-radius:18px;margin-top:-6px;justify-content:center;color:#03132f;background:linear-gradient(135deg,#2F86E8,#5CE1F2);box-shadow:0 10px 24px -8px rgba(92,225,242,.7)}
+.pinm{position:absolute;transform:translate(-50%,-100%);z-index:5}
+
+.pad{padding:0 20px}.ttl{font:600 28px Sora;letter-spacing:-.03em;margin:6px 0 4px}
+.top{display:flex;align-items:center;justify-content:space-between;padding:6px 20px 12px}.ib{width:40px;height:40px;border-radius:13px;display:grid;place-items:center;background:var(--card2);border:1px solid var(--line)}
+.al{display:flex;gap:12px;padding:14px;margin-bottom:10px;border-radius:20px;background:var(--card);border:1px solid var(--line)}
+.al .ico{width:44px;height:44px;border-radius:14px;display:grid;place-items:center;flex:none}
+.al h4{font-size:15px;margin-bottom:3px}.al p{font-size:13px;color:var(--mut);line-height:1.35}.al .t{font-size:12px;color:var(--mut);white-space:nowrap}
+.seg{display:flex;padding:4px;border-radius:14px;background:var(--card2);border:1px solid var(--line);margin:0 20px 16px}.seg div{flex:1;text-align:center;padding:8px;border-radius:10px;font-size:14px;font-weight:600;color:var(--mut)}.seg .on{background:var(--bg2);color:var(--tx);box-shadow:0 2px 8px rgba(0,0,0,.25)}
+.steps{display:flex;gap:6px;padding:0 20px;margin:4px 0 18px}.steps i{flex:1;height:4px;border-radius:4px;background:var(--line)}.steps i.on{background:linear-gradient(90deg,#2F86E8,#5CE1F2)}
+.cta{position:absolute;left:20px;right:20px;bottom:34px;padding:17px;border-radius:18px;font:600 17px Sora}
+.row{display:flex;align-items:center;gap:14px;padding:14px 16px;border-bottom:1px solid var(--line);font-size:15px}.row:last-child{border:0}.row .ri{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;background:rgba(92,225,242,.12);color:var(--c)}
+.row .v{margin-left:auto;color:var(--mut);font-size:14px;display:flex;align-items:center;gap:4px}
+.tog{width:50px;height:30px;border-radius:99px;background:linear-gradient(135deg,#2F86E8,#5CE1F2);position:relative;margin-left:auto}.tog:after{content:'';position:absolute;right:3px;top:3px;width:24px;height:24px;border-radius:50%;background:#fff}
+.tog.off{background:var(--line)}.tog.off:after{left:3px;right:auto}
+.sec{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--mut);margin:20px 20px 8px;font-weight:600}
+</style></head><body class="dark" style="width:390px;height:844px"><div class="sb"><span>9:41</span><span class="isl"></span><span><svg width="74" height="14" viewBox="0 0 74 14" fill="currentColor"><rect x="0" y="9" width="3.5" height="5" rx="1"/><rect x="5.5" y="6" width="3.5" height="8" rx="1"/><rect x="11" y="3" width="3.5" height="11" rx="1"/><rect x="16.5" y="0" width="3.5" height="14" rx="1"/><path d="M33 4.5a10 10 0 0 1 14 0l-1.6 1.7a7.6 7.6 0 0 0-10.8 0zM36 7.6a5.6 5.6 0 0 1 8 0L40 12z"/><rect x="51.5" y="1.5" width="19" height="11" rx="3" fill="none" stroke="currentColor" stroke-opacity=".5"/><rect x="53.5" y="3.5" width="13" height="7" rx="1.5"/></svg></span></div><div class="top"><div class="ib"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6l12 12M18 6 6 18"/></svg></div><span class="mut" style="font-size:14px;font-weight:600">Étape 3 sur 3</span><div style="width:40px"></div></div><div class="steps"><i class="on"></i><i class="on"></i><i class="on"></i></div><div class="pad"><h2 class="ttl" style="font-size:25px">Niveau de l’eau</h2></div><p class="mut pad" style="font-size:15px;margin-bottom:16px">Jusqu’où monte l’eau sur une personne ?</p>
+<div class="lvls pad"><div class="lvl " style="padding:16px 6px"><svg width="62" height="103" viewBox="0 0 54 90"><circle cx="27" cy="12" r="8" fill="currentColor"/><path d="M15 26h24l-3 30h-5l-1 32h-6l-1-32h-5z" fill="currentColor" fill-opacity=".9"/><rect x="0" y="78" width="54" height="12" fill="#5CE1F2" fill-opacity="0.4"/><path d="M0 78 q7 -4 13 0 t14 0 t14 0 t13 0" stroke="#fff" stroke-opacity=".7" fill="none"/></svg>Cheville<small>~10 cm</small></div><div class="lvl on" style="padding:16px 6px"><svg width="62" height="103" viewBox="0 0 54 90"><circle cx="27" cy="12" r="8" fill="currentColor"/><path d="M15 26h24l-3 30h-5l-1 32h-6l-1-32h-5z" fill="currentColor" fill-opacity=".9"/><rect x="0" y="58" width="54" height="32" fill="#5CE1F2" fill-opacity="0.75"/><path d="M0 58 q7 -4 13 0 t14 0 t14 0 t13 0" stroke="#fff" stroke-opacity=".7" fill="none"/></svg>Genou<small>~50 cm</small></div><div class="lvl " style="padding:16px 6px"><svg width="62" height="103" viewBox="0 0 54 90"><circle cx="27" cy="12" r="8" fill="currentColor"/><path d="M15 26h24l-3 30h-5l-1 32h-6l-1-32h-5z" fill="currentColor" fill-opacity=".9"/><rect x="0" y="38" width="54" height="52" fill="#5CE1F2" fill-opacity="0.4"/><path d="M0 38 q7 -4 13 0 t14 0 t14 0 t13 0" stroke="#fff" stroke-opacity=".7" fill="none"/></svg>Taille<small>~1 m</small></div></div>
+<div class="pad" style="margin-top:22px"><div class="lab">Ce que vous voyez</div><div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px"><span class="chip on">Caniveau bouché</span><span class="chip">Route coupée</span><span class="chip on">Maisons touchées</span><span class="chip">Personnes bloquées</span></div>
+<div class="lab">Commentaire (facultatif)</div><div class="inp" style="height:96px;align-items:flex-start;color:var(--tx)">Le caniveau devant le marché est bouché, l’eau entre dans les cours.</div></div>
+<div class="btn p cta">Envoyer le signalement</div><div class="home"></div></body></html>

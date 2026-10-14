@@ -1,0 +1,19 @@
+services:
+  postgres:
+    image: postgis/postgis:16-3.4
+    environment:
+      POSTGRES_DB: edziinku
+      POSTGRES_USER: edziinku
+      POSTGRES_PASSWORD: edziinku
+    ports:
+      - "5432:5432"
+    volumes:
+      - edzii-pg:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U edziinku -d edziinku"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  edzii-pg:
