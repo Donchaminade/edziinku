@@ -4,6 +4,7 @@ import {
   CloudRain,
   Droplets,
   History,
+  Home,
   LayoutDashboard,
   LogOut,
   Map,
@@ -55,12 +56,19 @@ export function ThemeToggle() {
 
 function Brand() {
   return (
-    <NavLink to="/" className="flex items-center gap-2 font-display text-lg font-semibold">
-      <img src="/logo-mark.svg" alt="" width={32} height={32} />
-      Edzii-Nku
+    <NavLink to="/" className="flex min-w-0 items-center gap-2 font-display text-lg font-semibold">
+      <img src="/logo-mark.svg" alt="" width={32} height={32} className="shrink-0" />
+      <span className="truncate">Edzii-Nku</span>
     </NavLink>
   );
 }
+
+const tabLinks = [
+  { to: '/', label: 'Accueil', icon: Home, end: true },
+  { to: '/carte', label: 'Carte', icon: Map, end: false },
+  { to: '/signaler', label: 'Signaler', icon: Droplets, end: false },
+  { to: '/whatsapp', label: 'WhatsApp', icon: MessageCircle, end: false },
+];
 
 function AnimatedOutlet() {
   const location = useLocation();
@@ -93,9 +101,9 @@ export function PublicLayout() {
   const { user } = useAuth();
   const location = useLocation();
   return (
-    <div className="min-h-screen">
+    <div className="has-tabbar min-h-screen">
       <header className="glass sticky top-0 z-40 border-b border-line">
-        <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3">
+        <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-2">
           <Brand />
           <nav className="hidden items-center gap-1 md:flex">
             {publicLinks.map((link) => (
@@ -156,11 +164,24 @@ export function PublicLayout() {
         <footer className="mx-auto mt-16 max-w-6xl px-4 pb-10 text-sm text-muted">
           <div className="flex flex-wrap items-center justify-between gap-3 border-t border-line pt-6">
             <span className="inline-flex items-center gap-2"><Waves size={16} /> Edzii-Nku · Lomé</span>
-            <span>Illustrations originales, SVG sur mesure, aplats de la charte.</span>
+            <span>Photos : Unsplash et Pexels</span>
             <span>Urgence : 170</span>
           </div>
         </footer>
       )}
+      <nav className="tabbar glass" aria-label="Navigation principale">
+        {tabLinks.map((link) => (
+          <NavLink
+            key={link.to}
+            to={link.to}
+            end={link.end}
+            className={({ isActive }) => `tab-link ${isActive ? 'tab-on' : ''}`}
+          >
+            <link.icon size={18} />
+            {link.label}
+          </NavLink>
+        ))}
+      </nav>
     </div>
   );
 }
@@ -186,7 +207,7 @@ export function AdminLayout() {
           <Brand />
           <ThemeToggle />
         </div>
-        <nav className="flex gap-1 overflow-auto px-3 pb-3 md:flex-col">
+        <nav className="admin-nav flex gap-1 overflow-x-auto px-3 pb-3 md:flex-col md:overflow-visible">
           {adminLinks.map((link) => (
             <NavLink
               key={link.to}
