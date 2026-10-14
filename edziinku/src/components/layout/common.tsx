@@ -27,7 +27,7 @@ export function Brand({ to = '/', compact }: { to?: string; compact?: boolean })
       </motion.span>
       <span className="flex min-w-0 flex-col leading-none">
         <span className="truncate font-display text-[17px] font-semibold tracking-tight">Edzii-Nku</span>
-        {!compact && <span className="mt-1 hidden text-[10.5px] font-medium tracking-wide text-muted sm:block">L’œil de la pluie · Lomé</span>}
+        {!compact && <span className="brand-sub mt-1 hidden text-[10.5px] font-medium tracking-wide text-muted sm:block">L’œil de la pluie · Lomé</span>}
       </span>
     </Link>
   );
@@ -66,13 +66,24 @@ export function ThemeToggle({ className }: { className?: string }) {
   );
 }
 
-/** Transition entre les pages (fondu + léger glissement). */
+/**
+ * Transition entre les pages (fondu + léger glissement). Le retour en haut se
+ * fait pendant que l’ancienne page est déjà effacée, sans défilement visible :
+ * la nouvelle page apparaît directement en place.
+ */
 export function AnimatedOutlet({ scope }: { scope: string }) {
   const location = useLocation();
   const outlet = useOutlet();
   const reduce = useReducedMotion();
   return (
-    <AnimatePresence mode="wait" initial={false} onExitComplete={() => window.scrollTo({ top: 0 })}>
+    <AnimatePresence
+      mode="wait"
+      initial={false}
+      onExitComplete={() => {
+        if (location.hash) return;
+        window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+      }}
+    >
       <motion.div
         key={`${scope}${location.pathname}`}
         initial={reduce ? { opacity: 0 } : { opacity: 0, y: 14 }}
