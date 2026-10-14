@@ -14,7 +14,7 @@ import { ago, basinTone, waterTone } from '../../lib/format';
 import { useApi } from '../../lib/useApi';
 import { useLive } from '../../lib/useCatalog';
 import type { Dashboard, Team, TimelineItem } from '../../types';
-import { Kpi, Panel, SourceBadge, TeamRow, TimelineList } from './shared';
+import { Kpi, Panel, SourceBadge, TeamRow, TimelineList, useAdminReports } from './shared';
 
 export function OverviewPage() {
   useDocumentTitle('Vue d’ensemble');
@@ -22,23 +22,25 @@ export function OverviewPage() {
   const dash = useApi<Dashboard>('/api/admin/dashboard', demoDashboard);
   const timeline = useApi<TimelineItem[]>('/api/admin/timeline', demoTimeline);
   const teams = useApi<Team[]>('/api/admin/teams', demoTeams);
+  const all = useAdminReports();
+  const reports = all.data?.items ?? [];
   const data = dash.data;
-  const pending = live.reports.filter((report) => report.status === 'A_VERIFIER');
+  const pending = reports.filter((report) => report.status === 'A_VERIFIER');
 
   const pins = useMemo<MapPin[]>(() => [
-    ...live.reports.map((report) => ({ id: report.id, lat: report.latitude, lng: report.longitude, label: report.placeLabel, tone: waterTone(report.waterLevel) })),
+    ...reports.filter((report) => report.status !== 'REJETE').map((report) => ({ id: report.id, lat: report.latitude, lng: report.longitude, label: report.placeLabel, tone: waterTone(report.waterLevel) })),
     ...live.basins.map((basin) => ({ id: basin.id, lat: basin.latitude, lng: basin.longitude, label: basin.name, tone: basinTone(basin.status), kind: 'basin' as const })),
-  ], [live.reports, live.basins]);
+  ], [reports, live.basins]);
 
   const statuses = useMemo(() => {
-    const count = (status: string) => live.reports.filter((report) => report.status === status).length;
+    const count = (status: string) => reports.filter((report) => report.status === status).length;
     return [
       { key: 'A_VERIFIER', label: 'À vérifier', value: count('A_VERIFIER'), color: 'var(--warn)' },
       { key: 'VALIDE', label: 'Validés', value: count('VALIDE'), color: 'var(--ok)' },
       { key: 'REJETE', label: 'Rejetés', value: count('REJETE'), color: 'var(--alert)' },
       { key: 'DOUBLON', label: 'Doublons', value: count('DOUBLON'), color: 'var(--muted)' },
     ];
-  }, [live.reports]);
+  }, [reports]);
 
   return (
     <AdminPage>

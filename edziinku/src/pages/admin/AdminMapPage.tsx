@@ -12,18 +12,21 @@ import { Meter, Reveal, ease } from '../../components/ui/motion';
 import { photos } from '../../data/photos';
 import { ago, basinTone, waterTone } from '../../lib/format';
 import { useLive } from '../../lib/useCatalog';
+import { useAdminReports } from './shared';
 
 type Layer = 'all' | 'reports' | 'basins';
 
 export function AdminMapPage() {
   useDocumentTitle('Carte live · équipes');
   const live = useLive();
+  const all = useAdminReports();
+  const openReports = (all.data?.items ?? []).filter((report) => report.status !== 'REJETE' && report.status !== 'DOUBLON');
   const [layer, setLayer] = useState<Layer>('all');
   const [query, setQuery] = useState('');
   const [selected, setSelected] = useState<string | null>(null);
 
   const match = (text: string) => !query || text.toLowerCase().includes(query.toLowerCase());
-  const reports = live.reports.filter((report) => layer !== 'basins' && match(`${report.placeLabel} ${report.reference} ${report.neighborhoodName ?? ''}`));
+  const reports = openReports.filter((report) => layer !== 'basins' && match(`${report.placeLabel} ${report.reference} ${report.neighborhoodName ?? ''}`));
   const basins = live.basins.filter((basin) => layer !== 'reports' && match(`${basin.name} ${basin.commune}`));
 
   const pins = useMemo<MapPin[]>(() => [
@@ -31,7 +34,7 @@ export function AdminMapPage() {
     ...basins.map((basin) => ({ id: basin.id, lat: basin.latitude, lng: basin.longitude, label: basin.name, tone: basinTone(basin.status), kind: 'basin' as const })),
   ], [reports, basins]);
 
-  const currentReport = live.reports.find((report) => report.id === selected) ?? null;
+  const currentReport = openReports.find((report) => report.id === selected) ?? null;
   const currentBasin = live.basins.find((basin) => basin.id === selected) ?? null;
 
   return (
@@ -41,8 +44,8 @@ export function AdminMapPage() {
         size="sm"
         eyebrow="Terrain"
         title="Carte live"
-        short={`${live.reports.length} signalements · ${live.basins.length} bassins`}
-        long={`${live.reports.length} signalements d’habitants et ${live.basins.length} bassins suivis, sur une seule carte.`}
+        short={`${openReports.length} signalements · ${live.basins.length} bassins`}
+        long={`${openReports.length} signalements d’habitants et ${live.basins.length} bassins suivis, sur une seule carte.`}
       />
       <Reveal className="card overflow-hidden p-0">
         <div className="grid lg:grid-cols-[340px_1fr]">
@@ -55,8 +58,8 @@ export function AdminMapPage() {
                 onChange={setLayer}
                 className="w-full"
                 options={[
-                  { value: 'all', label: 'Tout', count: live.reports.length + live.basins.length },
-                  { value: 'reports', label: 'Eau', count: live.reports.length },
+                  { value: 'all', label: 'Tout', count: openReports.length + live.basins.length },
+                  { value: 'reports', label: 'Eau', count: openReports.length },
                   { value: 'basins', label: 'Bassins', count: live.basins.length },
                 ]}
               />

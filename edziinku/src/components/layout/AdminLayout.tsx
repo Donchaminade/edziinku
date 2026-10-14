@@ -13,11 +13,13 @@ import {
   Users,
   type LucideIcon,
 } from 'lucide-react';
-import { useState, type ReactNode } from 'react';
+import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from 'react';
 import { Navigate, NavLink, useLocation, useNavigate } from 'react-router';
 import { isStaff, useAuth } from '../../context/AuthContext';
 import { initials, roleLabel } from '../../lib/format';
-import { useLive } from '../../lib/useCatalog';
+import { api } from '../../lib/api';
+import { demoReports } from '../../data/demo';
+import type { Page, ReportItem } from '../../types';
 import { Button } from '../ui/Button';
 import { Skeleton } from '../ui/motion';
 import { Sheet } from '../ui/Overlay';
@@ -54,9 +56,26 @@ const groups: { title: string; links: AdminLink[] }[] = [
 
 const allLinks = groups.flatMap((group) => group.links);
 
+const PendingContext = createContext<{ count: number; refresh: () => void }>({ count: 0, refresh: () => {} });
+
+function PendingProvider({ children }: { children: ReactNode }) {
+  const [count, setCount] = useState(0);
+  const refresh = useCallback(() => {
+    api<Page<ReportItem>>('/api/admin/reports?status=A_VERIFIER&size=1')
+      .then((page) => setCount(page.total))
+      .catch(() => setCount(demoReports.filter((report) => report.status === 'A_VERIFIER').length));
+  }, []);
+  useEffect(refresh, [refresh]);
+  return <PendingContext.Provider value={{ count, refresh }}>{children}</PendingContext.Provider>;
+}
+
+/** Nombre de signalements à vérifier, partagé par la navigation et la file de modération. */
+export function usePendingReports() {
+  return useContext(PendingContext);
+}
+
 function usePending() {
-  const live = useLive();
-  return live.reports.filter((report) => report.status === 'A_VERIFIER').length;
+  return usePendingReports().count;
 }
 
 function isActive(pathname: string, link: AdminLink) {
@@ -207,15 +226,17 @@ function MoreSheet({ open, onClose }: { open: boolean; onClose: () => void }) {
 export function AdminLayout() {
   const [more, setMore] = useState(false);
   return (
-    <div className="has-bottom-nav min-h-screen lg:pl-[284px] lg:pr-6">
-      <Sidebar />
-      <Topbar />
-      <main className="pb-10">
-        <AnimatedOutlet scope="admin" />
-      </main>
-      <AdminBottomNav onMore={() => setMore(true)} />
-      <MoreSheet open={more} onClose={() => setMore(false)} />
-    </div>
+    <PendingProvider>
+      <div className="has-bottom-nav min-h-screen lg:pl-[284px] lg:pr-6">
+        <Sidebar />
+        <Topbar />
+        <main className="pb-10">
+          <AnimatedOutlet scope="admin" />
+        </main>
+        <AdminBottomNav onMore={() => setMore(true)} />
+        <MoreSheet open={more} onClose={() => setMore(false)} />
+      </div>
+    </PendingProvider>
   );
 }
 

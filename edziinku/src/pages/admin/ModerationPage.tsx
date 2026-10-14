@@ -2,7 +2,7 @@ import { AnimatePresence, motion } from 'motion/react';
 import { Check, Copy as CopyIcon, Download, Filter, Search, ShieldAlert, X } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { PageHero } from '../../components/Hero';
-import { AdminPage } from '../../components/layout/AdminLayout';
+import { AdminPage, usePendingReports } from '../../components/layout/AdminLayout';
 import { useDocumentTitle } from '../../components/layout/common';
 import { ReportSummary } from '../../components/ReportDetail';
 import { Button } from '../../components/ui/Button';
@@ -10,14 +10,12 @@ import { EmptyState } from '../../components/ui/Decor';
 import { Segmented, Select, TextInput } from '../../components/ui/Form';
 import { Reveal, Skeleton, ease } from '../../components/ui/motion';
 import { Modal, Sheet, useToast } from '../../components/ui/Overlay';
-import { demoReports } from '../../data/demo';
 import { photos } from '../../data/photos';
 import { api, apiBase, ApiError, sessionToken } from '../../lib/api';
 import { ago, channelLabel, statusTone, waterTone } from '../../lib/format';
-import { useApi } from '../../lib/useApi';
 import { useLive } from '../../lib/useCatalog';
-import type { Page, ReportItem, ReportStatus } from '../../types';
-import { SourceBadge } from './shared';
+import type { ReportItem, ReportStatus } from '../../types';
+import { SourceBadge, useAdminReports } from './shared';
 
 type StatusFilter = 'ALL' | ReportStatus;
 
@@ -39,7 +37,8 @@ export function ModerationPage() {
   const [rejectId, setRejectId] = useState<string | null>(null);
   const [busy, setBusy] = useState<string | null>(null);
 
-  const all = useApi<Page<ReportItem>>('/api/admin/reports?size=200', () => ({ items: demoReports, page: 0, size: 200, total: demoReports.length }));
+  const all = useAdminReports();
+  const pending = usePendingReports();
   const rows = all.data?.items ?? null;
 
   const visible = useMemo(() => (rows ?? []).filter((row) => {
@@ -68,6 +67,7 @@ export function ModerationPage() {
         replace(updated);
         toast(`${updated.reference} : ${updated.statusLabel.toLowerCase()}`, next === 'VALIDE' ? 'ok' : 'info');
         live.reload();
+        pending.refresh();
       }
       setRejectId(null);
     } catch (error) {

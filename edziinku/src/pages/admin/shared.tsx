@@ -2,8 +2,15 @@ import { motion, useReducedMotion } from 'motion/react';
 import { Bell, CloudRain, Database, MapPin, Radio, ShieldAlert, Users, type LucideIcon } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { CountUp, StaggerItem } from '../../components/ui/motion';
+import { demoReports } from '../../data/demo';
 import { clock, teamStatus } from '../../lib/format';
-import type { Team, TimelineItem } from '../../types';
+import { useApi } from '../../lib/useApi';
+import type { Page, ReportItem, Team, TimelineItem } from '../../types';
+
+/** Tous les signalements, y compris ceux à vérifier (l’endpoint public ne renvoie que les validés). */
+export function useAdminReports() {
+  return useApi<Page<ReportItem>>('/api/admin/reports?size=200', () => ({ items: demoReports, page: 0, size: 200, total: demoReports.length }));
+}
 
 export function SourceBadge({ source }: { source: 'api' | 'demo' | null }) {
   if (!source) return null;
