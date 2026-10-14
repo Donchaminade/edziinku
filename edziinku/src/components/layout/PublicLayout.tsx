@@ -70,15 +70,14 @@ function AccountButton() {
   );
 }
 
-const photoHeroPaths = ['/', '/carte', '/signaler', '/comment', '/communes', '/whatsapp', '/credits'];
-
 function Header() {
   const location = useLocation();
   const reduce = useReducedMotion();
   const { scrollY } = useScroll();
   const [solid, setSolid] = useState(false);
   useMotionValueEvent(scrollY, 'change', (value) => setSolid(value > 24));
-  const overHero = !solid && photoHeroPaths.some((path) => (path === '/' ? location.pathname === '/' : location.pathname.startsWith(path)));
+  /* Accueil uniquement : le hero y passe sous la pilule. Les autres pages ont un décalage below-header. */
+  const overHero = !solid && location.pathname === '/';
 
   return (
     <header className="site-header">

@@ -62,7 +62,7 @@ export function AuthPage() {
         <div className="relative isolate min-h-[220px] overflow-hidden lg:min-h-0">
           <Photo photo={photos.plage} className="hero-photo" priority sizes="(min-width: 1024px) 50vw, 100vw" />
           <div className="hero-veil" />
-          <div className="relative z-[3] flex h-full flex-col justify-end gap-3 p-5 pt-28 md:p-10">
+          <div className="hero-copy relative z-[3] flex h-full flex-col justify-end gap-3 p-5 pt-28 md:p-10">
             <span className="t-eyebrow">Espace Edzii-Nku</span>
             <h1 className="t-h1 max-w-md">Un compte pour le quartier, la mairie et le terrain</h1>
             <p className="t-lead hidden max-w-md lg:block">Les habitants suivent leurs quartiers. Les équipes retrouvent leur tableau de bord.</p>
