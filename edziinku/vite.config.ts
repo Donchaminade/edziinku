@@ -27,8 +27,30 @@ export default defineConfig({
           { src: 'logo-mark.svg', sizes: 'any', type: 'image/svg+xml', purpose: 'any' },
         ],
       },
+      workbox: {
+        globPatterns: ['**/*.{js,css,html,svg,ttf,woff2}'],
+        navigateFallbackDenylist: [/^\/api\//],
+        runtimeCaching: [
+          {
+            urlPattern: /\/photos\/.+\.webp$/,
+            handler: 'CacheFirst',
+            options: { cacheName: 'edzii-photos', expiration: { maxEntries: 60 } },
+          },
+        ],
+      },
     }),
   ],
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          react: ['react', 'react-dom', 'react-router'],
+          motion: ['motion/react'],
+          map: ['leaflet', 'react-leaflet'],
+        },
+      },
+    },
+  },
   server: { host: '0.0.0.0', port: 5173 },
   preview: { host: '0.0.0.0', port: 4173 },
 });

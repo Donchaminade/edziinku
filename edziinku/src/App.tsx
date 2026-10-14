@@ -1,26 +1,26 @@
-import { Navigate, Route, Routes } from 'react-router';
-import { PublicLayout, StaffGate } from './components/Shell';
+import { lazy } from 'react';
+import { Route, Routes } from 'react-router';
+import { StaffGate } from './components/layout/AdminLayout';
+import { PublicLayout } from './components/layout/PublicLayout';
 import { CatalogProvider } from './lib/useCatalog';
-import {
-  AdminMapPage,
-  AlertsPage,
-  BasinsPage,
-  HistoryPage,
-  ModerationPage,
-  OutboxPage,
-  OverviewPage,
-  TeamsPage,
-} from './pages/AdminPages';
-import {
-  AuthPage,
-  CommunesPage,
-  HomePage,
-  HowPage,
-  MapPage,
-  ProfilePage,
-  ReportPage,
-  WhatsAppPage,
-} from './pages/PublicPages';
+import { AuthPage } from './pages/public/AuthPage';
+import { CommunesPage } from './pages/public/CommunesPage';
+import { CreditsPage, NotFoundPage } from './pages/public/CreditsPage';
+import { HomePage } from './pages/public/HomePage';
+import { HowPage } from './pages/public/HowPage';
+import { MapPage } from './pages/public/MapPage';
+import { ProfilePage } from './pages/public/ProfilePage';
+import { ReportPage } from './pages/public/ReportPage';
+import { WhatsAppPage } from './pages/public/WhatsAppPage';
+
+const AdminMapPage = lazy(() => import('./pages/admin/AdminMapPage').then((module) => ({ default: module.AdminMapPage })));
+const AlertsPage = lazy(() => import('./pages/admin/AlertsPage').then((module) => ({ default: module.AlertsPage })));
+const BasinsPage = lazy(() => import('./pages/admin/BasinsPage').then((module) => ({ default: module.BasinsPage })));
+const HistoryPage = lazy(() => import('./pages/admin/HistoryPage').then((module) => ({ default: module.HistoryPage })));
+const ModerationPage = lazy(() => import('./pages/admin/ModerationPage').then((module) => ({ default: module.ModerationPage })));
+const OutboxPage = lazy(() => import('./pages/admin/OutboxPage').then((module) => ({ default: module.OutboxPage })));
+const OverviewPage = lazy(() => import('./pages/admin/OverviewPage').then((module) => ({ default: module.OverviewPage })));
+const TeamsPage = lazy(() => import('./pages/admin/TeamsPage').then((module) => ({ default: module.TeamsPage })));
 
 export default function App() {
   return (
@@ -35,6 +35,8 @@ export default function App() {
           <Route path="whatsapp" element={<WhatsAppPage />} />
           <Route path="connexion" element={<AuthPage />} />
           <Route path="profil" element={<ProfilePage />} />
+          <Route path="credits" element={<CreditsPage />} />
+          <Route path="*" element={<NotFoundPage />} />
         </Route>
         <Route element={<StaffGate />}>
           <Route path="admin" element={<OverviewPage />} />
@@ -46,7 +48,6 @@ export default function App() {
           <Route path="admin/equipes" element={<TeamsPage />} />
           <Route path="admin/whatsapp" element={<OutboxPage />} />
         </Route>
-        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </CatalogProvider>
   );
