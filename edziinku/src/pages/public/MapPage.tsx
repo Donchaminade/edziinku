@@ -8,8 +8,9 @@ import { MapLegend, MapView, type MapPin } from '../../components/MapView';
 import { ReportSummary } from '../../components/ReportDetail';
 import { Button } from '../../components/ui/Button';
 import { EmptyState } from '../../components/ui/Decor';
-import { Segmented, TextInput } from '../../components/ui/Form';
+import { ScrollRow, Segmented, TextInput } from '../../components/ui/Form';
 import { Reveal, Skeleton, ease } from '../../components/ui/motion';
+import { Sheet, useMediaQuery } from '../../components/ui/Overlay';
 import { photos } from '../../data/photos';
 import { ago, waterTone } from '../../lib/format';
 import { useLive } from '../../lib/useCatalog';
@@ -41,6 +42,7 @@ export function MapPage() {
   })), [visible]);
 
   const current = live.reports.find((report) => report.id === selected) ?? null;
+  const wide = useMediaQuery('(min-width: 640px)');
 
   return (
     <PublicPage>
@@ -58,21 +60,24 @@ export function MapPage() {
       <Reveal className="card overflow-hidden p-0">
         <div className="grid lg:grid-cols-[380px_1fr]">
           <div className="order-2 flex min-w-0 flex-col border-line lg:order-1 lg:border-r">
-            <div className="flex flex-col gap-3 border-b border-line p-4">
-              <TextInput icon={<Search size={17} />} placeholder="Lieu, quartier, référence…" value={query} onChange={(event) => setQuery(event.target.value)} aria-label="Rechercher un signalement" />
-              <Segmented
-                label="Filtrer par niveau d’eau"
-                value={filter}
-                onChange={setFilter}
-                className="w-full"
-                options={[
-                  { value: 'ALL', label: 'Tous', count: live.reports.length },
-                  { value: 'CHEVILLE', label: 'Cheville', count: count('CHEVILLE') },
-                  { value: 'GENOU', label: 'Genou', count: count('GENOU') },
-                  { value: 'TAILLE', label: 'Taille', count: count('TAILLE') },
-                ]}
-              />
+            <div className="flex flex-col gap-3 border-b border-line p-3 sm:p-4">
+              <TextInput icon={<Search size={17} />} placeholder="Lieu, quartier, référence…" value={query} onChange={(event) => setQuery(event.target.value)} aria-label="Rechercher un signalement" type="search" inputMode="search" enterKeyHint="search" autoComplete="off" />
+              <ScrollRow>
+                <Segmented
+                  label="Filtrer par niveau d’eau"
+                  value={filter}
+                  onChange={setFilter}
+                  className="w-full min-w-max"
+                  options={[
+                    { value: 'ALL', label: 'Tous', count: live.reports.length },
+                    { value: 'CHEVILLE', label: 'Cheville', count: count('CHEVILLE') },
+                    { value: 'GENOU', label: 'Genou', count: count('GENOU') },
+                    { value: 'TAILLE', label: 'Taille', count: count('TAILLE') },
+                  ]}
+                />
+              </ScrollRow>
             </div>
+            <p className="sr-only" aria-live="polite">{visible.length} signalement{visible.length > 1 ? 's' : ''} affiché{visible.length > 1 ? 's' : ''}</p>
             <ul className="scroll-thin flex max-h-[420px] flex-col gap-2 overflow-y-auto p-3 lg:max-h-[600px]">
               {live.loading && [0, 1, 2].map((key) => <li key={key}><Skeleton className="h-[72px]" /></li>)}
               {!live.loading && visible.length === 0 && (
@@ -112,10 +117,10 @@ export function MapPage() {
           </div>
 
           <div className="relative order-1 lg:order-2">
-            <MapView pins={pins} selectedId={selected} onSelect={setSelected} className="h-[52svh] min-h-[340px] lg:h-[720px]" />
+            <MapView pins={pins} selectedId={selected} onSelect={setSelected} className="h-[56svh] min-h-[320px] lg:h-[720px]" />
             <MapLegend className="absolute top-3 left-3 z-[500]" />
             <AnimatePresence>
-              {current && (
+              {current && wide && (
                 <motion.div
                   key={current.id}
                   className="glass-strong absolute right-3 bottom-3 left-3 z-[500] rounded-[22px] p-4 sm:right-auto sm:w-[360px]"
@@ -142,6 +147,16 @@ export function MapPage() {
           </div>
         </div>
       </Reveal>
+
+      <Sheet
+        open={Boolean(current) && !wide}
+        onClose={() => setSelected(null)}
+        title={current?.placeLabel ?? ''}
+        subtitle={current ? <span className="t-num">{current.reference} · {ago(current.createdAt)}</span> : undefined}
+        footer={<Button to="/signaler" variant="primary" block><Camera size={17} /> Signaler ici aussi</Button>}
+      >
+        {current && <ReportSummary report={current} withPhoto={Boolean(current.photoUrl)} />}
+      </Sheet>
     </PublicPage>
   );
 }

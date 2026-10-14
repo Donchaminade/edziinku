@@ -6,7 +6,7 @@ import { useDocumentTitle } from '../../components/layout/common';
 import { PublicPage } from '../../components/layout/PublicLayout';
 import { MapView, type MapPin } from '../../components/MapView';
 import { EmptyState, SectionHeader } from '../../components/ui/Decor';
-import { Segmented, TextInput } from '../../components/ui/Form';
+import { ScrollRow, Segmented, TextInput } from '../../components/ui/Form';
 import { CountUp, Lift, Reveal, Skeleton, Stagger, StaggerItem } from '../../components/ui/motion';
 import { photos } from '../../data/photos';
 import { riskTone } from '../../lib/format';
@@ -44,15 +44,15 @@ export function CommunesPage() {
       />
 
       <Stagger className="grid grid-cols-3 gap-2.5 md:gap-4">
-        {[
-          ['Risque élevé', count('ELEVE'), 'alert'],
-          ['À surveiller', count('A_SURVEILLER'), 'warn'],
-          ['Modéré', count('MODERE'), 'ok'],
-        ].map(([label, value, tone]) => (
-          <StaggerItem key={label as string}>
-            <div className="card p-4 md:p-5">
-              <span className="badge badge-dot" data-tone={tone as string}><span className="max-sm:hidden">{label as string}</span><span className="sm:hidden">{(label as string).split(' ')[0]}</span></span>
-              <p className="t-num mt-2 text-2xl font-semibold md:text-3xl">{loading ? '—' : <CountUp value={value as number} />}</p>
+        {([
+          { label: 'Risque élevé', short: 'Élevé', value: count('ELEVE'), tone: 'alert' },
+          { label: 'À surveiller', short: 'À suivre', value: count('A_SURVEILLER'), tone: 'warn' },
+          { label: 'Modéré', short: 'Modéré', value: count('MODERE'), tone: 'ok' },
+        ] as const).map(({ label, short, value, tone }) => (
+          <StaggerItem key={label}>
+            <div className="card p-3 sm:p-4 md:p-5">
+              <span className="badge badge-dot max-w-full" data-tone={tone}><span className="truncate max-sm:hidden">{label}</span><span className="truncate sm:hidden">{short}</span></span>
+              <p className="t-num mt-2 text-2xl font-semibold md:text-3xl">{loading ? '—' : <CountUp value={value} />}</p>
               <p className="text-xs text-muted">quartiers</p>
             </div>
           </StaggerItem>
@@ -62,21 +62,25 @@ export function CommunesPage() {
       <section className="flex flex-col gap-6">
         <SectionHeader eyebrow="Explorer" title="Trouver son quartier" />
         <div className="flex flex-col gap-3 md:flex-row md:items-center">
-          <TextInput icon={<Search size={17} />} placeholder="Quartier ou commune…" value={query} onChange={(event) => setQuery(event.target.value)} className="md:max-w-sm" aria-label="Rechercher un quartier" />
-          <Segmented
-            label="Filtrer par risque"
-            value={risk}
-            onChange={setRisk}
-            options={[
-              { value: 'ALL', label: 'Tous' },
-              { value: 'ELEVE', label: 'Élevé' },
-              { value: 'A_SURVEILLER', label: 'À surveiller' },
-              { value: 'MODERE', label: 'Modéré' },
-            ]}
-          />
+          <TextInput icon={<Search size={17} />} type="search" inputMode="search" enterKeyHint="search" autoComplete="off" placeholder="Quartier ou commune…" value={query} onChange={(event) => setQuery(event.target.value)} className="md:max-w-sm" aria-label="Rechercher un quartier" />
+          <ScrollRow>
+            <Segmented
+              label="Filtrer par risque"
+              value={risk}
+              onChange={setRisk}
+              className="min-w-max"
+              options={[
+                { value: 'ALL', label: 'Tous' },
+                { value: 'ELEVE', label: 'Élevé' },
+                { value: 'A_SURVEILLER', label: 'À surveiller' },
+                { value: 'MODERE', label: 'Modéré' },
+              ]}
+            />
+          </ScrollRow>
         </div>
+        <p className="sr-only" aria-live="polite">{filtered.length} quartier{filtered.length > 1 ? 's' : ''} affiché{filtered.length > 1 ? 's' : ''}</p>
         <div className="grid gap-5 lg:grid-cols-[1fr_420px]">
-          <div className="flex flex-col gap-4">
+          <div className="order-last flex flex-col gap-4 lg:order-none">
             {loading && <Skeleton className="h-48" />}
             {!loading && communes.length === 0 && <EmptyState title="Aucun quartier" text="Aucun quartier ne correspond à cette recherche." icon={<MapPinned size={22} />} />}
             {communes.map((commune) => (
@@ -108,8 +112,8 @@ export function CommunesPage() {
               </Reveal>
             ))}
           </div>
-          <motion.div className="card sticky top-[calc(var(--header-h)+24px)] h-fit overflow-hidden p-0" layout>
-            <MapView pins={pins} selectedId={selected} onSelect={setSelected} className="h-80 lg:h-[520px]" />
+          <motion.div className="card h-fit overflow-hidden p-0 lg:sticky lg:top-[calc(var(--header-h)+24px)]" layout>
+            <MapView pins={pins} selectedId={selected} onSelect={setSelected} className="h-64 sm:h-80 lg:h-[520px]" />
           </motion.div>
         </div>
       </section>

@@ -110,7 +110,20 @@ export function AuthPage() {
             </AnimatePresence>
 
             <Field label={mode === 'login' ? 'E-mail ou téléphone' : 'E-mail'} htmlFor="identifier">
-              <TextInput id="identifier" icon={<Mail size={17} />} required value={identifier} onChange={(event) => setIdentifier(event.target.value)} autoComplete="username" placeholder="vous@exemple.tg" />
+              <TextInput
+                id="identifier"
+                icon={<Mail size={17} />}
+                required
+                value={identifier}
+                onChange={(event) => setIdentifier(event.target.value)}
+                autoComplete={mode === 'login' ? 'username' : 'email'}
+                inputMode="email"
+                autoCapitalize="none"
+                autoCorrect="off"
+                spellCheck={false}
+                enterKeyHint="next"
+                placeholder="vous@exemple.tg"
+              />
             </Field>
 
             <AnimatePresence initial={false}>
@@ -133,6 +146,7 @@ export function AuthPage() {
                 value={password}
                 onChange={(event) => setPassword(event.target.value)}
                 autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
+                enterKeyHint={mode === 'login' ? 'go' : 'done'}
                 trailing={(
                   <button type="button" className="-mr-2 grid h-11 w-11 shrink-0 place-items-center text-muted" onClick={() => setShow((state) => !state)} aria-label={show ? 'Masquer le mot de passe' : 'Afficher le mot de passe'}>
                     {show ? <EyeOff size={18} /> : <Eye size={18} />}
