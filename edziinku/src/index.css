@@ -398,12 +398,14 @@ img { max-width: 100%; display: block; }
 .btn-icon { width: 44px; padding: 0; }
 .btn-block { width: 100%; }
 .btn-header-cta { min-height: 44px; border-radius: 9999px; }
+:root[data-theme="dark"] .site-header-bar .btn-primary,
 :root[data-theme="dark"] .btn-header-cta {
   background: var(--cyan);
   color: #03132f;
   border-color: transparent;
   box-shadow: var(--shadow-primary);
 }
+:root[data-theme="dark"] .site-header-bar .btn-primary:hover,
 :root[data-theme="dark"] .btn-header-cta:hover { background: #7fe8f5; color: #03132f; }
 
 /* ───────────── Badges, puces ───────────── */
@@ -706,6 +708,12 @@ img { max-width: 100%; display: block; }
 .hero-content .photo-credit,
 .page-hero-content .photo-credit { color: rgba(234, 246, 255, .72); }
 .hero-content .text-muted { color: rgba(234, 246, 255, .68); }
+.hero-copy .t-h1,
+.hero-copy .t-h2,
+.hero-copy .t-display { color: #eaf6ff; }
+.hero-copy .t-lead,
+.hero-copy .photo-credit { color: rgba(234, 246, 255, .82); }
+.hero-copy .t-eyebrow { color: #5ce1f2; }
 .hero-content .t-display,
 .hero-content .t-lead,
 .page-hero-content .t-h1,
@@ -831,6 +839,7 @@ img { max-width: 100%; display: block; }
   height: var(--header-h);
   padding: 0 8px 0 14px;
   border-radius: 9999px;
+  color: var(--text);
   transition: background-color .3s var(--ease), box-shadow .3s var(--ease), border-color .3s var(--ease), height .3s var(--ease), color .3s var(--ease);
 }
 .site-header-bar[data-over-hero="true"] {
@@ -856,8 +865,9 @@ img { max-width: 100%; display: block; }
 }
 .site-header-bar[data-solid="true"] {
   background: var(--glass);
-  border-color: color-mix(in srgb, var(--line) 80%, transparent);
+  border-color: var(--line);
   box-shadow: var(--shadow-md);
+  color: var(--text);
   backdrop-filter: blur(12px) saturate(160%);
   -webkit-backdrop-filter: blur(12px) saturate(160%);
 }
