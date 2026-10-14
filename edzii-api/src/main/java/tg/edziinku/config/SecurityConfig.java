@@ -43,25 +43,35 @@ public class SecurityConfig {
 
     @Bean
     CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration cors = corsConfiguration(properties.isDev(), properties.getCors().getOrigins());
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", cors);
+        return source;
+    }
+
+    /**
+     * Toujours des motifs : {@code setAllowedOrigins} refuse les jokers
+     * ({@code https://*.vercel.app}) dès que {@code APP_ENV=prod}.
+     */
+    static CorsConfiguration corsConfiguration(boolean dev, String originsCsv) {
         CorsConfiguration cors = new CorsConfiguration();
-        List<String> origins = Arrays.stream(properties.getCors().getOrigins().split(","))
-                .map(String::trim)
-                .filter(s -> !s.isEmpty())
-                .toList();
-        if (properties.isDev()) {
-            List<String> patterns = new ArrayList<>(List.of("http://localhost:*", "http://127.0.0.1:*"));
-            patterns.addAll(origins);
-            cors.setAllowedOriginPatterns(patterns);
-        } else {
-            cors.setAllowedOrigins(origins);
+        List<String> patterns = new ArrayList<>();
+        if (dev) {
+            patterns.add("http://localhost:*");
+            patterns.add("http://127.0.0.1:*");
         }
+        if (originsCsv != null) {
+            Arrays.stream(originsCsv.split(","))
+                    .map(String::trim)
+                    .filter(s -> !s.isEmpty())
+                    .forEach(patterns::add);
+        }
+        cors.setAllowedOriginPatterns(patterns);
         cors.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         cors.setAllowedHeaders(List.of("*"));
         cors.setAllowCredentials(true);
         cors.setMaxAge(3600L);
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", cors);
-        return source;
+        return cors;
     }
 
     @Bean
