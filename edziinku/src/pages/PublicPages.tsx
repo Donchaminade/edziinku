@@ -110,8 +110,8 @@ export function HomePage() {
     <>
       <HeroCarousel />
       <Page>
-        <section className="relative">
-          <div className="soft-shape" style={{ width: 140, height: 140, top: -30, right: -20 }} aria-hidden />
+        <section className="relative overflow-hidden">
+          <div className="soft-shape" style={{ width: 140, height: 140, top: -20, right: 0 }} aria-hidden />
           <Stagger className="grid gap-3 md:grid-cols-3">
             {[
               ['Deux langues', 'Français, et éwé à relire.'],
@@ -140,8 +140,8 @@ export function HomePage() {
           />
         </section>
 
-        <section className="relative mt-10 md:mt-16">
-          <div className="soft-shape" style={{ width: 180, height: 120, left: -30, bottom: 40, borderRadius: 48 }} aria-hidden />
+        <section className="relative mt-10 overflow-hidden md:mt-16">
+          <div className="soft-shape" style={{ width: 180, height: 120, left: 0, bottom: 24, borderRadius: 48 }} aria-hidden />
           <PageHero
             tone="band"
             heading="h2"
