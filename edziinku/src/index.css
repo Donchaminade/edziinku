@@ -33,7 +33,7 @@
   --surface-solid: #ffffff;
   --surface-hover: #f8fafc;
   --glass: rgba(255, 255, 255, .90);
-  --glass-strong: rgba(3, 11, 30, .45);
+  --glass-strong: rgba(255, 255, 255, .90);
   --line: #e2e8f0;
   --line-strong: #cbd5e1;
 
@@ -691,7 +691,7 @@ img { max-width: 100%; display: block; }
   left: 0;
   right: 0;
   bottom: 0;
-  padding: 0 calc(20px + var(--safe-left)) calc(96px + var(--safe-bottom)) calc(20px + var(--safe-right));
+  padding: 0 calc(20px + var(--safe-right)) calc(96px + var(--safe-bottom)) calc(20px + var(--safe-left));
 }
 /* Texte du hero toujours clair : le voile est un aplat sombre dans les deux thèmes. */
 .hero-content .t-display,
@@ -843,7 +843,7 @@ img { max-width: 100%; display: block; }
   transition: background-color .3s var(--ease), box-shadow .3s var(--ease), border-color .3s var(--ease), height .3s var(--ease), color .3s var(--ease);
 }
 .site-header-bar[data-over-hero="true"] {
-  background: var(--glass-strong);
+  background: rgba(3, 11, 30, .45);
   border-color: rgba(255, 255, 255, .15);
   color: #eaf6ff;
   backdrop-filter: blur(24px) saturate(160%);

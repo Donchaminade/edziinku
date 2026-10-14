@@ -76,8 +76,8 @@ export function HeroCarousel({ children }: { children: (slide: StockPhoto) => Re
           dragConstraints={{ left: 0, right: 0 }}
           dragElastic={0.12}
           onDragEnd={(_, info) => {
-            if (info.offset.x < -60) go(index + 1, 1);
-            if (info.offset.x > 60) go(index - 1, -1);
+            if (info.offset.x < -60) go(indexRef.current + 1, 1);
+            if (info.offset.x > 60) go(indexRef.current - 1, -1);
           }}
         >
           <Photo photo={slide} className="hero-photo" priority={index === 0} sizes="100vw" />
