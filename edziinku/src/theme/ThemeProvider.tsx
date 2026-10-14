@@ -13,8 +13,18 @@ interface ThemeContextValue {
 
 const ThemeContext = createContext<ThemeContextValue | null>(null);
 
+function readStored(): ThemeName | null {
+  try {
+    const value = localStorage.getItem(KEY);
+    if (value === 'light' || value === 'dark') return value;
+  } catch {
+    /* stockage indisponible */
+  }
+  return null;
+}
+
 function readTheme(): ThemeName {
-  return document.documentElement.dataset.theme === 'light' ? 'light' : 'dark';
+  return readStored() ?? (document.documentElement.dataset.theme === 'dark' ? 'dark' : 'light');
 }
 
 function paint(theme: ThemeName) {

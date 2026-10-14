@@ -83,9 +83,9 @@ export function Lift({
     <Tag
       className={className}
       onClick={onClick}
-      whileHover={reduce ? undefined : { y: -4 }}
+      whileHover={reduce ? undefined : { y: -6, scale: 1.02 }}
       whileTap={reduce ? undefined : { scale: 0.985 }}
-      transition={{ type: 'spring', stiffness: 380, damping: 28 }}
+      transition={reduce ? { duration: 0 } : { duration: 0.35, ease }}
     >
       {children}
     </Tag>

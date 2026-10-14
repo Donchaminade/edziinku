@@ -26,7 +26,7 @@ export function Brand({ to = '/', compact }: { to?: string; compact?: boolean })
         <LogoMark size={compact ? 30 : 34} />
       </motion.span>
       <span className="flex min-w-0 flex-col leading-none">
-        <span className="truncate font-display text-[17px] font-semibold tracking-tight">Edzii-Nku</span>
+        <span className="truncate font-display text-[17px] font-extrabold tracking-tight">Edzii-Nku</span>
         {!compact && <span className="brand-sub mt-1 hidden text-[10.5px] font-medium tracking-wide text-muted sm:block">L’œil de la pluie · Lomé</span>}
       </span>
     </Link>

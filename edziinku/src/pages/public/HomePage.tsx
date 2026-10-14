@@ -133,7 +133,7 @@ function Problem() {
   const points = [
     { icon: Clock3, title: 'L’eau va plus vite que l’info', text: 'Une averse remplit la cour avant que le quartier ne soit prévenu.' },
     { icon: BellRing, title: 'Prévenir avant la pluie', text: 'L’alerte part dès que la pluie prévue menace votre quartier.' },
-    { icon: Users, title: 'Les habitants voient en premier', text: 'Photo, lieu et niveau d’eau remontent à la mairie en direct.' },
+    { icon: Users, title: 'Les habitants voient en premier', text: 'Photo, lieu et niveau d’eau remontent tout de suite à la mairie.' },
   ];
   return (
     <section className="relative overflow-hidden py-16 md:py-24">
@@ -485,22 +485,18 @@ function Neighborhoods() {
 function FinalCta() {
   return (
     <section>
-      <Container>
-        <Reveal className="page-hero !min-h-[340px]">
-          <Photo photo={photos.routePlage} className="hero-photo" sizes="100vw" />
-          <div className="hero-veil" />
-          <div className="page-hero-content">
-            <span className="t-eyebrow">Rejoindre</span>
-            <h2 className="t-h2">Votre quartier mérite d’être prévenu</h2>
-            <Copy className="t-lead" short="Recevez les alertes, ou signalez l’eau." long="Recevez les alertes de votre quartier, ou dites ce que vous voyez dans la rue." />
-            <div className="mt-2 flex flex-wrap gap-2.5">
-              <Button to="/connexion" variant="primary" size="lg">Créer un compte</Button>
-              <Button to="/signaler" size="lg"><Camera size={18} /> Signaler</Button>
-            </div>
-            <PhotoCredit photo={photos.routePlage} className="mt-1" />
+      <WaveDivider color="var(--cta-band)" />
+      <div className="cta-band">
+        <Container className="flex flex-col items-center gap-5 py-14 text-center md:py-20">
+          <span className="t-eyebrow">Rejoindre</span>
+          <h2 className="t-h2 max-w-2xl">Votre quartier mérite d’être prévenu</h2>
+          <Copy className="t-lead max-w-xl" short="Recevez les alertes, ou signalez l’eau." long="Recevez les alertes de votre quartier, ou dites ce que vous voyez dans la rue." />
+          <div className="flex flex-wrap justify-center gap-2.5">
+            <Button to="/connexion" size="lg">Créer un compte</Button>
+            <Button to="/signaler" size="lg"><Camera size={18} /> Signaler</Button>
           </div>
-        </Reveal>
-      </Container>
+        </Container>
+      </div>
     </section>
   );
 }
