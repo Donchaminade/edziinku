@@ -56,6 +56,7 @@ export function ReportPage() {
   const [busy, setBusy] = useState(false);
   const [done, setDone] = useState<ReportItem | null>(null);
   const fileInput = useRef<HTMLInputElement>(null);
+  const cameraInput = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (!photo) { setPreview(null); return; }
@@ -183,7 +184,8 @@ export function ReportPage() {
 
       <div className="grid gap-5 lg:grid-cols-[1fr_340px]">
         <Reveal className="card p-4 sm:p-6">
-          <ol className="mb-6 grid grid-cols-3 gap-2" aria-label="Étapes">
+          <p className="sr-only" aria-live="polite">Étape {step + 1} sur {steps.length} : {steps[step]}</p>
+          <ol className="mb-5 grid grid-cols-3 gap-2 sm:mb-6" aria-label="Étapes">
             {steps.map((label, index) => {
               const state = index < step ? 'done' : index === step ? 'current' : 'todo';
               return (
@@ -214,7 +216,7 @@ export function ReportPage() {
             })}
           </ol>
 
-          <form onSubmit={submit} className="overflow-hidden">
+          <form onSubmit={submit} className="overflow-x-clip">
             <AnimatePresence mode="wait" custom={direction} initial={false}>
               <motion.div
                 key={step}
@@ -224,7 +226,7 @@ export function ReportPage() {
                 animate="center"
                 exit="exit"
                 transition={{ duration: 0.3, ease }}
-                className="flex min-h-[340px] flex-col gap-5"
+                className="flex min-h-[260px] flex-col gap-5 sm:min-h-[340px]"
               >
                 {step === 0 && (
                   <>
@@ -260,19 +262,29 @@ export function ReportPage() {
                           <span className="block font-semibold">Prendre ou choisir une photo</span>
                           <span className="block text-sm text-muted">JPEG, PNG ou WebP</span>
                         </span>
-                        <span className="btn btn-primary btn-sm pointer-events-none"><Camera size={16} /> Choisir une photo</span>
+                        <span className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row">
+                          <span className="btn btn-primary pointer-events-none sm:hidden" aria-hidden><Camera size={16} /> Prendre une photo</span>
+                          <span className="btn btn-primary btn-sm pointer-events-none max-sm:hidden" aria-hidden><Camera size={16} /> Choisir une photo</span>
+                          <button
+                            type="button"
+                            className="btn sm:hidden"
+                            onClick={(event) => { event.preventDefault(); event.stopPropagation(); fileInput.current?.click(); }}
+                          >
+                            <ImagePlus size={16} /> Choisir dans la galerie
+                          </button>
+                        </span>
                         <input
-                          ref={fileInput}
+                          ref={cameraInput}
                           className="sr-only"
                           type="file"
                           accept="image/jpeg,image/png,image/webp"
+                          capture="environment"
+                          aria-label="Prendre une photo"
                           onChange={(event) => pickFile(event.target.files?.[0])}
                         />
                       </label>
                     )}
-                    {preview && (
-                      <input ref={fileInput} className="sr-only" type="file" accept="image/jpeg,image/png,image/webp" onChange={(event) => pickFile(event.target.files?.[0])} />
-                    )}
+                    <input ref={fileInput} className="sr-only" type="file" accept="image/jpeg,image/png,image/webp" aria-label="Choisir une photo" onChange={(event) => pickFile(event.target.files?.[0])} />
                   </>
                 )}
 
@@ -284,7 +296,7 @@ export function ReportPage() {
                     </div>
                     <div className="grid gap-4 md:grid-cols-2">
                       <Field label="Lieu" htmlFor="place">
-                        <TextInput id="place" icon={<MapPin size={17} />} required value={place} onChange={(event) => setPlace(event.target.value)} placeholder="Bè Ahligo, près du marché" autoComplete="off" />
+                        <TextInput id="place" icon={<MapPin size={17} />} required value={place} onChange={(event) => setPlace(event.target.value)} placeholder="Bè Ahligo, près du marché" autoComplete="off" autoCapitalize="sentences" enterKeyHint="next" />
                       </Field>
                       <Field label="Quartier">
                         <Select label="Quartier" value={hood} onChange={setHood} options={hoodOptions} />
@@ -292,7 +304,7 @@ export function ReportPage() {
                     </div>
                     <div className="relative overflow-hidden rounded-[22px] border border-line">
                       <MapView
-                        className="h-60 sm:h-72"
+                        className="h-56 sm:h-72"
                         pins={[{ id: 'me', lat, lng, label: place || 'Votre point', tone: waterTone(level), kind: 'me' }]}
                         selectedId="me"
                         fit={false}
@@ -350,8 +362,8 @@ export function ReportPage() {
                         );
                       })}
                     </div>
-                    <Field label="Commentaire" hint="Facultatif. Ex. : caniveau bouché, rue coupée.">
-                      <TextArea rows={3} value={comment} onChange={(event) => setComment(event.target.value)} placeholder="Le caniveau devant le marché est bouché." maxLength={500} />
+                    <Field label="Commentaire" hint="Facultatif. Ex. : caniveau bouché, rue coupée." htmlFor="comment">
+                      <TextArea id="comment" rows={3} value={comment} onChange={(event) => setComment(event.target.value)} placeholder="Le caniveau devant le marché est bouché." maxLength={500} autoCapitalize="sentences" enterKeyHint="done" />
                     </Field>
                     {level === 'TAILLE' && (
                       <p className="note" data-tone="alert">
@@ -363,17 +375,17 @@ export function ReportPage() {
               </motion.div>
             </AnimatePresence>
 
-            <div className="mt-6 flex items-center justify-between gap-3 border-t border-line pt-4">
+            <div className="sticky-actions card-solid mt-5 -mx-1 flex items-center justify-between gap-3 rounded-2xl p-2 sm:mt-6 sm:mx-0 sm:rounded-none sm:border-0 sm:border-t sm:border-line sm:bg-transparent sm:p-0 sm:pt-4 sm:shadow-none">
               {step > 0 ? (
                 <Button variant="ghost" onClick={() => goTo(step - 1)}><ArrowLeft size={17} /> Retour</Button>
               ) : <span />}
               {step < 2 ? (
-                <Button key="next" variant="primary" onClick={() => goTo(step + 1)} disabled={!canNext}>
+                <Button key="next" variant="primary" onClick={() => goTo(step + 1)} disabled={!canNext} className="max-sm:flex-1">
                   {step === 0 && !photo ? 'Continuer sans photo' : 'Continuer'} <ArrowRight size={17} />
                 </Button>
               ) : (
-                <Button key="submit" variant="primary" type="submit" loading={busy}>
-                  {!busy && <Send size={17} />} {busy ? 'Envoi…' : 'Envoyer'}
+                <Button key="submit" variant="primary" type="submit" loading={busy} className="max-sm:flex-1">
+                  {!busy && <Send size={17} />} {busy ? 'Envoi…' : 'Envoyer le signalement'}
                 </Button>
               )}
             </div>

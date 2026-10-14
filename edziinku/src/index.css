@@ -1116,6 +1116,10 @@ img { max-width: 100%; display: block; }
   overflow: hidden;
   background: var(--bg);
 }
+@media (max-width: 1023px) {
+  .wa-screen { height: min(560px, 68svh); min-height: 420px; }
+}
+.wa-body { overscroll-behavior: contain; }
 .wa-head { display: flex; align-items: center; gap: 10px; padding: 12px 14px; background: var(--bg-3); }
 .wa-body { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; padding: 14px; background: var(--bg-2); }
 .wa-bubble {
