@@ -101,7 +101,7 @@ export function AdminMapPage() {
               ))}
             </ul>
           </div>
-          <div className="relative order-1 lg:order-2">
+          <div className="relative isolate order-1 lg:order-2">
             <MapView pins={pins} selectedId={selected} onSelect={setSelected} className="h-[56svh] min-h-[340px] lg:h-[740px]" />
             <MapLegend className="absolute top-3 left-3 z-[500]" />
             <AnimatePresence>

@@ -926,7 +926,7 @@ img { max-width: 100%; display: block; }
 /* ───────────── Carte ───────────── */
 
 .map-frame { position: relative; overflow: hidden; background: var(--map-bg); isolation: isolate; }
-.leaflet-container { background: var(--map-bg); font-family: inherit; height: 100%; width: 100%; }
+.leaflet-container { background: var(--map-bg); font-family: inherit; height: 100%; width: 100%; isolation: isolate; }
 .map-base { filter: var(--map-filter); }
 .map-labels { opacity: .85; }
 .leaflet-control-attribution {

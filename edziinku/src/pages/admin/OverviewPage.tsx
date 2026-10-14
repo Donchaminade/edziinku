@@ -72,7 +72,7 @@ export function OverviewPage() {
           <Panel
             title="Carte du moment"
             action={<Button to="/admin/carte" size="sm" variant="ghost">Plein écran <ArrowRight size={15} /></Button>}
-            bodyClassName="relative"
+            bodyClassName="relative isolate"
           >
             <MapView pins={pins} className="h-[320px] sm:h-[380px]" />
             <MapLegend className="absolute top-3 left-3 z-[500]" />

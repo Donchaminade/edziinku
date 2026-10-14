@@ -112,7 +112,7 @@ export function CommunesPage() {
               </Reveal>
             ))}
           </div>
-          <motion.div className="card h-fit overflow-hidden p-0 lg:sticky lg:top-[calc(var(--header-h)+24px)]" layout>
+          <motion.div className="card isolate h-fit overflow-hidden p-0 lg:sticky lg:top-[calc(var(--header-h)+24px)]" layout>
             <MapView pins={pins} selectedId={selected} onSelect={setSelected} className="h-64 sm:h-80 lg:h-[520px]" />
           </motion.div>
         </div>
