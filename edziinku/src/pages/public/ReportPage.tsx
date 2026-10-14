@@ -302,7 +302,7 @@ export function ReportPage() {
                         <Select label="Quartier" value={hood} onChange={setHood} options={hoodOptions} />
                       </Field>
                     </div>
-                    <div className="relative overflow-hidden rounded-[22px] border border-line">
+                    <div className="relative isolate overflow-hidden rounded-[22px] border border-line">
                       <MapView
                         className="h-56 sm:h-72"
                         pins={[{ id: 'me', lat, lng, label: place || 'Votre point', tone: waterTone(level), kind: 'me' }]}
