@@ -29,7 +29,7 @@ cd edzii-api
 export DATABASE_URL=jdbc:postgresql://localhost:5432/edziinku
 export DATABASE_USER=edziinku
 export DATABASE_PASSWORD=edziinku
-./mvnw spring-boot:run
+mvn spring-boot:run
 ```
 
 Web (http://localhost:5173) :
