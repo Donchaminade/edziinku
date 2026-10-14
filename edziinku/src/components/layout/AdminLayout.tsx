@@ -109,7 +109,7 @@ function Sidebar() {
         </div>
         <div className="mt-3 grid grid-cols-2 gap-2">
           <Button to="/" size="sm" variant="ghost"><ExternalLink size={15} /> Site</Button>
-          <Button size="sm" variant="ghost" onClick={() => { void logout().then(() => navigate('/')); }}>
+          <Button size="sm" variant="ghost" onClick={() => { navigate('/'); void logout(); }}>
             <LogOut size={15} /> Quitter
           </Button>
         </div>
@@ -195,7 +195,7 @@ function MoreSheet({ open, onClose }: { open: boolean; onClose: () => void }) {
         ))}
         <div className="mt-2 grid grid-cols-2 gap-2">
           <Button to="/" onClick={onClose}><ExternalLink size={16} /> Site public</Button>
-          <Button variant="danger" onClick={() => { onClose(); void logout().then(() => navigate('/')); }}>
+          <Button variant="danger" onClick={() => { onClose(); navigate('/'); void logout(); }}>
             <LogOut size={16} /> Quitter
           </Button>
         </div>

@@ -36,7 +36,7 @@ export function ModerationPage() {
   const [level, setLevel] = useState('');
   const [query, setQuery] = useState('');
   const [currentId, setCurrentId] = useState<string | null>(null);
-  const [rejecting, setRejecting] = useState(false);
+  const [rejectId, setRejectId] = useState<string | null>(null);
   const [busy, setBusy] = useState<string | null>(null);
 
   const all = useApi<Page<ReportItem>>('/api/admin/reports?size=200', () => ({ items: demoReports, page: 0, size: 200, total: demoReports.length }));
@@ -51,6 +51,7 @@ export function ModerationPage() {
 
   const count = (value: ReportStatus) => rows?.filter((row) => row.status === value).length ?? 0;
   const current = rows?.find((row) => row.id === currentId) ?? null;
+  const rejectTarget = rows?.find((row) => row.id === rejectId) ?? null;
 
   function replace(updated: ReportItem) {
     all.setData((page) => page ? { ...page, items: page.items.map((item) => item.id === updated.id ? updated : item) } : page);
@@ -68,7 +69,7 @@ export function ModerationPage() {
         toast(`${updated.reference} : ${updated.statusLabel.toLowerCase()}`, next === 'VALIDE' ? 'ok' : 'info');
         live.reload();
       }
-      setRejecting(false);
+      setRejectId(null);
     } catch (error) {
       toast(error instanceof ApiError ? error.message : 'Modération impossible', 'alert');
     } finally {
@@ -186,7 +187,7 @@ export function ModerationPage() {
                             <Button size="sm" variant="ok" disabled={row.status === 'VALIDE'} loading={busy === `${row.id}:VALIDE`} onClick={() => { void moderate(row, 'VALIDE'); }} aria-label={`Valider ${row.reference}`}>
                               <Check size={15} /> Valider
                             </Button>
-                            <Button size="sm" variant="ghost" icon disabled={row.status === 'REJETE'} onClick={() => { setCurrentId(row.id); setRejecting(true); }} aria-label={`Rejeter ${row.reference}`} title="Rejeter">
+                            <Button size="sm" variant="ghost" icon disabled={row.status === 'REJETE'} onClick={() => setRejectId(row.id)} aria-label={`Rejeter ${row.reference}`} title="Rejeter">
                               <X size={16} />
                             </Button>
                           </div>
@@ -215,7 +216,7 @@ export function ModerationPage() {
                         <Button size="sm" variant="ok" block disabled={row.status === 'VALIDE'} loading={busy === `${row.id}:VALIDE`} onClick={() => { void moderate(row, 'VALIDE'); }}>
                           <Check size={15} /> Valider
                         </Button>
-                        <Button size="sm" block disabled={row.status === 'REJETE'} onClick={() => { setCurrentId(row.id); setRejecting(true); }}>
+                        <Button size="sm" block disabled={row.status === 'REJETE'} onClick={() => setRejectId(row.id)}>
                           <X size={15} /> Rejeter
                         </Button>
                       </div>
@@ -229,7 +230,7 @@ export function ModerationPage() {
       </Reveal>
 
       <Sheet
-        open={Boolean(current) && !rejecting}
+        open={Boolean(current) && !rejectTarget}
         onClose={() => setCurrentId(null)}
         title={current?.reference ?? ''}
         subtitle={current ? `${current.statusLabel} · reçu ${ago(current.createdAt)}` : undefined}
@@ -237,7 +238,7 @@ export function ModerationPage() {
           <div className="grid grid-cols-3 gap-2">
             <Button variant="ok" block disabled={current.status === 'VALIDE'} loading={busy === `${current.id}:VALIDE`} onClick={() => { void moderate(current, 'VALIDE'); }}><Check size={16} /> Valider</Button>
             <Button block disabled={current.status === 'DOUBLON'} loading={busy === `${current.id}:DOUBLON`} onClick={() => { void moderate(current, 'DOUBLON'); }}><CopyIcon size={16} /> Doublon</Button>
-            <Button variant="danger" block disabled={current.status === 'REJETE'} onClick={() => setRejecting(true)}><X size={16} /> Rejeter</Button>
+            <Button variant="danger" block disabled={current.status === 'REJETE'} onClick={() => setRejectId(current.id)}><X size={16} /> Rejeter</Button>
           </div>
         )}
       >
@@ -245,14 +246,14 @@ export function ModerationPage() {
       </Sheet>
 
       <Modal
-        open={rejecting && Boolean(current)}
-        title={`Rejeter ${current?.reference ?? ''}`}
+        open={Boolean(rejectTarget)}
+        title={`Rejeter ${rejectTarget?.reference ?? ''}`}
         description="Le signalement sort de la carte publique. L’habitant n’est pas notifié."
-        onClose={() => setRejecting(false)}
+        onClose={() => setRejectId(null)}
       >
         <div className="grid grid-cols-2 gap-2">
-          <Button onClick={() => setRejecting(false)} block>Annuler</Button>
-          <Button variant="danger" block loading={busy === `${current?.id}:REJETE`} onClick={() => { if (current) void moderate(current, 'REJETE'); }}>Rejeter</Button>
+          <Button onClick={() => setRejectId(null)} block>Annuler</Button>
+          <Button variant="danger" block loading={busy === `${rejectTarget?.id}:REJETE`} onClick={() => { if (rejectTarget) void moderate(rejectTarget, 'REJETE'); }}>Rejeter</Button>
         </div>
       </Modal>
     </AdminPage>

@@ -186,7 +186,7 @@ export function ProfilePage() {
       </Reveal>
 
       <div className="flex justify-end">
-        <Button variant="danger" onClick={() => { void logout().then(() => navigate('/')); }}><LogOut size={16} /> Se déconnecter</Button>
+        <Button variant="danger" onClick={() => { navigate('/'); void logout(); }}><LogOut size={16} /> Se déconnecter</Button>
       </div>
     </PublicPage>
   );
