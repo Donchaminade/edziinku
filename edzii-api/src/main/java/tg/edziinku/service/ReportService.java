@@ -98,13 +98,13 @@ public class ReportService {
                     .toList();
             return new Dtos.PageResponse<>(items, 0, items.size(), items.size());
         }
-        var result = reports.search(ReportStatus.VALIDE, level, neighborhoodId, null, PageRequest.of(page, size));
+        var result = reports.search(ReportStatus.VALIDE, level, neighborhoodId, "", PageRequest.of(page, size));
         return new Dtos.PageResponse<>(result.map(mapper::report).getContent(), page, size, result.getTotalElements());
     }
 
     @Transactional(readOnly = true)
     public Dtos.PageResponse<Dtos.ReportCard> adminSearch(ReportStatus status, WaterLevel level, UUID neighborhoodId, String q, int page, int size) {
-        String query = q == null || q.isBlank() ? null : q.trim();
+        String query = q == null || q.isBlank() ? "" : q.trim();
         var result = reports.search(status, level, neighborhoodId, query, PageRequest.of(page, size));
         return new Dtos.PageResponse<>(result.map(mapper::report).getContent(), page, size, result.getTotalElements());
     }
@@ -139,7 +139,7 @@ public class ReportService {
         StringBuilder csv = new StringBuilder();
         csv.append('\uFEFF');
         csv.append("reference;lieu;quartier;niveau;statut;canal;heure\n");
-        reports.search(status, null, null, null, PageRequest.of(0, 500)).forEach(report -> csv
+        reports.search(status, null, null, "", PageRequest.of(0, 500)).forEach(report -> csv
                 .append(report.getReference()).append(';')
                 .append(safe(report.getPlaceLabel())).append(';')
                 .append(report.getNeighborhood() == null ? "" : safe(report.getNeighborhood().getName())).append(';')

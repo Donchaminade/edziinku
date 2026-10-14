@@ -27,7 +27,7 @@ public interface ReportRepository extends JpaRepository<Report, UUID> {
                       AND (:level IS NULL OR r.waterLevel = :level)
                       AND (:neighborhoodId IS NULL OR n.id = :neighborhoodId)
                       AND (
-                        :q IS NULL
+                        :q = ''
                         OR lower(r.reference) LIKE lower(concat('%', :q, '%'))
                         OR lower(r.placeLabel) LIKE lower(concat('%', :q, '%'))
                         OR lower(coalesce(n.name, '')) LIKE lower(concat('%', :q, '%'))
@@ -41,7 +41,7 @@ public interface ReportRepository extends JpaRepository<Report, UUID> {
                       AND (:level IS NULL OR r.waterLevel = :level)
                       AND (:neighborhoodId IS NULL OR n.id = :neighborhoodId)
                       AND (
-                        :q IS NULL
+                        :q = ''
                         OR lower(r.reference) LIKE lower(concat('%', :q, '%'))
                         OR lower(r.placeLabel) LIKE lower(concat('%', :q, '%'))
                         OR lower(coalesce(n.name, '')) LIKE lower(concat('%', :q, '%'))
