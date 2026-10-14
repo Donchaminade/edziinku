@@ -13,7 +13,7 @@ Trois applications partagent la même API :
 
 Le thème **nuit** est le défaut. Un thème clair reprend les mêmes jetons (variables CSS côté web, `ThemeExtension` côté Flutter). Le choix est mémorisé sur l’appareil et, une fois connecté, renvoyé au profil. Les animations respectent `prefers-reduced-motion`. Les couleurs de l’interface sont des aplats de la charte : pas de dégradé, ni sur le web ni sur le mobile.
 
-L’accueil public est une vitrine : carrousel photo, voile flou à gauche pour le texte, image nette à droite, puis les sections de présentation. Les photos sont des scènes générées pour la maquette, pas des clichés de terrain. Chaque section porte une illustration SVG originale (aplats de la charte, thème nuit et thème clair). unDraw et Storyset n’ont pas été repris : leurs fichiers fixent souvent une couleur ou un dégradé. Le crédit est dans le pied de page.
+L’accueil public est une vitrine mobile d’abord : carrousel photo, voile flou aux courbes douces pour le texte, image nette à côté, puis un hero photo par section. Les photos sont des clichés réels Unsplash ou Pexels (pas des vues de Lomé) : le lieu, l’auteur et la source sont indiqués sur chaque image, fichiers dans `edziinku/public/photos/`. Il n’y a pas d’illustration SVG, ni de dégradé.
 
 ## Lancer
 

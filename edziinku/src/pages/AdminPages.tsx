@@ -1,11 +1,12 @@
 import { motion, useReducedMotion } from 'framer-motion';
 import { useEffect, useMemo, useState, type FormEvent } from 'react';
 import { MapView, type MapPin } from '../components/MapView';
+import { PageHero, QuietNote } from '../components/Hero';
 import { Page } from '../components/Shell';
+import { photos } from '../data/photos';
 import { api, apiBase, ApiError } from '../lib/api';
 import { ago, basinTone, clock, statusTone, waterTone } from '../lib/format';
 import { useLive } from '../lib/useCatalog';
-import { EmptyState, IlluAlert, IlluBasin, IlluMap, IlluTeam, IlluWhatsapp } from '../illustrations/scenes';
 import { CountUp, Drawer, HoverCard, Modal, Press, Reveal, Skeleton, Stagger, StaggerItem, Toast } from '../motion/ui';
 import { demoDashboard } from '../data/demo';
 import type { AlertItem, Dashboard, Outbound, Page as PageType, ReportItem, Team, TimelineItem } from '../types';
@@ -23,11 +24,14 @@ export function OverviewPage() {
   const data = dash;
   return (
     <Page>
-      <Reveal>
-        <IlluAlert />
-        <h1 className="mt-3 font-display text-4xl">Vue d’ensemble</h1>
-        <p className="mt-1 text-muted">{live.source === 'demo' || data?.demo ? 'Chiffres de démonstration.' : 'Chiffres issus de la base.'}</p>
-      </Reveal>
+      <PageHero
+        tone="compact"
+        photo={photos.cap}
+        kicker="Pilotage"
+        title="Vue d’ensemble"
+        short={live.source === 'demo' || data?.demo ? 'Chiffres de démonstration.' : 'Chiffres de la base.'}
+        long={live.source === 'demo' || data?.demo ? 'Chiffres de démonstration, tant que l’API ne répond pas.' : 'Chiffres issus de la base.'}
+      />
       {!data ? <Skeleton className="mt-6 h-28" /> : (
         <Stagger className="mt-6 grid gap-3 md:grid-cols-4">
           <Kpi label="Alertes envoyées" value={data.alertsSentToday} hint="aujourd’hui" hot />
@@ -107,20 +111,29 @@ export function AdminMapPage() {
     })),
   ], [live.reports, live.basins]);
   return (
-    <div className="grid min-h-screen lg:grid-cols-[320px_1fr]">
-      <div className="max-h-[40vh] overflow-auto p-4 lg:max-h-screen">
-        <IlluMap />
-        <h1 className="mt-2 font-display text-2xl">Carte live</h1>
-        <p className="text-sm text-muted">{live.reports.length} signalements · {live.basins.length} bassins</p>
-        <div className="mt-3 flex flex-col gap-2">
-          {pins.map((pin) => (
-            <button key={pin.id} type="button" className={`surface p-3 text-left ${id === pin.id ? 'ring-1 ring-cyan' : ''}`} onClick={() => setId(pin.id)}>
-              {pin.label}
-            </button>
-          ))}
-        </div>
+    <div>
+      <div className="p-4 pb-0">
+        <PageHero
+          tone="compact"
+          photo={photos.lekki}
+          kicker="Terrain"
+          title="Carte live"
+          short={`${live.reports.length} signalements · ${live.basins.length} bassins`}
+          long={`${live.reports.length} signalements et ${live.basins.length} bassins sur la même carte.`}
+        />
       </div>
-      <MapView className="h-[60vh] lg:h-screen" pins={pins} selectedId={id} onSelect={setId} />
+      <div className="mt-4 grid min-h-[70vh] lg:grid-cols-[320px_1fr]">
+        <div className="max-h-[40vh] overflow-auto p-4 lg:max-h-screen">
+          <div className="flex flex-col gap-2">
+            {pins.map((pin) => (
+              <button key={pin.id} type="button" className={`surface min-h-11 p-3 text-left ${id === pin.id ? 'ring-1 ring-cyan' : ''}`} onClick={() => setId(pin.id)}>
+                {pin.label}
+              </button>
+            ))}
+          </div>
+        </div>
+        <MapView className="h-[46vh] lg:h-screen" pins={pins} selectedId={id} onSelect={setId} />
+      </div>
     </div>
   );
 }
@@ -183,9 +196,15 @@ export function ModerationPage() {
 
   return (
     <Page>
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <IlluTeam />
-        <h1 className="mt-3 font-display text-4xl">Signalements</h1>
+      <PageHero
+        tone="compact"
+        photo={photos.inondee}
+        kicker="Modération"
+        title="Signalements"
+        short="File à vérifier, valider ou écarter."
+        long="File des signalements à vérifier, valider ou écarter. L’export CSV reprend le filtre en cours."
+      />
+      <div className="mt-4 flex flex-wrap items-center justify-end gap-3">
         <Press className="btn" onClick={() => { void download(); }}>Exporter CSV</Press>
       </div>
       <div className="mt-4 flex flex-wrap gap-2">
@@ -205,7 +224,7 @@ export function ModerationPage() {
         <span className="field w-auto min-w-48"><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Référence, lieu…" /></span>
       </div>
       <div className="surface mt-4 overflow-auto">
-        <table className="w-full text-left text-sm">
+        <table className="w-full min-w-[40rem] text-left text-sm">
           <thead className="text-muted">
             <tr>
               <th className="p-3">Réf.</th>
@@ -218,7 +237,7 @@ export function ModerationPage() {
           <tbody>
             {!rows && <tr><td colSpan={5} className="p-3"><Skeleton className="h-10" /></td></tr>}
             {rows && rows.length === 0 && (
-              <tr><td colSpan={5} className="p-3"><EmptyState title="Aucun signalement" text="La file de modération est vide pour ce filtre." /></td></tr>
+              <tr><td colSpan={5} className="p-3"><QuietNote title="Aucun signalement" text="La file de modération est vide pour ce filtre." /></td></tr>
             )}
             {rows?.map((row) => (
               <tr key={row.id} className="cursor-pointer border-t border-line" onClick={() => setCurrent(row)}>
@@ -286,8 +305,14 @@ export function AlertsPage() {
 
   return (
     <Page>
-      <IlluAlert />
-      <h1 className="mt-3 font-display text-4xl">Alertes</h1>
+      <PageHero
+        tone="compact"
+        photo={photos.nairobi}
+        kicker="Diffusion"
+        title="Alertes"
+        short="Publier avant la pluie, en français et en éwé."
+        long="Publier une alerte avant la pluie. Le français fait foi. L’éwé reste à relire par un locuteur natif."
+      />
       <div className="mt-6 grid gap-4 lg:grid-cols-2">
         <form className="surface flex flex-col gap-3 p-5" onSubmit={publish}>
           <label className="text-sm text-muted">Titre<span className="field mt-1"><input value={title} onChange={(event) => setTitle(event.target.value)} required /></span></label>
@@ -315,7 +340,7 @@ export function AlertsPage() {
                   <strong>{alert.title}</strong>
                   <span className="text-xs text-muted">{ago(alert.createdAt)}</span>
                 </div>
-                <p className="mt-2 text-sm text-muted">{alert.body}</p>
+                <p className="clamp-3 mt-2 text-sm text-muted">{alert.body}</p>
                 {alert.eweNeedsReview && <p className="ewe-note mt-2">Éwé à relire par un locuteur natif.</p>}
                 <button
                   type="button"
@@ -342,8 +367,14 @@ export function BasinsPage() {
   const { basins, loading } = useLive();
   return (
     <Page>
-      <IlluBasin />
-      <h1 className="mt-3 font-display text-4xl">Points noirs</h1>
+      <PageHero
+        tone="compact"
+        photo={photos.inondee}
+        kicker="Bassins"
+        title="Points noirs"
+        short="Obstruction des bassins suivis."
+        long="Bassins et caniveaux suivis, avec le taux d’obstruction remonté par les équipes."
+      />
       {loading ? <Skeleton className="mt-6 h-32" /> : (
         <Stagger className="mt-6 grid gap-3 md:grid-cols-2">
           {basins.map((basin) => (
@@ -372,8 +403,14 @@ export function HistoryPage() {
   }, []);
   return (
     <Page>
-      <IlluBasin />
-      <h1 className="mt-3 font-display text-4xl">Historique</h1>
+      <PageHero
+        tone="compact"
+        photo={photos.cap}
+        kicker="Chronologie"
+        title="Historique"
+        short="Alertes et signalements, dans l’ordre."
+        long="Alertes et signalements, du plus récent au plus ancien."
+      />
       <div className="mt-6 flex flex-col gap-4">
         {!items && <Skeleton className="h-20" />}
         {items?.map((item, index) => (
@@ -385,7 +422,7 @@ export function HistoryPage() {
             </article>
           </Reveal>
         ))}
-        {items && !items.length && <EmptyState title="Aucun événement" text="La chronologie se remplira avec les alertes et les signalements." />}
+        {items && !items.length && <QuietNote title="Aucun événement" text="La chronologie se remplira avec les alertes et les signalements." />}
       </div>
     </Page>
   );
@@ -398,11 +435,17 @@ export function TeamsPage() {
   }, []);
   return (
     <Page>
-      <IlluTeam />
-      <h1 className="mt-3 font-display text-4xl">Équipes</h1>
+      <PageHero
+        tone="compact"
+        photo={photos.entraide}
+        kicker="Terrain"
+        title="Équipes"
+        short="Qui est en route, et où."
+        long="Équipes de terrain, leur zone et leur mission du moment."
+      />
       <Stagger className="mt-6 grid gap-3 md:grid-cols-2">
         {!teams && <Skeleton className="h-24" />}
-        {teams && !teams.length && <EmptyState title="Aucune équipe" text="Les équipes de terrain apparaîtront ici." />}
+        {teams && !teams.length && <QuietNote title="Aucune équipe" text="Les équipes de terrain apparaîtront ici." />}
         {teams?.map((team) => (
           <StaggerItem key={team.id}>
             <HoverCard className="surface p-4">
@@ -427,9 +470,14 @@ export function OutboxPage() {
   }, []);
   return (
     <Page>
-      <IlluWhatsapp />
-      <h1 className="mt-3 font-display text-4xl">Messages sortants</h1>
-      <p className="mt-2 text-sm text-muted">File WhatsApp. Sans jeton Cloud API, les messages restent en échec d’envoi et sont conservés ici.</p>
+      <PageHero
+        tone="compact"
+        photo={photos.telephone}
+        kicker="WhatsApp"
+        title="Messages sortants"
+        short="Sans jeton Cloud API, l’envoi reste en échec."
+        long="File WhatsApp. Sans jeton Cloud API, les messages restent en échec d’envoi et sont conservés ici."
+      />
       <div className="mt-4 flex flex-col gap-3">
         {!rows && <Skeleton className="h-16" />}
         {rows?.map((row) => (
@@ -439,11 +487,11 @@ export function OutboxPage() {
                 <span>{row.recipient}</span>
                 <span className="tag" data-tone={row.status === 'SENT' ? 'ok' : row.status === 'FAILED' ? 'alert' : 'warn'}>{row.status}</span>
               </div>
-              <p className="mt-2 whitespace-pre-wrap">{row.body}</p>
+              <p className="clamp-3 mt-2 whitespace-pre-wrap">{row.body}</p>
             </article>
           </Reveal>
         ))}
-        {rows && !rows.length && <EmptyState title="Aucun message" text="La file WhatsApp est vide tant qu’aucune alerte n’est diffusée." />}
+        {rows && !rows.length && <QuietNote title="Aucun message" text="La file WhatsApp est vide tant qu’aucune alerte n’est diffusée." />}
       </div>
     </Page>
   );
