@@ -111,8 +111,8 @@ export function AdminMapPage() {
     })),
   ], [live.reports, live.basins]);
   return (
-    <div>
-      <div className="p-4 pb-0">
+    <div className="flex flex-col lg:h-screen">
+      <div className="shrink-0 p-4 pb-0">
         <PageHero
           tone="compact"
           photo={photos.lekki}
@@ -122,8 +122,8 @@ export function AdminMapPage() {
           long={`${live.reports.length} signalements et ${live.basins.length} bassins sur la même carte.`}
         />
       </div>
-      <div className="mt-4 grid min-h-[70vh] lg:grid-cols-[320px_1fr]">
-        <div className="max-h-[40vh] overflow-auto p-4 lg:max-h-screen">
+      <div className="mt-4 grid min-h-[70vh] flex-1 lg:min-h-0 lg:grid-cols-[320px_1fr]">
+        <div className="max-h-[40vh] overflow-auto p-4 lg:max-h-full lg:min-h-0">
           <div className="flex flex-col gap-2">
             {pins.map((pin) => (
               <button key={pin.id} type="button" className={`surface min-h-11 p-3 text-left ${id === pin.id ? 'ring-1 ring-cyan' : ''}`} onClick={() => setId(pin.id)}>
@@ -132,7 +132,7 @@ export function AdminMapPage() {
             ))}
           </div>
         </div>
-        <MapView className="h-[46vh] lg:h-screen" pins={pins} selectedId={id} onSelect={setId} />
+        <MapView className="h-[46vh] lg:h-full lg:min-h-0" pins={pins} selectedId={id} onSelect={setId} />
       </div>
     </div>
   );

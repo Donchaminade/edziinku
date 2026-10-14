@@ -689,7 +689,8 @@ button, input, textarea { font: inherit; color: inherit; }
   .photo-hero-band { min-height: 360px; border-radius: 32px; }
   .photo-hero-compact { min-height: 250px; border-radius: 28px; }
   .hero-photo { object-position: 72% center; }
-  .hero-veil {
+  .hero-veil,
+  .photo-hero-compact .hero-veil {
     inset: 0 auto 0 0;
     width: min(540px, 50%);
     min-height: 0;
