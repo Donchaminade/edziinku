@@ -1,4 +1,4 @@
-import type { AlertItem, Basin, Dashboard, Neighborhood, ReportItem, WeatherResponse } from '../types';
+import type { AlertItem, Basin, Dashboard, Neighborhood, Outbound, ReportItem, Team, TimelineItem, WeatherResponse } from '../types';
 
 export const demoNeighborhoods: Neighborhood[] = [
   { id: 'be', slug: 'be', name: 'Bè', commune: 'Golfe 1', riskLevel: 'ELEVE', riskLabel: 'Risque élevé', latitude: 6.1315, longitude: 1.232, approximate: false },
@@ -78,6 +78,25 @@ export const demoDashboard: Dashboard = {
   liveReports: demoReports.length,
   pendingReports: 2,
 };
+
+export const demoTimeline: TimelineItem[] = [
+  { id: 't1', occurredAt: '2026-10-14T17:57:00Z', title: 'Signalement EN-0327 reçu', detail: 'Bè Ahligo · eau au genou', kind: 'REPORT' },
+  { id: 't2', occurredAt: '2026-10-14T17:30:00Z', title: 'Équipe terrain 3 envoyée', detail: 'Bassin Léo 2000', kind: 'TEAM' },
+  { id: 't3', occurredAt: '2026-10-14T16:42:00Z', title: 'Alerte forte pluie envoyée', detail: 'Bè, Agoè-Nyivé · FR + éwé', kind: 'ALERT' },
+  { id: 't4', occurredAt: '2026-10-14T14:05:00Z', title: 'Curage planifié', detail: 'Bassin Gbézè · jeudi', kind: 'BASIN' },
+  { id: 't5', occurredAt: '2026-10-14T09:12:00Z', title: 'Prévision mise à jour', detail: 'Open-Meteo · 45–60 mm ce soir', kind: 'WEATHER' },
+];
+
+export const demoTeams: Team[] = [
+  { id: 'e3', name: 'Équipe terrain 3', zone: 'Bassin Léo 2000', status: 'SUR_PLACE', assignment: 'Débordement en cours' },
+  { id: 'e1', name: 'Équipe terrain 1', zone: 'Bè', status: 'EN_ROUTE', assignment: 'Caniveaux du marché' },
+  { id: 'e2', name: 'Équipe terrain 2', zone: 'Agoè-Nyivé', status: 'DISPONIBLE', assignment: null },
+];
+
+export const demoOutbox: Outbound[] = [
+  { id: 'o1', recipient: '+22890000001', body: 'Edzii-Nku · Forte pluie prévue à Bè ce soir (18 h – 23 h). Surélevez vos biens, évitez les caniveaux.', status: 'FAILED', createdAt: '2026-10-14T16:43:00Z' },
+  { id: 'o2', recipient: '+22890000002', body: 'Edzii-Nku · Signalement EN-0327 reçu. La mairie le vérifie. Merci.', status: 'QUEUED', createdAt: '2026-10-14T17:58:00Z' },
+];
 
 function report(
   reference: string,
