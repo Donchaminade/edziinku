@@ -11,7 +11,9 @@ Trois applications partagent la même API :
 | `edzii-api/` | API Spring Boot 3, PostgreSQL + PostGIS, JWT, WhatsApp Cloud API, Open-Meteo |
 | `design/` | Maquettes, logos et fiche projet |
 
-Le thème **nuit** est le défaut. Un thème clair reprend les mêmes jetons (variables CSS côté web, `ThemeExtension` côté Flutter). Le choix est mémorisé sur l’appareil et, une fois connecté, renvoyé au profil. Les animations respectent `prefers-reduced-motion`.
+Le thème **nuit** est le défaut. Un thème clair reprend les mêmes jetons (variables CSS côté web, `ThemeExtension` côté Flutter). Le choix est mémorisé sur l’appareil et, une fois connecté, renvoyé au profil. Les animations respectent `prefers-reduced-motion`. Les couleurs de l’interface sont des aplats de la charte : pas de dégradé, ni sur le web ni sur le mobile.
+
+L’accueil public est une vitrine : carrousel photo, voile flou à gauche pour le texte, image nette à droite, puis les sections de présentation. Les photos sont des scènes générées pour la maquette, pas des clichés de terrain. Chaque section porte une illustration SVG originale (aplats de la charte, thème nuit et thème clair). unDraw et Storyset n’ont pas été repris : leurs fichiers fixent souvent une couleur ou un dégradé. Le crédit est dans le pied de page.
 
 ## Lancer
 
@@ -68,6 +70,32 @@ Santé de l’API : `GET /actuator/health`. Documentation : `/swagger-ui.html` (
 Le webhook est `GET/POST /api/whatsapp/webhook`. Renseignez `WHATSAPP_TOKEN`, `WHATSAPP_PHONE_NUMBER_ID`, `WHATSAPP_VERIFY_TOKEN` et `WHATSAPP_APP_SECRET`. Sans jeton, les messages sont conservés dans la file (écran admin Messages) et ne partent pas. Le parcours (langue, quartier, photo, position, niveau) est dans `BotEngine`. Les textes en éwé sont un premier jet : **à relire par un locuteur natif**.
 
 Google OAuth : `POST /api/auth/google` existe. Il reste inactif tant que `GOOGLE_CLIENT_ID` est vide.
+
+## Déployer
+
+Le web et l’API ne vont pas au même endroit. Le front est une SPA Vite. L’API est un processus Java avec PostgreSQL et PostGIS.
+
+### Web sur Vercel
+
+1. Importer le dépôt. **Root Directory : `edziinku`.**
+2. Framework : Vite. Build : `npm run build`. Sortie : `dist`.
+3. `edziinku/vercel.json` renvoie toutes les routes (`/carte`, `/admin`, …) vers `index.html`. Les fichiers réels (images, `sw.js`) restent servis tels quels.
+4. Variable d’environnement **`VITE_API_URL`** : l’URL publique de l’API, sans barre finale, par exemple `https://edzii-api.onrender.com`. Vite l’inscrit dans le JavaScript **au build**. Après un changement, il faut redéployer.
+
+Ajouter cette origine Vercel à `FRONTEND_URL` côté API, sinon le navigateur bloque les appels.
+
+### API sur Render
+
+Render héberge le service Java. Vercel ne lance pas Spring Boot.
+
+1. Nouveau **Web Service**, dépôt identique, runtime **Docker**.
+2. Dockerfile : `edzii-api/Dockerfile` (contexte `edzii-api`). Le processus écoute `0.0.0.0` et le port `PORT`.
+3. Contrôle de santé : `/actuator/health`.
+4. Base **PostgreSQL** avec l’extension **PostGIS** (la première migration exécute `CREATE EXTENSION IF NOT EXISTS postgis`).
+5. Variables : celles de `.env.example` (`DATABASE_URL`, `DATABASE_USER`, `DATABASE_PASSWORD`, `JWT_SECRET`, `FRONTEND_URL`, WhatsApp, `GOOGLE_CLIENT_ID`). `APP_ENV=prod` désactive les origines localhost automatiques : lister explicitement l’URL Vercel dans `FRONTEND_URL`.
+6. Les photos déposées dans `UPLOAD_DIR` disparaissent au redémarrage du disque éphémère. Pour les garder, attacher un disque persistant Render et pointer `UPLOAD_DIR` dessus.
+
+Le client web lit uniquement `VITE_API_URL`. Le mobile lit `API_BASE` (`--dart-define=API_BASE=https://edzii-api.onrender.com`).
 
 ## Ce qui est en place
 

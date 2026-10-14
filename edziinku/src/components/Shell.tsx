@@ -156,6 +156,7 @@ export function PublicLayout() {
         <footer className="mx-auto mt-16 max-w-6xl px-4 pb-10 text-sm text-muted">
           <div className="flex flex-wrap items-center justify-between gap-3 border-t border-line pt-6">
             <span className="inline-flex items-center gap-2"><Waves size={16} /> Edzii-Nku · Lomé</span>
+            <span>Illustrations originales, SVG sur mesure, aplats de la charte.</span>
             <span>Urgence : 170</span>
           </div>
         </footer>

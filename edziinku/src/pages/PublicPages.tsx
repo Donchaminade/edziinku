@@ -1,13 +1,28 @@
-import { motion, useReducedMotion } from 'framer-motion';
-import { Camera, LocateFixed, MapPin, MessageCircle, ShieldCheck } from 'lucide-react';
+import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
+import { Camera, ChevronLeft, ChevronRight, LocateFixed, MapPin, MessageCircle, ShieldCheck } from 'lucide-react';
 import { useEffect, useMemo, useState, type FormEvent } from 'react';
 import { Link, useNavigate } from 'react-router';
 import { MapView, type MapPin as Pin } from '../components/MapView';
 import { LivePill, Page, ThemeToggle } from '../components/Shell';
 import { useAuth } from '../context/AuthContext';
 import { api, ApiError } from '../lib/api';
-import { ago, alertTone, statusTone, waterPhrase, waterTone } from '../lib/format';
+import { ago, statusTone, waterPhrase, waterTone } from '../lib/format';
 import { useLive } from '../lib/useCatalog';
+import {
+  EmptyState,
+  IlluAlert,
+  IlluBasin,
+  IlluCamera,
+  IlluCommunity,
+  IlluEye,
+  IlluFlood,
+  IlluLanguages,
+  IlluMap,
+  IlluPartners,
+  IlluQuarter,
+  IlluTeam,
+  IlluWhatsapp,
+} from '../illustrations/scenes';
 import { Drawer, HoverCard, LiveDot, Press, Reveal, Skeleton, Stagger, StaggerItem, Toast } from '../motion/ui';
 import { useTheme } from '../theme/ThemeProvider';
 import type { Neighborhood, Preference, Profile, ReportItem, WaterLevel } from '../types';
@@ -18,99 +33,277 @@ const levels: { id: WaterLevel; label: string; hint: string }[] = [
   { id: 'TAILLE', label: 'Taille', hint: 'Danger immédiat' },
 ];
 
+const heroSlides = [
+  { src: '/hero/pluie-lome.jpg', alt: 'Rue de Lomé sous la pluie' },
+  { src: '/hero/quartier-lome.jpg', alt: 'Cour de quartier après l’averse' },
+  { src: '/hero/bassin-lome.jpg', alt: 'Bassin de rétention à Lomé' },
+  { src: '/hero/entraide-lome.jpg', alt: 'Voisins à l’abri pendant l’averse' },
+];
+
+function HeroCarousel() {
+  const live = useLive();
+  const reduce = useReducedMotion();
+  const [index, setIndex] = useState(0);
+  const [paused, setPaused] = useState(false);
+  const slide = heroSlides[index];
+
+  useEffect(() => {
+    if (reduce || paused) return;
+    const timer = window.setInterval(() => {
+      setIndex((current) => (current + 1) % heroSlides.length);
+    }, 5600);
+    return () => window.clearInterval(timer);
+  }, [paused, reduce]);
+
+  function go(next: number) {
+    setIndex((next + heroSlides.length) % heroSlides.length);
+  }
+
+  return (
+    <section
+      className="hero-stage"
+      aria-roledescription="carrousel"
+      aria-label="Lomé sous la pluie"
+      onMouseEnter={() => setPaused(true)}
+      onMouseLeave={() => setPaused(false)}
+    >
+      <AnimatePresence initial={false}>
+        <motion.img
+          key={slide.src}
+          src={slide.src}
+          alt={slide.alt}
+          className="hero-photo"
+          initial={reduce ? false : { opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: reduce ? 0.01 : 0.8, ease: [0.16, 1, 0.3, 1] }}
+        />
+      </AnimatePresence>
+      <div className="hero-veil">
+        <IlluEye immediate />
+        <LivePill>
+          <LiveDot /> {live.loading ? 'Connexion…' : live.source === 'api' ? 'Données en direct' : 'Données de démonstration'}
+        </LivePill>
+        <h1 className="font-display text-5xl font-semibold leading-[1.05] md:text-6xl">
+          L’œil de la <span className="text-grad">pluie</span>
+        </h1>
+        <p className="max-w-md text-lg text-hero">
+          Edzii-Nku prévient les quartiers de Lomé avant que l’eau n’entre dans la cour. En français, et en éwé.
+        </p>
+        <div className="flex flex-wrap gap-3">
+          <Link to="/whatsapp" className="btn btn-primary"><MessageCircle size={18} /> Recevoir les alertes</Link>
+          <Link to="/signaler" className="btn">Signaler une inondation</Link>
+        </div>
+      </div>
+      <button type="button" className="hero-nav hero-nav-prev" aria-label="Image précédente" onClick={() => go(index - 1)}>
+        <ChevronLeft size={18} />
+      </button>
+      <button type="button" className="hero-nav hero-nav-next" aria-label="Image suivante" onClick={() => go(index + 1)}>
+        <ChevronRight size={18} />
+      </button>
+      <div className="hero-dots">
+        {heroSlides.map((item, itemIndex) => (
+          <button
+            key={item.src}
+            type="button"
+            className="hero-dot"
+            data-on={itemIndex === index}
+            aria-label={item.alt}
+            aria-current={itemIndex === index}
+            onClick={() => setIndex(itemIndex)}
+          />
+        ))}
+      </div>
+    </section>
+  );
+}
+
 export function HomePage() {
   const live = useLive();
   const lead = live.alerts[0];
   return (
-    <Page>
-      <section className="relative grid items-center gap-10 overflow-hidden py-8 md:grid-cols-[1.1fr_.9fr] md:py-16">
-        <div className="rings" aria-hidden>
-          <span /><span /><span /><span />
-        </div>
-        <div>
-          <Reveal>
-            <LivePill><LiveDot /> {live.loading ? 'Connexion…' : live.source === 'api' ? 'Données en direct' : 'Données de démonstration'}</LivePill>
-            <h1 className="mt-5 font-display text-5xl font-semibold leading-[1.05] md:text-6xl">
-              L’œil de la <span className="text-grad">pluie</span>
-            </h1>
-            <p className="mt-4 max-w-xl text-lg text-hero">
-              Edzii-Nku prévient les quartiers de Lomé avant que l’eau n’entre dans la cour. En français, et en éwé.
-            </p>
-          </Reveal>
-          <Reveal delay={0.08} className="mt-6 flex flex-wrap gap-3">
-            <Link to="/whatsapp" className="btn btn-primary"><MessageCircle size={18} /> Recevoir les alertes</Link>
-            <Link to="/signaler" className="btn">Signaler une inondation</Link>
-          </Reveal>
-          {lead && (
-            <Reveal delay={0.16}>
-              <HoverCard className="surface mt-8 max-w-xl p-5">
-                <span className="tag" data-tone={alertTone(lead.level)}>{lead.level === 'ELEVE' ? 'Risque élevé' : lead.level}</span>
-                <h2 className="mt-3 font-display text-2xl">{lead.title}</h2>
-                <p className="mt-2 text-muted">{lead.body}</p>
-                {lead.rainMmMax != null && <p className="mt-3 text-sm text-cyan">{lead.rainMmMin}–{lead.rainMmMax} mm · {lead.source}</p>}
-              </HoverCard>
-            </Reveal>
-          )}
-        </div>
-        <Reveal delay={0.1}>
-          <RainCard />
-        </Reveal>
-      </section>
-
-      <Reveal>
-        <section className="surface grid gap-6 p-6 md:grid-cols-2">
-          <div>
-            <p className="text-sm text-muted">Français</p>
-            <p className="mt-2 text-lg">De fortes pluies sont prévues ce soir. Surélevez vos biens, évitez les caniveaux.</p>
-          </div>
-          <div>
-            <p className="text-sm text-muted">Eʋegbe</p>
-            <p className="mt-2 text-lg">{lead?.bodyEwe || 'Tsi gã adza fiẽ sia. (texte à relire)'}</p>
-            <p className="ewe-note mt-3">Texte en éwé à relire par un locuteur natif.</p>
-          </div>
-        </section>
-      </Reveal>
-
-      <section className="mt-14">
-        <h2 className="font-display text-3xl">Trois gestes</h2>
-        <Stagger className="mt-6 grid gap-4 md:grid-cols-3">
-          {[
-            ['Choisir son quartier', 'Bè, Agoè-Nyivé, Zogbédji et les autres zones suivies.'],
-            ['Recevoir l’alerte', 'WhatsApp, l’application ou cette page, en français ou en éwé.'],
-            ['Signaler l’eau', 'Une photo, un point sur la carte, un niveau : cheville, genou, taille.'],
-          ].map(([title, text]) => (
-            <StaggerItem key={title}>
-              <HoverCard className="surface h-full p-5">
-                <h3 className="font-display text-xl">{title}</h3>
-                <p className="mt-2 text-muted">{text}</p>
-              </HoverCard>
-            </StaggerItem>
-          ))}
-        </Stagger>
-      </section>
-
-      <section className="mt-14">
-        <div className="mb-4 flex items-end justify-between">
-          <h2 className="font-display text-3xl">Quartiers</h2>
-          <Link to="/communes" className="text-sm text-cyan">Voir les communes</Link>
-        </div>
-        {live.loading ? <Skeleton className="h-28" /> : (
-          <Stagger className="grid gap-3 md:grid-cols-3">
-            {live.neighborhoods.map((hood) => (
-              <StaggerItem key={hood.id}>
-                <HoverCard className="surface p-4">
-                  <div className="flex items-center justify-between">
-                    <strong>{hood.name}</strong>
-                    <span className="tag" data-tone={hood.riskLevel === 'ELEVE' ? 'alert' : hood.riskLevel === 'MODERE' ? 'ok' : 'warn'}>{hood.riskLabel}</span>
-                  </div>
-                  <p className="mt-2 text-sm text-muted">{hood.commune}{hood.approximate ? ' · zone approximative' : ''}</p>
+    <>
+      <HeroCarousel />
+      <Page>
+        <section className="relative">
+          <div className="soft-shape" style={{ width: 180, height: 180, top: -40, right: -30 }} aria-hidden />
+          <Stagger className="grid gap-4 md:grid-cols-3">
+            {[
+              ['Deux langues', 'Français, et éwé à relire par un locuteur natif.'],
+              ['Trois canaux', 'Cette page, l’application, WhatsApp.'],
+              [live.neighborhoods.length ? `${live.neighborhoods.length} quartiers` : 'Quartiers', 'Bè, Agoè-Nyivé, Zogbédji et les zones suivies.'],
+            ].map(([title, text], index) => (
+              <StaggerItem key={title}>
+                <HoverCard className="surface showcase h-full p-6">
+                  {index === 0 ? <IlluLanguages /> : index === 1 ? <IlluWhatsapp /> : <IlluQuarter />}
+                  <h2 className="mt-3 font-display text-2xl">{title}</h2>
+                  <p className="mt-2 text-muted">{text}</p>
                 </HoverCard>
               </StaggerItem>
             ))}
           </Stagger>
-        )}
-      </section>
-    </Page>
+        </section>
+
+        <section className="relative mt-16 grid items-center gap-6 md:grid-cols-[220px_1fr]">
+          <IlluFlood />
+          <div>
+            <p className="step-no">Le problème</p>
+            <h2 className="mt-2 font-display text-4xl">L’eau entre avant l’alerte</h2>
+            <p className="mt-3 max-w-2xl text-muted">
+              À Lomé, une averse remplit la cour et le caniveau plus vite que le bouche-à-oreille. Le quartier l’apprend souvent quand il est déjà trop tard pour surélever les biens.
+            </p>
+          </div>
+        </section>
+
+        <section className="relative mt-16">
+          <div className="soft-shape" style={{ width: 220, height: 140, left: -40, bottom: -20, borderRadius: '48px' }} aria-hidden />
+          <Reveal>
+            <p className="step-no">Le projet</p>
+            <h2 className="mt-2 font-display text-4xl">Pourquoi Edzii-Nku</h2>
+            <p className="mt-3 max-w-2xl text-muted">Une vitrine simple pour voir la pluie venir, puis agir avec son quartier.</p>
+          </Reveal>
+          <Stagger className="mt-6 grid gap-4 md:grid-cols-2">
+            {[
+              ['Avant l’eau', 'L’alerte part quand la pluie prévue menace le quartier, pas après l’inondation.', 'alert'],
+              ['Vu par les habitants', 'Photo, lieu, niveau : cheville, genou ou taille. La mairie vérifie.', 'camera'],
+              ['Deux langues', 'Le message français est la référence. La version éwé est marquée à relire.', 'lang'],
+              ['Une carte commune', 'Signalements et bassins au même endroit, pour la ville et la protection civile.', 'map'],
+            ].map(([title, text, art]) => (
+              <StaggerItem key={title}>
+                <HoverCard className="surface h-full p-6">
+                  {art === 'alert' ? <IlluAlert /> : art === 'camera' ? <IlluCamera /> : art === 'lang' ? <IlluLanguages /> : <IlluMap />}
+                  <h3 className="mt-3 font-display text-xl">{title}</h3>
+                  <p className="mt-2 text-muted">{text}</p>
+                </HoverCard>
+              </StaggerItem>
+            ))}
+          </Stagger>
+        </section>
+
+        <section className="mt-16">
+          <Reveal>
+            <p className="step-no">Le parcours</p>
+            <h2 className="mt-2 font-display text-4xl">Comment ça marche</h2>
+          </Reveal>
+          <Stagger className="mt-6 grid gap-4 md:grid-cols-4">
+            {[
+              ['01', 'Choisir son quartier', 'L’alerte ne part que là où vous habitez.'],
+              ['02', 'Recevoir le message', 'WhatsApp, l’application ou cette page.'],
+              ['03', 'Dire ce que vous voyez', 'Une photo et un niveau d’eau suffisent.'],
+              ['04', 'La ville suit', 'Validation, points noirs, équipes sur le terrain.'],
+            ].map(([step, title, text]) => (
+              <StaggerItem key={step}>
+                <HoverCard className="surface h-full p-5">
+                  {step === '01' ? <IlluQuarter /> : step === '02' ? <IlluAlert /> : step === '03' ? <IlluCamera /> : <IlluTeam />}
+                  <p className="step-no mt-3">{step}</p>
+                  <h3 className="mt-2 font-display text-lg">{title}</h3>
+                  <p className="mt-2 text-sm text-muted">{text}</p>
+                </HoverCard>
+              </StaggerItem>
+            ))}
+          </Stagger>
+        </section>
+
+        <Reveal>
+          <section className="surface showcase mt-16 grid items-center gap-6 p-6 md:grid-cols-[220px_1fr_1fr] md:p-8">
+            <IlluLanguages />
+            <div>
+              <p className="text-sm text-muted">Français</p>
+              <p className="mt-2 text-lg">{lead?.body || 'De fortes pluies sont prévues. Surélevez vos biens, évitez les caniveaux.'}</p>
+            </div>
+            <div>
+              <p className="text-sm text-muted">Eʋegbe</p>
+              <p className="mt-2 text-lg">{lead?.bodyEwe || 'Tsi gã adza fiẽ sia. (texte à relire)'}</p>
+              <p className="ewe-note mt-3">Texte en éwé à relire par un locuteur natif.</p>
+            </div>
+          </section>
+        </Reveal>
+
+        <section className="mt-16 grid items-center gap-6 md:grid-cols-[220px_1fr]">
+          <IlluAlert />
+          <div>
+            <p className="step-no">Alertes</p>
+            <h2 className="font-display text-3xl">{lead?.title || 'Forte pluie prévue'}</h2>
+            <p className="mt-2 text-muted">{lead?.body || 'Le message part avant la pluie, en français et en éwé.'}</p>
+            <RainCard />
+          </div>
+        </section>
+
+        <section className="mt-16 grid items-center gap-6 md:grid-cols-[220px_1fr]">
+          <IlluMap />
+          <div>
+            <p className="step-no">Carte</p>
+            <h2 className="font-display text-3xl">Voir l’eau déjà signalée</h2>
+            <p className="mt-2 max-w-xl text-muted">Les points restent lisibles, de nuit comme de jour. La carte, elle, garde son contraste sombre.</p>
+            <Link to="/carte" className="btn mt-4">Ouvrir la carte</Link>
+          </div>
+        </section>
+
+        <section className="mt-16 grid items-center gap-6 md:grid-cols-[220px_1fr]">
+          <IlluWhatsapp />
+          <div>
+            <p className="step-no">Bot WhatsApp</p>
+            <h2 className="font-display text-3xl">Le quartier dans la poche</h2>
+            <p className="mt-2 max-w-xl text-muted">Langue, quartier, puis une photo et un niveau d’eau. La simulation montre le parcours ; le bot réel répond via l’API.</p>
+            <Link to="/whatsapp" className="btn mt-4">Essayer le parcours</Link>
+          </div>
+        </section>
+
+        <section className="mt-16">
+          <div className="mb-4 flex items-end justify-between">
+            <h2 className="font-display text-3xl">Quartiers</h2>
+            <Link to="/communes" className="text-sm text-cyan">Voir les communes</Link>
+          </div>
+          {live.loading ? <Skeleton className="h-28" /> : (
+            <Stagger className="grid gap-3 md:grid-cols-3">
+              {live.neighborhoods.map((hood) => (
+                <StaggerItem key={hood.id}>
+                  <HoverCard className="surface p-4">
+                    <div className="flex items-center justify-between">
+                      <strong>{hood.name}</strong>
+                      <span className="tag" data-tone={hood.riskLevel === 'ELEVE' ? 'alert' : hood.riskLevel === 'MODERE' ? 'ok' : 'warn'}>{hood.riskLabel}</span>
+                    </div>
+                    <p className="mt-2 text-sm text-muted">{hood.commune}{hood.approximate ? ' · zone approximative' : ''}</p>
+                  </HoverCard>
+                </StaggerItem>
+              ))}
+            </Stagger>
+          )}
+        </section>
+
+        <Reveal>
+          <section className="mt-16">
+            <p className="step-no">Acteurs</p>
+            <h2 className="mt-2 font-display text-3xl">Qui fait circuler l’alerte</h2>
+            <p className="mt-2 max-w-2xl text-sm text-muted">Pas un partenariat signé : les rôles que la plateforme prévoit. Open-Meteo fournit la pluie prévue, en donnée ouverte.</p>
+            <Stagger className="mt-6 grid gap-4 md:grid-cols-4">
+              {[
+                ['Habitants', 'Ils signalent et reçoivent.', 'people'],
+                ['Mairie', 'Elle valide et suit les bassins.', 'city'],
+                ['Protection civile', 'Elle envoie les équipes.', 'team'],
+                ['Open-Meteo', 'La source météo, publique.', 'rain'],
+              ].map(([title, text, art]) => (
+                <StaggerItem key={title}>
+                  <HoverCard className="surface h-full p-4">
+                    {art === 'people' ? <IlluCommunity /> : art === 'city' ? <IlluPartners /> : art === 'team' ? <IlluTeam /> : <IlluBasin />}
+                    <h3 className="mt-2 font-display text-lg">{title}</h3>
+                    <p className="text-sm text-muted">{text}</p>
+                  </HoverCard>
+                </StaggerItem>
+              ))}
+            </Stagger>
+          </section>
+          <section className="surface showcase mt-16 flex flex-wrap items-center justify-between gap-4 p-8">
+            <IlluCommunity />
+            <div className="min-w-0 flex-1">
+              <h2 className="font-display text-3xl">Votre quartier mérite d’être prévenu.</h2>
+              <p className="mt-2 text-muted">Rejoignez les alertes, ou dites ce que vous voyez dans la rue.</p>
+            </div>
+            <Link to="/connexion" className="btn btn-primary">Créer un compte</Link>
+          </section>
+        </Reveal>
+      </Page>
+    </>
   );
 }
 
@@ -154,10 +347,14 @@ export function MapPage() {
     <Page className="!max-w-none !px-0 !py-0">
       <div className="grid min-h-[calc(100vh-72px)] lg:grid-cols-[380px_1fr]">
         <div className="order-2 max-h-[50vh] overflow-auto p-4 lg:order-1 lg:max-h-none">
-          <h1 className="font-display text-3xl">Carte live</h1>
+          <IlluMap />
+          <h1 className="mt-3 font-display text-3xl">Carte live</h1>
           <p className="mt-1 text-sm text-muted">Signalements ouverts à Lomé. La carte reste en contraste nuit.</p>
           <Stagger className="mt-4 flex flex-col gap-3">
             {live.loading && <Skeleton className="h-24" />}
+            {!live.loading && live.reports.length === 0 && (
+              <EmptyState title="Aucun signalement" text="La carte est calme. Le premier point apparaîtra ici." />
+            )}
             {live.reports.map((report) => (
               <StaggerItem key={report.id}>
                 <button type="button" className="w-full text-left" onClick={() => setSelected(report.id)}>
@@ -269,7 +466,8 @@ export function ReportPage() {
   return (
     <Page>
       <Reveal>
-        <h1 className="font-display text-4xl">Signaler l’eau</h1>
+        <IlluCamera />
+        <h1 className="mt-3 font-display text-4xl">Signaler l’eau</h1>
         <p className="mt-2 max-w-xl text-muted">Une photo, un lieu, un niveau. Le signalement anonyme est accepté.</p>
       </Reveal>
       <form className="mt-6 grid gap-4 md:grid-cols-[1fr_320px]" onSubmit={submit}>
@@ -327,7 +525,8 @@ export function HowPage() {
   return (
     <Page>
       <Reveal>
-        <h1 className="font-display text-4xl">Comment ça marche</h1>
+        <IlluTeam />
+        <h1 className="mt-3 font-display text-4xl">Comment ça marche</h1>
         <p className="mt-3 max-w-2xl text-muted">
           Edzii-Nku croise la pluie prévue (Open-Meteo), les signalements des habitants et les bassins suivis par la mairie et la protection civile.
         </p>
@@ -360,7 +559,8 @@ export function CommunesPage() {
   return (
     <Page>
       <Reveal>
-        <h1 className="font-display text-4xl">Communes suivies</h1>
+        <IlluQuarter />
+        <h1 className="mt-3 font-display text-4xl">Communes suivies</h1>
         <p className="mt-2 text-muted">Les polygones de quartiers sont dans PostGIS. Certaines limites restent approximatives.</p>
       </Reveal>
       {loading ? <Skeleton className="mt-6 h-40" /> : (
@@ -393,7 +593,8 @@ export function WhatsAppPage() {
     <Page>
       <div className="mx-auto grid max-w-xl gap-4">
         <Reveal>
-          <h1 className="font-display text-3xl">WhatsApp</h1>
+          <IlluWhatsapp />
+          <h1 className="mt-3 font-display text-3xl">WhatsApp</h1>
           <p className="mt-2 text-sm text-muted">Simulation du parcours. Le bot réel répond sur le webhook Cloud API de l’API.</p>
         </Reveal>
         <div className="wa">
@@ -476,7 +677,8 @@ export function AuthPage() {
   return (
     <Page>
       <motion.form className="surface mx-auto max-w-md p-6" onSubmit={submit} layout>
-        <div className="mb-4 flex justify-between">
+        <IlluCommunity />
+        <div className="mb-4 mt-3 flex justify-between">
           <h1 className="font-display text-3xl">{mode === 'login' ? 'Connexion' : 'Créer un compte'}</h1>
           <ThemeToggle />
         </div>
@@ -613,7 +815,7 @@ function Mine() {
     return () => { cancel = true; };
   }, []);
   if (!items) return <Skeleton className="h-24" />;
-  if (!items.length) return <p className="text-muted">Aucun signalement pour le moment.</p>;
+  if (!items.length) return <EmptyState title="Aucun signalement" text="Quand vous enverrez une photo et un niveau, ils resteront ici." />;
   return (
     <div className="flex flex-col gap-3">
       {items.map((item) => (

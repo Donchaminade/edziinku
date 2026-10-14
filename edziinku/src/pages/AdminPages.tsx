@@ -5,6 +5,7 @@ import { Page } from '../components/Shell';
 import { api, apiBase, ApiError } from '../lib/api';
 import { ago, basinTone, clock, statusTone, waterTone } from '../lib/format';
 import { useLive } from '../lib/useCatalog';
+import { EmptyState, IlluAlert, IlluBasin, IlluMap, IlluTeam, IlluWhatsapp } from '../illustrations/scenes';
 import { CountUp, Drawer, HoverCard, Modal, Press, Reveal, Skeleton, Stagger, StaggerItem, Toast } from '../motion/ui';
 import { demoDashboard } from '../data/demo';
 import type { AlertItem, Dashboard, Outbound, Page as PageType, ReportItem, Team, TimelineItem } from '../types';
@@ -23,7 +24,8 @@ export function OverviewPage() {
   return (
     <Page>
       <Reveal>
-        <h1 className="font-display text-4xl">Vue d’ensemble</h1>
+        <IlluAlert />
+        <h1 className="mt-3 font-display text-4xl">Vue d’ensemble</h1>
         <p className="mt-1 text-muted">{live.source === 'demo' || data?.demo ? 'Chiffres de démonstration.' : 'Chiffres issus de la base.'}</p>
       </Reveal>
       {!data ? <Skeleton className="mt-6 h-28" /> : (
@@ -107,7 +109,8 @@ export function AdminMapPage() {
   return (
     <div className="grid min-h-screen lg:grid-cols-[320px_1fr]">
       <div className="max-h-[40vh] overflow-auto p-4 lg:max-h-screen">
-        <h1 className="font-display text-2xl">Carte live</h1>
+        <IlluMap />
+        <h1 className="mt-2 font-display text-2xl">Carte live</h1>
         <p className="text-sm text-muted">{live.reports.length} signalements · {live.basins.length} bassins</p>
         <div className="mt-3 flex flex-col gap-2">
           {pins.map((pin) => (
@@ -181,7 +184,8 @@ export function ModerationPage() {
   return (
     <Page>
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h1 className="font-display text-4xl">Signalements</h1>
+        <IlluTeam />
+        <h1 className="mt-3 font-display text-4xl">Signalements</h1>
         <Press className="btn" onClick={() => { void download(); }}>Exporter CSV</Press>
       </div>
       <div className="mt-4 flex flex-wrap gap-2">
@@ -213,6 +217,9 @@ export function ModerationPage() {
           </thead>
           <tbody>
             {!rows && <tr><td colSpan={5} className="p-3"><Skeleton className="h-10" /></td></tr>}
+            {rows && rows.length === 0 && (
+              <tr><td colSpan={5} className="p-3"><EmptyState title="Aucun signalement" text="La file de modération est vide pour ce filtre." /></td></tr>
+            )}
             {rows?.map((row) => (
               <tr key={row.id} className="cursor-pointer border-t border-line" onClick={() => setCurrent(row)}>
                 <td className="p-3 font-display">{row.reference}</td>
@@ -279,7 +286,8 @@ export function AlertsPage() {
 
   return (
     <Page>
-      <h1 className="font-display text-4xl">Alertes</h1>
+      <IlluAlert />
+      <h1 className="mt-3 font-display text-4xl">Alertes</h1>
       <div className="mt-6 grid gap-4 lg:grid-cols-2">
         <form className="surface flex flex-col gap-3 p-5" onSubmit={publish}>
           <label className="text-sm text-muted">Titre<span className="field mt-1"><input value={title} onChange={(event) => setTitle(event.target.value)} required /></span></label>
@@ -334,7 +342,8 @@ export function BasinsPage() {
   const { basins, loading } = useLive();
   return (
     <Page>
-      <h1 className="font-display text-4xl">Points noirs</h1>
+      <IlluBasin />
+      <h1 className="mt-3 font-display text-4xl">Points noirs</h1>
       {loading ? <Skeleton className="mt-6 h-32" /> : (
         <Stagger className="mt-6 grid gap-3 md:grid-cols-2">
           {basins.map((basin) => (
@@ -363,7 +372,8 @@ export function HistoryPage() {
   }, []);
   return (
     <Page>
-      <h1 className="font-display text-4xl">Historique</h1>
+      <IlluBasin />
+      <h1 className="mt-3 font-display text-4xl">Historique</h1>
       <div className="mt-6 flex flex-col gap-4">
         {!items && <Skeleton className="h-20" />}
         {items?.map((item, index) => (
@@ -375,7 +385,7 @@ export function HistoryPage() {
             </article>
           </Reveal>
         ))}
-        {items && !items.length && <p className="text-muted">Aucun événement.</p>}
+        {items && !items.length && <EmptyState title="Aucun événement" text="La chronologie se remplira avec les alertes et les signalements." />}
       </div>
     </Page>
   );
@@ -388,9 +398,11 @@ export function TeamsPage() {
   }, []);
   return (
     <Page>
-      <h1 className="font-display text-4xl">Équipes</h1>
+      <IlluTeam />
+      <h1 className="mt-3 font-display text-4xl">Équipes</h1>
       <Stagger className="mt-6 grid gap-3 md:grid-cols-2">
         {!teams && <Skeleton className="h-24" />}
+        {teams && !teams.length && <EmptyState title="Aucune équipe" text="Les équipes de terrain apparaîtront ici." />}
         {teams?.map((team) => (
           <StaggerItem key={team.id}>
             <HoverCard className="surface p-4">
@@ -415,7 +427,8 @@ export function OutboxPage() {
   }, []);
   return (
     <Page>
-      <h1 className="font-display text-4xl">Messages sortants</h1>
+      <IlluWhatsapp />
+      <h1 className="mt-3 font-display text-4xl">Messages sortants</h1>
       <p className="mt-2 text-sm text-muted">File WhatsApp. Sans jeton Cloud API, les messages restent en échec d’envoi et sont conservés ici.</p>
       <div className="mt-4 flex flex-col gap-3">
         {!rows && <Skeleton className="h-16" />}
@@ -430,7 +443,7 @@ export function OutboxPage() {
             </article>
           </Reveal>
         ))}
-        {rows && !rows.length && <p className="text-muted">Aucun message pour le moment.</p>}
+        {rows && !rows.length && <EmptyState title="Aucun message" text="La file WhatsApp est vide tant qu’aucune alerte n’est diffusée." />}
       </div>
     </Page>
   );

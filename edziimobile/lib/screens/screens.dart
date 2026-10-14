@@ -55,7 +55,7 @@ class _OnboardingState extends State<Onboarding> {
                       padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 14),
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(16),
-                        gradient: LinearGradient(colors: [colors.water, colors.cyan]),
+                        color: colors.cyan,
                       ),
                       child: Text(step == pages.length - 1 ? 'Entrer' : 'Continuer', style: TextStyle(color: colors.ink, fontWeight: FontWeight.w700)),
                     ),
@@ -518,7 +518,7 @@ class _ReportFlowState extends State<ReportFlow> {
                 alignment: Alignment.center,
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(16),
-                  gradient: LinearGradient(colors: [colors.water, colors.cyan]),
+                  color: colors.cyan,
                 ),
                 child: Text(step == steps.length - 1 ? 'Terminer' : 'Suivant', style: TextStyle(color: colors.ink, fontWeight: FontWeight.w700)),
               ),
