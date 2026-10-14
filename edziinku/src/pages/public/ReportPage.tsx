@@ -368,11 +368,11 @@ export function ReportPage() {
                 <Button variant="ghost" onClick={() => goTo(step - 1)}><ArrowLeft size={17} /> Retour</Button>
               ) : <span />}
               {step < 2 ? (
-                <Button variant="primary" onClick={() => goTo(step + 1)} disabled={!canNext}>
+                <Button key="next" variant="primary" onClick={() => goTo(step + 1)} disabled={!canNext}>
                   {step === 0 && !photo ? 'Continuer sans photo' : 'Continuer'} <ArrowRight size={17} />
                 </Button>
               ) : (
-                <Button variant="primary" type="submit" loading={busy}>
+                <Button key="submit" variant="primary" type="submit" loading={busy}>
                   {!busy && <Send size={17} />} {busy ? 'Envoi…' : 'Envoyer'}
                 </Button>
               )}

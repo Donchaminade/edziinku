@@ -9,6 +9,8 @@ export interface Catalog {
   source: 'api' | 'demo';
   /** Vrai tant que l’API n’a ni répondu ni échoué (démarrage à froid de l’hébergeur). */
   waking: boolean;
+  /** Vrai si l’API répond mais qu’une partie des ressources a échoué. */
+  partial: boolean;
   neighborhoods: Neighborhood[];
   alerts: AlertItem[];
   reports: ReportItem[];
@@ -27,6 +29,7 @@ const demoState: State = {
   loading: false,
   source: 'demo',
   waking: false,
+  partial: false,
   neighborhoods: demoNeighborhoods,
   alerts: demoAlerts,
   reports: demoReports,
@@ -55,35 +58,35 @@ export function useCatalog(): Catalog {
     }, WAKE_TIMEOUT);
 
     (async () => {
-      try {
-        const [neighborhoods, alerts, reports, basins, weather, hourly] = await Promise.all([
-          api<Neighborhood[]>('/api/neighborhoods'),
-          api<AlertItem[]>('/api/alerts'),
-          api<Page<ReportItem>>('/api/reports?size=50'),
-          api<Basin[]>('/api/basins'),
-          api<WeatherResponse>('/api/weather/daily'),
-          api<HourlyResponse>('/api/weather/hourly'),
-        ]);
-        settled = true;
-        if (cancel) return;
-        setState({
-          loading: false,
-          source: 'api',
-          waking: false,
-          neighborhoods,
-          alerts,
-          reports: reports.items,
-          basins,
-          weather,
-          hourly,
-        });
-      } catch {
-        settled = true;
-        if (cancel) return;
+      const results = await Promise.allSettled([
+        api<Neighborhood[]>('/api/neighborhoods'),
+        api<AlertItem[]>('/api/alerts'),
+        api<Page<ReportItem>>('/api/reports?size=50'),
+        api<Basin[]>('/api/basins'),
+        api<WeatherResponse>('/api/weather/daily'),
+        api<HourlyResponse>('/api/weather/hourly'),
+      ]);
+      settled = true;
+      window.clearTimeout(timer);
+      if (cancel) return;
+      if (results.every((result) => result.status === 'rejected')) {
         setState(demoState);
-      } finally {
-        window.clearTimeout(timer);
+        return;
       }
+      const [neighborhoods, alerts, reports, basins, weather, hourly] = results;
+      const ok = <T,>(result: PromiseSettledResult<T>, fallback: T) => (result.status === 'fulfilled' ? result.value : fallback);
+      setState({
+        loading: false,
+        source: 'api',
+        waking: false,
+        partial: results.some((result) => result.status === 'rejected'),
+        neighborhoods: ok(neighborhoods, []),
+        alerts: ok(alerts, []),
+        reports: ok(reports, { items: [], page: 0, size: 0, total: 0 }).items,
+        basins: ok(basins, []),
+        weather: ok(weather, demoWeather),
+        hourly: ok(hourly, demoState.hourly),
+      });
     })();
 
     return () => {

@@ -36,10 +36,13 @@ const mainLinks = [
 
 export function DataStatus({ compact }: { compact?: boolean }) {
   const live = useLive();
-  const label = live.loading ? 'Connexion…' : live.source === 'api' ? 'Données en direct' : live.waking ? 'Réveil du serveur…' : 'Démonstration';
-  const tone = live.source === 'api' ? 'ok' : live.loading || live.waking ? 'info' : 'warn';
+  const label = live.loading ? 'Connexion…' : live.source === 'api' ? (live.partial ? 'En direct, partiel' : 'Données en direct') : live.waking ? 'Réveil du serveur…' : 'Démonstration';
+  const tone = live.source === 'api' ? (live.partial ? 'warn' : 'ok') : live.loading || live.waking ? 'info' : 'warn';
+  const title = live.source === 'demo'
+    ? 'L’API ne répond pas : jeu de démonstration affiché.'
+    : live.partial ? 'L’API répond, mais certaines données n’ont pas pu être chargées.' : 'Données servies par l’API Edzii-Nku.';
   return (
-    <span className="pill" title={live.source === 'demo' ? 'L’API ne répond pas : jeu de démonstration affiché.' : 'Données servies par l’API Edzii-Nku.'}>
+    <span className="pill" title={title}>
       <LiveDot tone={tone} />
       {compact ? (live.source === 'api' ? 'Live' : 'Démo') : label}
     </span>
