@@ -2,22 +2,55 @@
 <html lang="fr">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, viewport-fit=cover, interactive-widget=resizes-visual"
+    />
+    <meta name="theme-color" content="#f5f8fc" />
+    <meta name="color-scheme" content="light dark" />
     <meta
       name="description"
-      content="Edzii-Nku, l’œil de la pluie : alertes d’inondation à Lomé, en français et en éwé."
+      content="Edzii-Nku, l’œil de la pluie : alertes d’inondation à Lomé, en français et en éwé. Prévenir, signaler, agir ensemble."
     />
+    <link rel="canonical" href="https://edziinku.vercel.app/" />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="fr_TG" />
+    <meta property="og:site_name" content="Edzii-Nku" />
+    <meta property="og:title" content="Edzii-Nku — L’œil de la pluie" />
+    <meta property="og:description" content="Alertes d’inondation à Lomé, en français et en éwé : prévenir, signaler, agir ensemble." />
+    <meta property="og:url" content="https://edziinku.vercel.app/" />
+    <meta property="og:image" content="https://edziinku.vercel.app/og-preview.jpg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Accueil Edzii-Nku : l’œil de la pluie veille sur Lomé" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Edzii-Nku — L’œil de la pluie" />
+    <meta name="twitter:description" content="Alertes d’inondation à Lomé, en français et en éwé : prévenir, signaler, agir ensemble." />
+    <meta name="twitter:image" content="https://edziinku.vercel.app/og-preview.jpg" />
+    <meta name="application-name" content="Edzii-Nku" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="Edzii-Nku" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="format-detection" content="telephone=yes" />
     <link rel="icon" href="/logo-mark.svg" type="image/svg+xml" />
+    <link rel="icon" href="/icons/icon-192.png" type="image/png" sizes="192x192" />
+    <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
+    <link rel="preconnect" href="https://server.arcgisonline.com" crossorigin />
+    <link rel="dns-prefetch" href="https://server.arcgisonline.com" />
     <title>Edzii-Nku — L’œil de la pluie</title>
     <script>
       (function () {
+        var theme = 'light';
         try {
-          var stored = localStorage.getItem('edzii-theme');
-          document.documentElement.dataset.theme = stored === 'light' ? 'light' : 'dark';
+          theme = localStorage.getItem('edzii-theme') || 'light';
+          if (theme !== 'dark' && theme !== 'light') theme = 'light';
         } catch (e) {
-          document.documentElement.dataset.theme = 'dark';
+          /* stockage indisponible */
         }
+        document.documentElement.dataset.theme = theme;
+        var meta = document.querySelector('meta[name="theme-color"]');
+        if (meta) meta.setAttribute('content', theme === 'light' ? '#f5f8fc' : '#030b1e');
       })();
     </script>
   </head>

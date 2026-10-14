@@ -80,14 +80,14 @@ export function WhatsAppPage() {
         long="Abonnez-vous à votre quartier sur WhatsApp, recevez l’alerte avant la pluie et répondez par une photo quand l’eau monte."
       />
 
-      <section className="grid items-start gap-10 lg:grid-cols-[1fr_420px] lg:gap-16">
-        <div className="flex flex-col gap-8">
+      <section className="grid items-start gap-8 lg:grid-cols-[1fr_420px] lg:gap-16">
+        <div className="flex flex-col gap-8 max-lg:contents">
           <SectionHeader
             eyebrow="Essayez"
             title="Le parcours en trente secondes"
             lead="Cette simulation reproduit le bot. Le vrai bot répond via l’API WhatsApp Cloud."
           />
-          <Stagger className="grid gap-3">
+          <Stagger className="grid gap-3 max-lg:order-3">
             {features.map((feature) => (
               <StaggerItem key={feature.title} className="card flex items-start gap-4 p-4">
                 <span className="icon-tile" data-tone="whatsapp"><feature.icon size={20} /></span>
@@ -98,13 +98,13 @@ export function WhatsAppPage() {
               </StaggerItem>
             ))}
           </Stagger>
-          <Reveal className="flex flex-wrap gap-2.5">
-            <Button to="/connexion" variant="primary">Créer un compte</Button>
-            <Button onClick={reset}><RotateCcw size={16} /> Recommencer</Button>
+          <Reveal className="flex flex-wrap gap-2.5 max-lg:order-2">
+            <Button to="/connexion?mode=inscription" variant="primary" className="max-sm:flex-1">Créer un compte</Button>
+            <Button onClick={reset} className="max-sm:flex-1"><RotateCcw size={16} /> Recommencer</Button>
           </Reveal>
         </div>
 
-        <Reveal className="wa-phone">
+        <Reveal className="wa-phone max-lg:order-1">
           <div className="wa-screen">
             <div className="wa-head">
               <span className="grid h-10 w-10 place-items-center rounded-full" style={{ background: 'var(--surface-solid)' }}><LogoMark size={26} /></span>

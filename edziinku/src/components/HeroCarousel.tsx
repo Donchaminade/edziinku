@@ -1,14 +1,14 @@
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
 import { ChevronLeft, ChevronRight, CloudRain, Languages, MessageCircle, Pause, Play } from 'lucide-react';
-import { useCallback, useEffect, useState, type ReactNode } from 'react';
+import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
 import { photos, type StockPhoto } from '../data/photos';
 import { alertTone } from '../lib/format';
 import { useLive } from '../lib/useCatalog';
-import { Photo } from './Hero';
+import { Photo, SMALL_PHOTO_MAX } from './Hero';
 import { ease } from './ui/motion';
 
 const slides: StockPhoto[] = [photos.apresPluie, photos.grandMarche, photos.bassin, photos.routePlage, photos.hedzranawoe];
-const DURATION = 6500;
+export const HERO_AUTOPLAY_MS = 5500;
 
 export function HeroCarousel({ children }: { children: (slide: StockPhoto) => ReactNode }) {
   const reduce = useReducedMotion();
@@ -17,23 +17,41 @@ export function HeroCarousel({ children }: { children: (slide: StockPhoto) => Re
   const [paused, setPaused] = useState(false);
   const [hovered, setHovered] = useState(false);
   const [direction, setDirection] = useState(1);
+  const indexRef = useRef(0);
+  const pausedRef = useRef(false);
+  const hoveredRef = useRef(false);
   const slide = slides[index];
   const running = !paused && !hovered && !reduce;
   const lead = live.alerts[0];
 
+  indexRef.current = index;
+  pausedRef.current = paused;
+  hoveredRef.current = hovered;
+
   const go = useCallback((next: number, dir?: number) => {
-    setDirection(dir ?? (next > index ? 1 : -1));
-    setIndex((next + slides.length) % slides.length);
-  }, [index]);
+    const current = indexRef.current;
+    const target = ((next % slides.length) + slides.length) % slides.length;
+    const inferred = target === (current + 1) % slides.length ? 1 : -1;
+    setDirection(dir ?? inferred);
+    indexRef.current = target;
+    setIndex(target);
+  }, []);
 
   useEffect(() => {
-    if (!running) return;
-    const timer = window.setTimeout(() => go(index + 1, 1), DURATION);
-    return () => window.clearTimeout(timer);
-  }, [go, index, running]);
+    if (reduce) return undefined;
+    // Intervalle autonome : démarre sans clic, survit au remount StrictMode
+    // (cleanup + recréation) et ne dépend pas de l’index pour rester vivant.
+    const timer = window.setInterval(() => {
+      if (pausedRef.current || hoveredRef.current) return;
+      go(indexRef.current + 1, 1);
+    }, HERO_AUTOPLAY_MS);
+    return () => window.clearInterval(timer);
+  }, [go, reduce]);
 
   useEffect(() => {
-    slides.forEach((item) => { const img = new Image(); img.src = window.innerWidth < 800 ? item.srcSm : item.src; });
+    // Préchargement des autres photos, dans la version que <Photo> servira réellement.
+    const small = window.innerWidth <= SMALL_PHOTO_MAX;
+    slides.slice(1).forEach((item) => { const img = new Image(); img.src = small ? item.srcSm : item.src; });
   }, []);
 
   return (
@@ -41,6 +59,7 @@ export function HeroCarousel({ children }: { children: (slide: StockPhoto) => Re
       className="hero-home"
       aria-roledescription="carrousel"
       aria-label="Lomé, saison des pluies"
+      data-autoplay={running ? 'on' : 'off'}
       onPointerEnter={(event) => { if (event.pointerType === 'mouse') setHovered(true); }}
       onPointerLeave={() => setHovered(false)}
     >
@@ -52,7 +71,7 @@ export function HeroCarousel({ children }: { children: (slide: StockPhoto) => Re
           initial={reduce ? { opacity: 0 } : { opacity: 0, scale: 1.08 }}
           animate={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0 }}
-          transition={{ opacity: { duration: reduce ? 0.2 : 1.1, ease }, scale: { duration: DURATION / 1000 + 1.2, ease: 'linear' } }}
+          transition={{ opacity: { duration: reduce ? 0.2 : 1.1, ease }, scale: { duration: HERO_AUTOPLAY_MS / 1000 + 1.2, ease: 'linear' } }}
           drag={reduce ? false : 'x'}
           dragConstraints={{ left: 0, right: 0 }}
           dragElastic={0.12}
@@ -143,7 +162,7 @@ export function HeroCarousel({ children }: { children: (slide: StockPhoto) => Re
                       style={{ background: 'var(--cyan)' }}
                       initial={{ width: running ? '0%' : '100%' }}
                       animate={{ width: '100%' }}
-                      transition={{ duration: running ? DURATION / 1000 : 0, ease: 'linear' }}
+                      transition={{ duration: running ? HERO_AUTOPLAY_MS / 1000 : 0, ease: 'linear' }}
                     />
                   )}
                   {itemIndex < index && <span className="absolute inset-0 rounded-full" style={{ background: 'var(--accent-line)' }} />}

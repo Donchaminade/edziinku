@@ -27,15 +27,21 @@ function useEscape(open: boolean, onClose: () => void) {
   }, [open, onClose]);
 }
 
-function useIsDesktop(query = '(min-width: 768px)') {
+/** Vrai quand la requête média correspond ; suit les changements d’orientation et de taille. */
+export function useMediaQuery(query: string) {
   const [match, setMatch] = useState(() => typeof window !== 'undefined' && window.matchMedia(query).matches);
   useEffect(() => {
     const media = window.matchMedia(query);
     const update = () => setMatch(media.matches);
+    update();
     media.addEventListener('change', update);
     return () => media.removeEventListener('change', update);
   }, [query]);
   return match;
+}
+
+function useIsDesktop(query = '(min-width: 768px)') {
+  return useMediaQuery(query);
 }
 
 function Backdrop({ onClose }: { onClose: () => void }) {
@@ -75,7 +81,7 @@ export function Modal({
       {open && (
         <>
           <Backdrop key="backdrop" onClose={onClose} />
-          <div key="modal" className="pointer-events-none fixed inset-0 z-[71] grid place-items-center p-4">
+          <div key="modal" className="pointer-events-none fixed inset-0 z-[71] grid place-items-center p-4 max-md:items-end max-md:pb-[calc(16px+var(--safe-bottom))]">
             <motion.div
               role="dialog"
               aria-modal="true"
@@ -165,8 +171,8 @@ export function Sheet({
                 <X size={18} />
               </button>
             </header>
-            <div className="scroll-thin flex-1 overflow-y-auto px-5 pb-5 md:px-6">{children}</div>
-            {footer ? <footer className="border-t border-line px-5 py-4 md:px-6">{footer}</footer> : null}
+            <div className="sheet-body scroll-thin flex-1 overflow-y-auto px-5 pb-5 md:px-6">{children}</div>
+            {footer ? <footer className="sheet-footer border-t border-line px-5 py-4 md:px-6">{footer}</footer> : null}
           </motion.aside>
         </>
       )}
@@ -197,7 +203,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
     <ToastContext.Provider value={value}>
       {children}
       {createPortal(
-        <div className="pointer-events-none fixed inset-x-3 bottom-[calc(96px+env(safe-area-inset-bottom))] z-[90] flex flex-col items-center gap-2 lg:bottom-6" aria-live="polite">
+        <div className="pointer-events-none fixed inset-x-3 bottom-[calc(96px+var(--safe-bottom))] z-[90] flex flex-col items-center gap-2 lg:bottom-6" aria-live="polite">
           <AnimatePresence initial={false}>
             {items.map((toast) => {
               const Icon = toast.tone === 'ok' ? CheckCircle2 : toast.tone === 'alert' ? TriangleAlert : Info;

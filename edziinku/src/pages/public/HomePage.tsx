@@ -133,7 +133,7 @@ function Problem() {
   const points = [
     { icon: Clock3, title: 'L’eau va plus vite que l’info', text: 'Une averse remplit la cour avant que le quartier ne soit prévenu.' },
     { icon: BellRing, title: 'Prévenir avant la pluie', text: 'L’alerte part dès que la pluie prévue menace votre quartier.' },
-    { icon: Users, title: 'Les habitants voient en premier', text: 'Photo, lieu et niveau d’eau remontent à la mairie en direct.' },
+    { icon: Users, title: 'Les habitants voient en premier', text: 'Photo, lieu et niveau d’eau remontent tout de suite à la mairie.' },
   ];
   return (
     <section className="relative overflow-hidden py-16 md:py-24">
@@ -199,13 +199,15 @@ function Steps() {
         <Curves className="right-0 -bottom-10 h-64 w-[640px] max-w-none" variant="b" />
         <Container className="relative flex flex-col gap-10">
           <SectionHeader align="center" eyebrow="Le parcours" title="Comment ça marche" lead="Quatre étapes, du quartier à l’équipe de terrain." />
-          <Stagger className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4 lg:gap-4">
+          <Stagger className="grid gap-2.5 sm:grid-cols-2 sm:gap-3 lg:grid-cols-4 lg:gap-4">
             {steps.map((step, index) => (
               <StaggerItem key={step.title} className="h-full">
-                <Lift className="card card-hover flex h-full flex-col gap-3 p-5 md:p-6">
-                  <span className="step-num">0{index + 1}</span>
-                  <h3 className="t-h3">{step.title}</h3>
-                  <p className="text-sm text-muted">{step.text}</p>
+                <Lift className="card card-hover flex h-full items-center gap-4 p-4 sm:flex-col sm:items-start sm:gap-3 sm:p-5 md:p-6">
+                  <span className="step-num text-[34px] sm:text-[44px]">0{index + 1}</span>
+                  <div className="min-w-0">
+                    <h3 className="t-h3">{step.title}</h3>
+                    <p className="mt-0.5 text-sm text-muted sm:mt-1.5">{step.text}</p>
+                  </div>
                 </Lift>
               </StaggerItem>
             ))}
@@ -367,13 +369,16 @@ function Channels() {
         <Stagger className="grid gap-3">
           {channels.map((channel) => (
             <StaggerItem key={channel.title}>
-              <Lift className="card card-hover flex flex-col gap-4 p-5 sm:flex-row sm:items-center">
-                <span className="icon-tile icon-tile-lg" data-tone={channel.tone}><channel.icon size={24} /></span>
+              <Lift className="card card-hover relative flex items-start gap-3.5 p-4 sm:items-center sm:gap-4 sm:p-5">
+                <span className="icon-tile sm:h-14 sm:w-14 sm:rounded-[18px]" data-tone={channel.tone}><channel.icon size={22} /></span>
                 <div className="min-w-0 flex-1">
                   <h3 className="t-h3 text-lg">{channel.title}</h3>
-                  <p className="mt-1 text-sm text-muted">{channel.text}</p>
+                  <p className="mt-0.5 text-sm text-muted sm:mt-1">{channel.text}</p>
+                  <Link to={channel.to} className="mt-1 inline-flex min-h-11 items-center gap-1.5 text-sm font-semibold text-cyan after:absolute after:inset-0 after:content-[''] sm:hidden">
+                    {channel.cta} <ArrowRight size={15} />
+                  </Link>
                 </div>
-                <Link to={channel.to} className="inline-flex min-h-11 items-center gap-1.5 text-sm font-semibold text-cyan">
+                <Link to={channel.to} className="hidden min-h-11 shrink-0 items-center gap-1.5 text-sm font-semibold text-cyan sm:inline-flex">
                   {channel.cta} <ArrowRight size={15} />
                 </Link>
               </Lift>
@@ -480,22 +485,18 @@ function Neighborhoods() {
 function FinalCta() {
   return (
     <section>
-      <Container>
-        <Reveal className="page-hero !min-h-[340px]">
-          <Photo photo={photos.routePlage} className="hero-photo" sizes="100vw" />
-          <div className="hero-veil" />
-          <div className="page-hero-content">
-            <span className="t-eyebrow">Rejoindre</span>
-            <h2 className="t-h2">Votre quartier mérite d’être prévenu</h2>
-            <Copy className="t-lead" short="Recevez les alertes, ou signalez l’eau." long="Recevez les alertes de votre quartier, ou dites ce que vous voyez dans la rue." />
-            <div className="mt-2 flex flex-wrap gap-2.5">
-              <Button to="/connexion" variant="primary" size="lg">Créer un compte</Button>
-              <Button to="/signaler" size="lg"><Camera size={18} /> Signaler</Button>
-            </div>
-            <PhotoCredit photo={photos.routePlage} className="mt-1" />
+      <WaveDivider color="var(--cta-band)" />
+      <div className="cta-band">
+        <Container className="flex flex-col items-center gap-5 py-14 text-center md:py-20">
+          <span className="t-eyebrow">Rejoindre</span>
+          <h2 className="t-h2 max-w-2xl">Votre quartier mérite d’être prévenu</h2>
+          <Copy className="t-lead max-w-xl" short="Recevez les alertes, ou signalez l’eau." long="Recevez les alertes de votre quartier, ou dites ce que vous voyez dans la rue." />
+          <div className="flex flex-wrap justify-center gap-2.5">
+            <Button to="/connexion" size="lg">Créer un compte</Button>
+            <Button to="/signaler" size="lg"><Camera size={18} /> Signaler</Button>
           </div>
-        </Reveal>
-      </Container>
+        </Container>
+      </div>
     </section>
   );
 }

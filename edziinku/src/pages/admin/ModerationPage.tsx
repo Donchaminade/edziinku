@@ -7,7 +7,7 @@ import { useDocumentTitle } from '../../components/layout/common';
 import { ReportSummary } from '../../components/ReportDetail';
 import { Button } from '../../components/ui/Button';
 import { EmptyState } from '../../components/ui/Decor';
-import { Segmented, Select, TextInput } from '../../components/ui/Form';
+import { ScrollRow, Segmented, Select, TextInput } from '../../components/ui/Form';
 import { Reveal, Skeleton, ease } from '../../components/ui/motion';
 import { Modal, Sheet, useToast } from '../../components/ui/Overlay';
 import { photos } from '../../data/photos';
@@ -111,7 +111,7 @@ export function ModerationPage() {
 
       <Reveal className="card overflow-hidden p-0">
         <div className="flex flex-col gap-3 border-b border-line p-3 sm:p-4">
-          <div className="scroll-x -mx-1 px-1">
+          <ScrollRow>
             <Segmented
               label="Filtrer par statut"
               value={status}
@@ -125,7 +125,7 @@ export function ModerationPage() {
                 { value: 'ALL', label: 'Tous', count: rows?.length ?? 0 },
               ]}
             />
-          </div>
+          </ScrollRow>
           <div className="grid gap-2 sm:grid-cols-[1fr_220px]">
             <TextInput icon={<Search size={17} />} placeholder="Référence, lieu, commentaire…" value={query} onChange={(event) => setQuery(event.target.value)} aria-label="Rechercher un signalement" />
             <Select

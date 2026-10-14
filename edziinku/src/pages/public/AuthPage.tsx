@@ -62,7 +62,7 @@ export function AuthPage() {
         <div className="relative isolate min-h-[220px] overflow-hidden lg:min-h-0">
           <Photo photo={photos.plage} className="hero-photo" priority sizes="(min-width: 1024px) 50vw, 100vw" />
           <div className="hero-veil" />
-          <div className="relative z-[3] flex h-full flex-col justify-end gap-3 p-5 pt-28 md:p-10">
+          <div className="hero-copy relative z-[3] flex h-full flex-col justify-end gap-3 p-5 pt-28 md:p-10">
             <span className="t-eyebrow">Espace Edzii-Nku</span>
             <h1 className="t-h1 max-w-md">Un compte pour le quartier, la mairie et le terrain</h1>
             <p className="t-lead hidden max-w-md lg:block">Les habitants suivent leurs quartiers. Les équipes retrouvent leur tableau de bord.</p>
@@ -110,7 +110,20 @@ export function AuthPage() {
             </AnimatePresence>
 
             <Field label={mode === 'login' ? 'E-mail ou téléphone' : 'E-mail'} htmlFor="identifier">
-              <TextInput id="identifier" icon={<Mail size={17} />} required value={identifier} onChange={(event) => setIdentifier(event.target.value)} autoComplete="username" placeholder="vous@exemple.tg" />
+              <TextInput
+                id="identifier"
+                icon={<Mail size={17} />}
+                required
+                value={identifier}
+                onChange={(event) => setIdentifier(event.target.value)}
+                autoComplete={mode === 'login' ? 'username' : 'email'}
+                inputMode="email"
+                autoCapitalize="none"
+                autoCorrect="off"
+                spellCheck={false}
+                enterKeyHint="next"
+                placeholder="vous@exemple.tg"
+              />
             </Field>
 
             <AnimatePresence initial={false}>
@@ -133,6 +146,7 @@ export function AuthPage() {
                 value={password}
                 onChange={(event) => setPassword(event.target.value)}
                 autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
+                enterKeyHint={mode === 'login' ? 'go' : 'done'}
                 trailing={(
                   <button type="button" className="-mr-2 grid h-11 w-11 shrink-0 place-items-center text-muted" onClick={() => setShow((state) => !state)} aria-label={show ? 'Masquer le mot de passe' : 'Afficher le mot de passe'}>
                     {show ? <EyeOff size={18} /> : <Eye size={18} />}

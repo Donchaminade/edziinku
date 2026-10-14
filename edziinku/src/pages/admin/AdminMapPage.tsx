@@ -7,8 +7,9 @@ import { useDocumentTitle } from '../../components/layout/common';
 import { MapLegend, MapView, type MapPin } from '../../components/MapView';
 import { ReportSummary } from '../../components/ReportDetail';
 import { EmptyState } from '../../components/ui/Decor';
-import { Segmented, TextInput } from '../../components/ui/Form';
+import { ScrollRow, Segmented, TextInput } from '../../components/ui/Form';
 import { Meter, Reveal, ease } from '../../components/ui/motion';
+import { Sheet, useMediaQuery } from '../../components/ui/Overlay';
 import { photos } from '../../data/photos';
 import { ago, basinTone, waterTone } from '../../lib/format';
 import { useLive } from '../../lib/useCatalog';
@@ -36,6 +37,20 @@ export function AdminMapPage() {
 
   const currentReport = openReports.find((report) => report.id === selected) ?? null;
   const currentBasin = live.basins.find((basin) => basin.id === selected) ?? null;
+  const wide = useMediaQuery('(min-width: 640px)');
+
+  const detail = (
+    <>
+      {currentReport && <ReportSummary report={currentReport} withPhoto={Boolean(currentReport.photoUrl)} />}
+      {currentBasin && (
+        <div className="flex flex-col gap-2 text-sm">
+          <p className="text-muted">{currentBasin.commune}</p>
+          <Meter value={currentBasin.obstructionPct} tone={basinTone(currentBasin.status)} label="Obstruction" />
+          <p><span className="t-num font-semibold">{currentBasin.obstructionPct} %</span> obstrué · {currentBasin.statusLabel}</p>
+        </div>
+      )}
+    </>
+  );
 
   return (
     <AdminPage>
@@ -50,19 +65,21 @@ export function AdminMapPage() {
       <Reveal className="card overflow-hidden p-0">
         <div className="grid lg:grid-cols-[340px_1fr]">
           <div className="order-2 flex min-w-0 flex-col border-line lg:order-1 lg:border-r">
-            <div className="flex flex-col gap-3 border-b border-line p-4">
-              <TextInput icon={<Search size={17} />} placeholder="Lieu, bassin, référence…" value={query} onChange={(event) => setQuery(event.target.value)} aria-label="Rechercher sur la carte" />
-              <Segmented
-                label="Couches affichées"
-                value={layer}
-                onChange={setLayer}
-                className="w-full"
-                options={[
-                  { value: 'all', label: 'Tout', count: openReports.length + live.basins.length },
-                  { value: 'reports', label: 'Eau', count: openReports.length },
-                  { value: 'basins', label: 'Bassins', count: live.basins.length },
-                ]}
-              />
+            <div className="flex flex-col gap-3 border-b border-line p-3 sm:p-4">
+              <TextInput icon={<Search size={17} />} placeholder="Lieu, bassin, référence…" value={query} onChange={(event) => setQuery(event.target.value)} aria-label="Rechercher sur la carte" type="search" inputMode="search" enterKeyHint="search" autoComplete="off" />
+              <ScrollRow>
+                <Segmented
+                  label="Couches affichées"
+                  value={layer}
+                  onChange={setLayer}
+                  className="w-full min-w-max"
+                  options={[
+                    { value: 'all', label: 'Tout', count: openReports.length + live.basins.length },
+                    { value: 'reports', label: 'Eau', count: openReports.length },
+                    { value: 'basins', label: 'Bassins', count: live.basins.length },
+                  ]}
+                />
+              </ScrollRow>
             </div>
             <ul className="scroll-thin flex max-h-[380px] flex-col gap-1.5 overflow-y-auto p-3 lg:max-h-[640px]">
               {pins.length === 0 && <li><EmptyState title="Rien à afficher" text="Aucun point ne correspond à cette recherche." /></li>}
@@ -84,11 +101,11 @@ export function AdminMapPage() {
               ))}
             </ul>
           </div>
-          <div className="relative order-1 lg:order-2">
+          <div className="relative isolate order-1 lg:order-2">
             <MapView pins={pins} selectedId={selected} onSelect={setSelected} className="h-[56svh] min-h-[340px] lg:h-[740px]" />
             <MapLegend className="absolute top-3 left-3 z-[500]" />
             <AnimatePresence>
-              {(currentReport || currentBasin) && (
+              {(currentReport || currentBasin) && wide && (
                 <motion.div
                   key={selected}
                   className="glass-strong absolute right-3 bottom-3 left-3 z-[500] rounded-[22px] p-4 sm:right-auto sm:w-[360px]"
@@ -104,20 +121,22 @@ export function AdminMapPage() {
                     </div>
                     <button type="button" className="btn btn-ghost btn-icon -mt-1 -mr-1" onClick={() => setSelected(null)} aria-label="Fermer le détail"><X size={18} /></button>
                   </div>
-                  {currentReport && <div className="max-h-[38svh] overflow-y-auto"><ReportSummary report={currentReport} withPhoto={Boolean(currentReport.photoUrl)} /></div>}
-                  {currentBasin && (
-                    <div className="flex flex-col gap-2 text-sm">
-                      <p className="text-muted">{currentBasin.commune}</p>
-                      <Meter value={currentBasin.obstructionPct} tone={basinTone(currentBasin.status)} label="Obstruction" />
-                      <p><span className="t-num font-semibold">{currentBasin.obstructionPct} %</span> obstrué · {currentBasin.statusLabel}</p>
-                    </div>
-                  )}
+                  <div className="max-h-[38svh] overflow-y-auto">{detail}</div>
                 </motion.div>
               )}
             </AnimatePresence>
           </div>
         </div>
       </Reveal>
+
+      <Sheet
+        open={Boolean(currentReport || currentBasin) && !wide}
+        onClose={() => setSelected(null)}
+        title={currentReport?.placeLabel ?? currentBasin?.name ?? ''}
+        subtitle={currentReport ? <span className="t-num">{currentReport.reference} · {ago(currentReport.createdAt)}</span> : currentBasin ? `Bassin · ${currentBasin.commune}` : undefined}
+      >
+        {detail}
+      </Sheet>
     </AdminPage>
   );
 }

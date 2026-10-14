@@ -24,7 +24,7 @@ import { Button } from '../ui/Button';
 import { Skeleton } from '../ui/motion';
 import { Sheet } from '../ui/Overlay';
 import { AnimatedOutlet, Brand, ThemeToggle } from './common';
-import { DataStatus } from './PublicLayout';
+import { DataStatus, useHideOnScroll } from './PublicLayout';
 
 interface AdminLink { to: string; label: string; short: string; icon: LucideIcon; end?: boolean; count?: 'pending' }
 
@@ -143,8 +143,8 @@ function Topbar() {
   const current = allLinks.find((link) => isActive(pathname, link));
   const today = new Intl.DateTimeFormat('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' }).format(new Date());
   return (
-    <header className="sticky top-0 z-30 px-3 pt-3 lg:px-0">
-      <div className="glass flex h-16 items-center justify-between gap-3 rounded-[22px] px-3 lg:px-5">
+    <header className="sticky top-0 z-30 px-3 pt-[calc(12px+var(--safe-top))] lg:px-0 lg:pt-3">
+      <div className="glass flex h-14 items-center justify-between gap-3 rounded-[22px] px-3 lg:h-16 lg:px-5">
         <div className="flex min-w-0 items-center gap-3">
           <span className="lg:hidden"><Brand to="/admin" compact /></span>
           <div className="hidden min-w-0 lg:block">
@@ -162,17 +162,25 @@ function Topbar() {
   );
 }
 
-function AdminBottomNav({ onMore }: { onMore: () => void }) {
+function AdminBottomNav({ onMore, moreOpen }: { onMore: () => void; moreOpen: boolean }) {
   const { pathname } = useLocation();
   const reduce = useReducedMotion();
   const pending = usePending();
+  const hidden = useHideOnScroll(moreOpen);
   const tabs = [allLinks[0], allLinks[1], allLinks[2], allLinks[3]];
+  const inMore = allLinks.slice(4).some((link) => isActive(pathname, link));
   return (
-    <nav className="bottom-nav glass-strong" aria-label="Navigation mobile de l’espace équipes">
+    <motion.nav
+      className="bottom-nav glass-strong"
+      aria-label="Navigation mobile de l’espace équipes"
+      data-hidden={hidden}
+      animate={{ y: hidden ? 'calc(100% + 24px)' : 0 }}
+      transition={reduce ? { duration: 0 } : { type: 'spring', stiffness: 380, damping: 36 }}
+    >
       {tabs.map((link) => {
         const on = isActive(pathname, link);
         return (
-          <NavLink key={link.to} to={link.to} end={link.end} className="bottom-link isolate" data-on={on}>
+          <NavLink key={link.to} to={link.to} end={link.end} className="bottom-link isolate" data-on={on} aria-label={link.label}>
             {on && (
               <motion.span
                 layoutId="admin-bottom-pill"
@@ -180,43 +188,69 @@ function AdminBottomNav({ onMore }: { onMore: () => void }) {
                 transition={reduce ? { duration: 0 } : { type: 'spring', stiffness: 500, damping: 38 }}
               />
             )}
-            <span className="relative">
+            <motion.span className="relative" whileTap={reduce ? undefined : { scale: 0.82 }} transition={{ type: 'spring', stiffness: 500, damping: 28 }}>
               <link.icon size={21} />
               {link.count === 'pending' && pending > 0 && (
-                <span className="absolute -top-1.5 -right-2.5 min-w-4 rounded-full px-1 text-center text-[10px] leading-4 font-bold text-white" style={{ background: 'var(--alert)' }}>
+                <span className="absolute -top-1.5 -right-2.5 min-w-4 rounded-full px-1 text-center text-[10px] leading-4 font-bold text-white" style={{ background: 'var(--alert)' }} aria-label={`${pending} à vérifier`}>
                   {pending}
                 </span>
               )}
-            </span>
+            </motion.span>
             <span className="max-w-full truncate px-1">{link.short}</span>
           </NavLink>
         );
       })}
-      <button type="button" className="bottom-link" onClick={onMore} aria-label="Plus de rubriques">
+      <motion.button
+        type="button"
+        className="bottom-link isolate"
+        data-on={inMore}
+        onClick={onMore}
+        aria-label="Plus de rubriques"
+        aria-haspopup="dialog"
+        aria-expanded={moreOpen}
+        whileTap={reduce ? undefined : { scale: 0.9 }}
+      >
+        {inMore && <span className="bottom-link-pill" />}
         <Menu size={21} />
         <span>Plus</span>
-      </button>
-    </nav>
+      </motion.button>
+    </motion.nav>
   );
 }
 
 function MoreSheet({ open, onClose }: { open: boolean; onClose: () => void }) {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const { pathname } = useLocation();
   return (
-    <Sheet open={open} onClose={onClose} title="Espace équipes" subtitle={`${user?.displayName ?? ''} · ${roleLabel(user?.role ?? '')}`}>
-      <div className="grid gap-2">
-        {allLinks.slice(4).map((link) => (
-          <NavLink key={link.to} to={link.to} onClick={onClose} className="card card-hover flex min-h-14 items-center gap-3 rounded-2xl px-4">
-            <span className="icon-tile icon-tile-sm"><link.icon size={18} /></span>
-            <span className="font-semibold">{link.label}</span>
-          </NavLink>
-        ))}
-        <div className="mt-2 grid grid-cols-2 gap-2">
+    <Sheet
+      open={open}
+      onClose={onClose}
+      title="Espace équipes"
+      subtitle={`${user?.displayName ?? ''} · ${roleLabel(user?.role ?? '')}`}
+      footer={(
+        <div className="grid grid-cols-2 gap-2">
           <Button to="/" onClick={onClose}><ExternalLink size={16} /> Site public</Button>
           <Button variant="danger" onClick={() => { onClose(); navigate('/'); void logout(); }}>
             <LogOut size={16} /> Quitter
           </Button>
+        </div>
+      )}
+    >
+      <div className="grid gap-2">
+        {allLinks.slice(4).map((link) => {
+          const on = isActive(pathname, link);
+          return (
+            <NavLink key={link.to} to={link.to} onClick={onClose} className="card card-hover flex min-h-14 items-center gap-3 rounded-2xl px-4" style={on ? { borderColor: 'var(--accent-line)' } : undefined}>
+              <span className="icon-tile icon-tile-sm"><link.icon size={18} /></span>
+              <span className="font-semibold">{link.label}</span>
+              {on && <span className="badge ml-auto">Ici</span>}
+            </NavLink>
+          );
+        })}
+        <div className="mt-2 flex items-center justify-between rounded-2xl border border-line px-4 py-1">
+          <span className="text-sm font-semibold">Thème</span>
+          <ThemeToggle />
         </div>
       </div>
     </Sheet>
@@ -225,6 +259,8 @@ function MoreSheet({ open, onClose }: { open: boolean; onClose: () => void }) {
 
 export function AdminLayout() {
   const [more, setMore] = useState(false);
+  const { pathname } = useLocation();
+  useEffect(() => setMore(false), [pathname]);
   return (
     <PendingProvider>
       <div className="has-bottom-nav min-h-screen lg:pl-[284px] lg:pr-6">
@@ -233,7 +269,7 @@ export function AdminLayout() {
         <main className="pb-10">
           <AnimatedOutlet scope="admin" />
         </main>
-        <AdminBottomNav onMore={() => setMore(true)} />
+        <AdminBottomNav onMore={() => setMore(true)} moreOpen={more} />
         <MoreSheet open={more} onClose={() => setMore(false)} />
       </div>
     </PendingProvider>
