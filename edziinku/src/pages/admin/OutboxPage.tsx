@@ -4,7 +4,7 @@ import { PageHero } from '../../components/Hero';
 import { AdminPage } from '../../components/layout/AdminLayout';
 import { useDocumentTitle } from '../../components/layout/common';
 import { EmptyState } from '../../components/ui/Decor';
-import { Segmented } from '../../components/ui/Form';
+import { ScrollRow, Segmented } from '../../components/ui/Form';
 import { Skeleton, Stagger, StaggerItem } from '../../components/ui/motion';
 import { demoOutbox } from '../../data/demo';
 import { photos } from '../../data/photos';
@@ -37,7 +37,7 @@ export function OutboxPage() {
         <Kpi label="En attente" value={by('QUEUED')} hint="à envoyer" icon={Clock} tone="warn" />
         <Kpi label="Échecs" value={by('FAILED')} hint="à vérifier" icon={AlertTriangle} tone="alert" />
       </Stagger>
-      <div className="scroll-x -mx-1 px-1">
+      <ScrollRow>
         <Segmented
           label="Filtrer par statut d’envoi"
           value={filter}
@@ -50,7 +50,7 @@ export function OutboxPage() {
             { value: 'FAILED', label: 'Échecs', count: by('FAILED') },
           ]}
         />
-      </div>
+      </ScrollRow>
       {!rows ? <Skeleton className="h-40" /> : visible.length === 0 ? (
         <EmptyState icon={<MessageCircle size={20} />} title="Aucun message" text="La file WhatsApp est vide pour ce filtre." />
       ) : (
