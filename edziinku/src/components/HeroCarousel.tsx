@@ -118,7 +118,7 @@ export function HeroCarousel({ children }: { children: (slide: StockPhoto) => Re
 
       {lead && (
         <motion.aside
-          className="glass-strong absolute right-6 bottom-[156px] z-[4] hidden w-[340px] rounded-[22px] p-4 lg:block xl:right-[max(24px,calc((100vw-1200px)/2+24px))]"
+          className="hero-alert"
           initial={reduce ? false : { opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.9, ease }}
@@ -128,11 +128,11 @@ export function HeroCarousel({ children }: { children: (slide: StockPhoto) => Re
             <span className="icon-tile" data-tone={alertTone(lead.level)}><CloudRain size={20} /></span>
             <div className="min-w-0">
               <p className="t-h3 text-[15px]">{lead.title}</p>
-              <p className="mt-0.5 line-clamp-2 text-xs text-muted">{lead.body}</p>
-              <div className="mt-2.5 flex flex-wrap gap-1.5">
+              <p className="hero-alert-body mt-0.5 line-clamp-2 text-xs">{lead.body}</p>
+              <div className="hero-alert-chips mt-2.5 flex flex-wrap gap-1.5">
                 <span className="badge badge-dot" data-tone={alertTone(lead.level)}>{lead.neighborhoodName ?? 'Grand Lomé'}</span>
                 <span className="badge" data-tone="neutral"><Languages size={12} /> FR · Éwé</span>
-                <span className="badge" data-tone="neutral"><MessageCircle size={12} /> WhatsApp</span>
+                <span className="badge" data-tone="whatsapp"><MessageCircle size={12} /> WhatsApp</span>
               </div>
             </div>
           </div>
