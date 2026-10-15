@@ -171,7 +171,7 @@ function AdminBottomNav({ onMore, moreOpen }: { onMore: () => void; moreOpen: bo
   const inMore = allLinks.slice(4).some((link) => isActive(pathname, link));
   return (
     <motion.nav
-      className="bottom-nav glass-strong"
+      className="bottom-nav"
       aria-label="Navigation mobile de l’espace équipes"
       data-hidden={hidden}
       animate={{ y: hidden ? 'calc(100% + 24px)' : 0 }}

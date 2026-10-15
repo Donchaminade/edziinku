@@ -143,7 +143,7 @@ function Problem() {
           <div className="photo-frame aspect-[4/3] md:aspect-[5/4]">
             <Photo photo={photos.adidogome2} className="h-full w-full" sizes="(min-width: 1024px) 50vw, 100vw" />
             <div className="photo-tag">
-              <span className="glass-strong inline-flex max-w-full items-center gap-2 rounded-xl px-3 py-2"><PhotoCredit photo={photos.adidogome2} /></span>
+              <PhotoCredit photo={photos.adidogome2} />
             </div>
           </div>
           {lead && (
@@ -363,7 +363,7 @@ function Channels() {
           <SectionHeader eyebrow="Trois canaux" title="L’alerte arrive là où vous êtes" lead={<Copy short="Même sans smartphone." long="Même sans smartphone, même avec peu de données mobiles." />} />
           <Reveal className="photo-frame hidden aspect-[16/10] lg:block">
             <Photo photo={photos.rue} className="h-full w-full" sizes="40vw" />
-            <div className="photo-tag"><span className="glass-strong rounded-xl px-3 py-2"><PhotoCredit photo={photos.rue} /></span></div>
+            <div className="photo-tag"><PhotoCredit photo={photos.rue} /></div>
           </Reveal>
         </div>
         <Stagger className="grid gap-3">

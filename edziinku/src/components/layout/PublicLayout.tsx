@@ -155,7 +155,7 @@ export function BottomNav({ onMenu, menuOpen }: { onMenu: () => void; menuOpen: 
   ];
   return (
     <motion.nav
-      className="bottom-nav glass-strong"
+      className="bottom-nav"
       aria-label="Navigation mobile"
       data-hidden={hidden}
       animate={{ y: hidden ? 'calc(100% + 24px)' : 0 }}

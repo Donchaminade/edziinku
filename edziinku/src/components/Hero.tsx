@@ -50,7 +50,7 @@ export function PhotoCredit({ photo, className }: { photo: StockPhoto; className
       rel="noreferrer"
       title={`${photo.alt} — ${photo.author}, ${photo.license}`}
     >
-      <Camera size={12} aria-hidden />
+      <Camera size={14} aria-hidden />
       <span className="truncate">{photo.place} · {photo.author} · {photo.license}</span>
     </a>
   );
