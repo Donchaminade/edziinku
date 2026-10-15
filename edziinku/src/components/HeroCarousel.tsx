@@ -129,12 +129,12 @@ export function HeroCarousel({ children }: { children: (slide: StockPhoto) => Re
             <div className="min-w-0">
               <p className="t-h3 text-[15px]">{lead.title}</p>
               <p className="hero-alert-body mt-0.5 line-clamp-2 text-xs">{lead.body}</p>
-              <div className="hero-alert-chips mt-2.5 flex flex-wrap gap-1.5">
-                <span className="badge badge-dot" data-tone={alertTone(lead.level)}>{lead.neighborhoodName ?? 'Grand Lomé'}</span>
-                <span className="badge" data-tone="neutral"><Languages size={12} /> FR · Éwé</span>
-                <span className="badge" data-tone="whatsapp"><MessageCircle size={12} /> WhatsApp</span>
-              </div>
             </div>
+          </div>
+          <div className="hero-alert-chips mt-3 flex flex-wrap gap-1.5">
+            <span className="badge badge-dot" data-tone={alertTone(lead.level)}>{lead.neighborhoodName ?? 'Grand Lomé'}</span>
+            <span className="badge" data-tone="neutral"><Languages size={12} /> FR · Éwé</span>
+            <span className="badge" data-tone="whatsapp"><MessageCircle size={12} /> WhatsApp</span>
           </div>
         </motion.aside>
       )}
