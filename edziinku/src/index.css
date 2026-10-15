@@ -691,7 +691,7 @@ img { max-width: 100%; display: block; }
   left: 0;
   right: 0;
   bottom: 0;
-  padding: 0 calc(20px + var(--safe-left)) calc(96px + var(--safe-bottom)) calc(20px + var(--safe-right));
+  padding: 0 calc(20px + var(--safe-left)) calc(var(--bottom-nav-h) + 40px) calc(20px + var(--safe-right));
 }
 /* Texte du hero toujours clair : le voile est un aplat sombre dans les deux thèmes. */
 .hero-content .t-display,
