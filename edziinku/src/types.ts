@@ -80,6 +80,8 @@ export interface AlertItem {
   kind: string;
   neighborhoodId: string | null;
   neighborhoodName: string | null;
+  cityId?: string | null;
+  cityName?: string | null;
   startsAt: string | null;
   endsAt: string | null;
   rainMmMin: number | null;
@@ -87,6 +89,26 @@ export interface AlertItem {
   rainSeries: RainPoint[];
   source: string | null;
   createdAt: string;
+}
+
+export interface LocalAlert {
+  alert: AlertItem;
+  scope: 'SECTOR' | 'NEIGHBOR' | string;
+  neighborNames: string[];
+}
+
+export interface LocalRisk {
+  neighborhood: Neighborhood | null;
+  distanceM: number | null;
+  outOfKnownZone: boolean;
+  urgencyLabel: string | null;
+  urgencyColor: string | null;
+  urgencyRank: number | null;
+  riskLevel: string | null;
+  alerts: LocalAlert[];
+  neighborNames: string[];
+  neighborRadiusKm: number;
+  matchMaxKm: number;
 }
 
 export interface ReportItem {

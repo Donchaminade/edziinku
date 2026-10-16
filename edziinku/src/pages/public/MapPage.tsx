@@ -12,6 +12,7 @@ import { EmptyState } from '../../components/ui/Decor';
 import { ScrollRow, Segmented, TextInput } from '../../components/ui/Form';
 import { Reveal, Skeleton, ease } from '../../components/ui/motion';
 import { Sheet, useMediaQuery } from '../../components/ui/Overlay';
+import { LocalRiskBanner } from '../../components/LocalRiskBanner';
 import { photos } from '../../data/photos';
 import { ago, waterTone } from '../../lib/format';
 import { useLive } from '../../lib/useCatalog';
@@ -75,6 +76,8 @@ export function MapPage() {
       >
         <Button to="/signaler" variant="primary"><Camera size={17} /> Signaler l’eau</Button>
       </PageHero>
+
+      <LocalRiskBanner className="mb-4" />
 
       <Reveal className="card overflow-hidden p-0">
         <div className="grid lg:grid-cols-[380px_1fr]">

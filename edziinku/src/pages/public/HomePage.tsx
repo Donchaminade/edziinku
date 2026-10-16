@@ -29,6 +29,7 @@ import { Segmented } from '../../components/ui/Form';
 import { CountUp, Lift, Reveal, Skeleton, Stagger, StaggerItem, ease } from '../../components/ui/motion';
 import { photos } from '../../data/photos';
 import { ago, alertLevelLabel, alertTone, clock, riskTone, waterTone } from '../../lib/format';
+import { LocalRiskBanner } from '../../components/LocalRiskBanner';
 import { useLive } from '../../lib/useCatalog';
 
 export function HomePage() {
@@ -39,6 +40,9 @@ export function HomePage() {
         {() => <HeroText />}
       </HeroCarousel>
       <Stats />
+      <Container className="mt-4">
+        <LocalRiskBanner />
+      </Container>
       <Problem />
       <Steps />
       <AlertNow />

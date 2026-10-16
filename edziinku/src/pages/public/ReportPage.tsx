@@ -25,6 +25,8 @@ import { Reveal, ease } from '../../components/ui/motion';
 import { photos } from '../../data/photos';
 import { api, ApiError } from '../../lib/api';
 import { waterPhrase, waterTone } from '../../lib/format';
+import { GPS_ACCEPT_M, gpsAccuracyHint } from '../../lib/useLocalRisk';
+import { looksLikeUnresolvedShortlink, parseMapLink } from '../../lib/parseMapLink';
 import { useLive } from '../../lib/useCatalog';
 import type { Neighborhood, ReportItem, WaterLevel } from '../../types';
 
@@ -50,6 +52,10 @@ export function ReportPage() {
   const [hood, setHood] = useState('');
   const [lat, setLat] = useState(6.137);
   const [lng, setLng] = useState(1.212);
+  const [located, setLocated] = useState(false);
+  const [accuracyM, setAccuracyM] = useState<number | null>(null);
+  const [link, setLink] = useState('');
+  const [linkHint, setLinkHint] = useState<string | null>(null);
   const [locating, setLocating] = useState(false);
   const [level, setLevel] = useState<WaterLevel>('GENOU');
   const [comment, setComment] = useState('');
@@ -90,30 +96,112 @@ export function ReportPage() {
     pickFile(event.dataTransfer.files?.[0]);
   }
 
+  async function resolveHood(nextLat: number, nextLng: number) {
+    try {
+      const found = await api<{ neighborhood: Neighborhood | null }>(
+        `/api/geo/locate?lat=${nextLat}&lng=${nextLng}`,
+      );
+      if (found.neighborhood) setHood(found.neighborhood.id);
+      return found.neighborhood;
+    } catch {
+      return null;
+    }
+  }
+
+  function applyPoint(nextLat: number, nextLng: number, accuracy: number | null, source: string) {
+    setLat(nextLat);
+    setLng(nextLng);
+    setAccuracyM(accuracy);
+    setLocated(true);
+    void resolveHood(nextLat, nextLng).then((neighborhood) => {
+      toast(
+        neighborhood ? `Quartier détecté : ${neighborhood.name}` : `${source} enregistrée, hors zone connue.`,
+        neighborhood ? 'ok' : 'info',
+      );
+    });
+  }
+
+  async function applyLink(value: string) {
+    setLink(value);
+    const parsed = parseMapLink(value);
+    if (parsed && located && Math.abs(parsed.latitude - lat) < 1e-5 && Math.abs(parsed.longitude - lng) < 1e-5) {
+      setLinkHint(null);
+      return;
+    }
+    if (parsed) {
+      setLinkHint(null);
+      applyPoint(parsed.latitude, parsed.longitude, null, 'Le lien');
+      return;
+    }
+    if (!value.trim()) {
+      setLinkHint(null);
+      return;
+    }
+    if (looksLikeUnresolvedShortlink(value)) {
+      try {
+        const remote = await api<{ latitude: number | null; longitude: number | null; unresolvedShortlink: boolean; hint: string | null }>(
+          '/api/geo/parse-link',
+          { method: 'POST', body: JSON.stringify({ url: value.trim() }) },
+        );
+        if (remote.latitude != null && remote.longitude != null) {
+          setLinkHint(null);
+          applyPoint(remote.latitude, remote.longitude, null, 'Le lien');
+          return;
+        }
+        setLinkHint(remote.hint ?? 'Ouvrez le lien et copiez les coordonnées.');
+        return;
+      } catch {
+        setLinkHint('Ouvrez le lien dans Maps, puis copiez les coordonnées (lat, lng).');
+        return;
+      }
+    }
+    setLinkHint('Lien non reconnu. Collez un lien Google / Apple / OSM, geo: ou un couple lat,lng.');
+  }
+
   function locate() {
     if (!navigator.geolocation) {
       toast('La géolocalisation n’est pas disponible.', 'alert');
       return;
     }
     setLocating(true);
-    navigator.geolocation.getCurrentPosition(async (position) => {
+    let best: GeolocationPosition | null = null;
+    let done = false;
+    const finish = (position?: GeolocationPosition | null) => {
+      if (done) return;
+      done = true;
+      navigator.geolocation.clearWatch(watch);
+      window.clearTimeout(timer);
+      if (position) finishGps(position);
+      else {
+        setLocating(false);
+        toast('Position trop lente. Réessayez à l’extérieur, ou collez un lien.', 'info');
+      }
+    };
+    const watch = navigator.geolocation.watchPosition((position) => {
+      if (!best || position.coords.accuracy < best.coords.accuracy) best = position;
+      if (position.coords.accuracy <= 5) finish(position);
+    }, () => {
+      if (done) return;
+      done = true;
+      navigator.geolocation.clearWatch(watch);
+      window.clearTimeout(timer);
+      setLocating(false);
+      toast('Position refusée. Collez un lien ou touchez la carte.', 'info');
+    }, { enableHighAccuracy: true, timeout: 20000, maximumAge: 0 });
+    const timer = window.setTimeout(() => finish(best), 12000);
+  }
+
+  function finishGps(position: GeolocationPosition) {
+    setLocating(false);
+    const accuracy = position.coords.accuracy;
+    setAccuracyM(accuracy);
+    if (accuracy > GPS_ACCEPT_M) {
       setLat(position.coords.latitude);
       setLng(position.coords.longitude);
-      try {
-        const found = await api<{ neighborhood: Neighborhood | null }>(
-          `/api/geo/locate?lat=${position.coords.latitude}&lng=${position.coords.longitude}`,
-        );
-        if (found.neighborhood) setHood(found.neighborhood.id);
-        toast(found.neighborhood ? `Quartier détecté : ${found.neighborhood.name}` : 'Position enregistrée, hors zone connue.', found.neighborhood ? 'ok' : 'info');
-      } catch {
-        toast('Position enregistrée.', 'info');
-      } finally {
-        setLocating(false);
-      }
-    }, () => {
-      setLocating(false);
-      toast('Position refusée. Touchez la carte pour placer le point.', 'info');
-    }, { enableHighAccuracy: true, timeout: 12000 });
+      toast(gpsAccuracyHint(accuracy), 'alert');
+      return;
+    }
+    applyPoint(position.coords.latitude, position.coords.longitude, accuracy, 'La position');
   }
 
   async function submit(event?: FormEvent) {
@@ -129,6 +217,7 @@ export function ReportPage() {
       placeLabel: place.trim(),
       latitude: lat,
       longitude: lng,
+      accuracyM,
       waterLevel: level,
       comment,
       channel: 'WEB',
@@ -164,7 +253,7 @@ export function ReportPage() {
 
   if (done) return <Confirmation report={done} onAgain={reset} />;
 
-  const canNext = step === 0 || (step === 1 && place.trim().length > 1) || step === 2;
+  const canNext = step === 0 || (step === 1 && place.trim().length > 1 && located) || step === 2;
   const slide = {
     enter: (dir: number) => (reduce ? { opacity: 0 } : { opacity: 0, x: dir * 40 }),
     center: { opacity: 1, x: 0 },
@@ -292,7 +381,7 @@ export function ReportPage() {
                   <>
                     <div>
                       <h2 className="t-h3 text-xl">Où est l’eau ?</h2>
-                      <p className="mt-1 text-sm text-muted">Votre position, ou touchez la carte pour placer le point.</p>
+                      <p className="mt-1 text-sm text-muted">Collez un lien de localisation, ou envoyez votre position exacte. Un point est obligatoire avant de continuer.</p>
                     </div>
                     <div className="grid gap-4 md:grid-cols-2">
                       <Field label="Lieu" htmlFor="place">
@@ -302,21 +391,40 @@ export function ReportPage() {
                         <Select label="Quartier" value={hood} onChange={setHood} options={hoodOptions} />
                       </Field>
                     </div>
+                    <Field label="Coller un lien" hint="Google Maps, Apple Maps, OpenStreetMap, geo: ou lat,lng" htmlFor="map-link">
+                      <TextInput
+                        id="map-link"
+                        value={link}
+                        onChange={(event) => { void applyLink(event.target.value); }}
+                        placeholder="https://maps.google.com/… ou 6.1328, 1.2342"
+                        autoComplete="off"
+                        inputMode="url"
+                        enterKeyHint="done"
+                      />
+                    </Field>
+                    {linkHint && <p className="note" data-tone="info">{linkHint}</p>}
+                    <Button className="min-h-11 w-full sm:w-auto" onClick={locate} loading={locating}>
+                      {!locating && <LocateFixed size={16} />} Position
+                    </Button>
+                    {accuracyM != null && (
+                      <p className="geo-accuracy" data-ok={accuracyM <= GPS_ACCEPT_M}>
+                        {gpsAccuracyHint(accuracyM)}
+                      </p>
+                    )}
                     <div className="relative isolate overflow-hidden rounded-[22px] border border-line">
                       <MapView
                         className="h-56 sm:h-72"
-                        pins={[{ id: 'me', lat, lng, label: place || 'Votre point', tone: waterTone(level), kind: 'me' }]}
-                        selectedId="me"
+                        pins={located ? [{ id: 'me', lat, lng, label: place || 'Votre point', tone: waterTone(level), kind: 'me' }] : []}
+                        selectedId={located ? 'me' : null}
                         fit={false}
-                        onPick={(nextLat, nextLng) => { setLat(nextLat); setLng(nextLng); }}
+                        focus={located ? { lat, lng, zoom: 17 } : { lat: 6.1725, lng: 1.2314, zoom: 12 }}
+                        onPick={(nextLat, nextLng) => { applyPoint(nextLat, nextLng, null, 'La carte'); }}
                       />
-                      <div className="absolute top-3 right-3 z-[500]">
-                        <Button size="sm" className="overlay-panel" onClick={locate} loading={locating}>
-                          {!locating && <LocateFixed size={16} />} Ma position
-                        </Button>
-                      </div>
                     </div>
-                    <p className="t-num text-xs text-muted">{lat.toFixed(5)}, {lng.toFixed(5)}</p>
+                    <p className="t-num text-xs text-muted">
+                      {located ? `${lat.toFixed(5)}, ${lng.toFixed(5)}` : 'Aucun point validé'}
+                    </p>
+                    {!located && <p className="text-xs text-muted">Collez un lien, touchez la carte, ou envoyez votre position pour valider l’étape.</p>}
                   </>
                 )}
 

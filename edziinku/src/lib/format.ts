@@ -58,6 +58,19 @@ export function alertLevelLabel(level: string) {
   return ({ INFO: 'Info', VIGILANCE: 'Vigilance', ELEVE: 'Risque élevé', CRITIQUE: 'Critique' } as Record<string, string>)[level] ?? level;
 }
 
+export function alertKindLabel(kind: string) {
+  return ({
+    ORAGE: 'Orage',
+    FORTE_PLUIE: 'Forte pluie',
+    VIGILANCE_INONDATION: 'Vigilance inondation',
+    CALME: 'Calme',
+    RAIN: 'Pluie',
+    REPORT: 'Signalements',
+    WORKS: 'Travaux',
+    CLEAR: 'Levée',
+  } as Record<string, string>)[kind] ?? kind;
+}
+
 export function teamStatus(status: string): { label: string; tone: Tone } {
   if (status === 'SUR_PLACE') return { label: 'Sur place', tone: 'ok' };
   if (status === 'EN_ROUTE') return { label: 'En route', tone: 'warn' };
