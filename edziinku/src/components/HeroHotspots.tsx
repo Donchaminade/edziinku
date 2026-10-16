@@ -2,7 +2,7 @@ import { MapPinned } from 'lucide-react';
 import { useId, useState } from 'react';
 import { Link } from 'react-router';
 import { mediaUrl } from '../lib/api';
-import { ago, formatInt, mapFocusPath } from '../lib/format';
+import { ago, contrastOn, formatInt, mapFocusPath } from '../lib/format';
 import { useHotspots } from '../lib/useHotspots';
 import type { HotspotZone } from '../types';
 import { Button } from './ui/Button';
@@ -10,11 +10,22 @@ import { EmptyState } from './ui/Decor';
 import { Skeleton } from './ui/motion';
 import { Sheet } from './ui/Overlay';
 
+function UrgencyBadge({ label, color }: { label?: string | null; color?: string | null }) {
+  if (!label) return null;
+  const bg = color && /^#([0-9A-Fa-f]{6})$/.test(color) ? color : 'var(--primary)';
+  return (
+    <span className="urgency-badge" style={{ background: bg, color: contrastOn(color) }}>
+      {label}
+    </span>
+  );
+}
+
 export function HeroHotspots() {
   const [open, setOpen] = useState(false);
-  const { zones, status, loading, data } = useHotspots();
+  const { zones, status, loading, data } = useHotspots(7, 200);
   const dialogId = useId();
   const empty = status === 'empty' || status === 'error' || (!loading && zones.length === 0);
+  const preview = zones.slice(0, 3);
 
   return (
     <>
@@ -34,11 +45,14 @@ export function HeroHotspots() {
             <span className="hotspot-pill-title">Zones les plus signalées</span>
             {loading ? null : (
               <span className="hotspot-pill-zones">
-                {zones.map((zone) => (
+                {preview.map((zone) => (
                   <span key={zone.id} className="hotspot-pill-chip">
                     {zone.label} · {formatInt(zone.count)}
                   </span>
                 ))}
+                {zones.length > preview.length && (
+                  <span className="hotspot-pill-chip">+{zones.length - preview.length}</span>
+                )}
               </span>
             )}
           </>
@@ -49,8 +63,8 @@ export function HeroHotspots() {
         id={dialogId}
         open={open}
         onClose={() => setOpen(false)}
-        title="Zones les plus signalées"
-        subtitle={`${data.days} derniers jours`}
+        title="Quartiers par urgence"
+        subtitle={`${data.days} derniers jours · les plus urgents et les plus touchés d’abord`}
         solid
       >
         <div className="flex flex-col gap-5">
@@ -62,7 +76,7 @@ export function HeroHotspots() {
           ) : empty ? (
             <EmptyState
               title="Aucune zone marquante"
-              text="Pas assez de signalements validés sur les 7 derniers jours pour dresser un classement."
+              text="Pas assez de signalements validés sur les 7 derniers jours, et aucun quartier urgent à afficher."
               icon={<MapPinned size={22} />}
             />
           ) : (
@@ -80,9 +94,13 @@ function HotspotZoneBlock({ zone, onNavigate }: { zone: HotspotZone; onNavigate:
     <section className="hotspot-zone">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div className="min-w-0">
-          <h3 className="t-h3 text-[17px]">{zone.label}</h3>
+          <div className="flex flex-wrap items-center gap-2">
+            <h3 className="t-h3 text-[17px]">{zone.label}</h3>
+            <UrgencyBadge label={zone.urgencyLabel} color={zone.urgencyColor} />
+          </div>
           <p className="mt-0.5 text-sm text-muted">
-            {formatInt(zone.count)} signalement{zone.count > 1 ? 's' : ''}
+            {zone.cityName ? `${zone.cityName} · ` : ''}
+            {zone.count === 0 ? 'Aucun signalement cette semaine' : `${formatInt(zone.count)} signalement${zone.count > 1 ? 's' : ''}`}
           </p>
         </div>
         <Button to={mapTo} size="sm" className="shrink-0" onClick={onNavigate} aria-label={`Voir ${zone.label} sur la carte`}>

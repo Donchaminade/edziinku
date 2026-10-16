@@ -8,7 +8,7 @@ export type HotspotStatus = 'loading' | 'ok' | 'empty' | 'error';
  * Charge le top des zones signalées. En cas d’échec API : état vide,
  * jamais de jeu de démo inventé.
  */
-export function useHotspots(days = 7, limit = 3) {
+export function useHotspots(days = 7, limit = 200) {
   const [data, setData] = useState<HotspotResponse>({ days, zones: [] });
   const [status, setStatus] = useState<HotspotStatus>('loading');
 
