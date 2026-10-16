@@ -29,12 +29,12 @@ import { LiveDot } from '../ui/motion';
 import { Sheet } from '../ui/Overlay';
 import { AnimatedOutlet, Brand, ThemeToggle } from './common';
 
-const mainLinks = [
-  { to: '/carte', label: 'Carte live' },
+const mainLinks: { to: string; label: string; title?: string; secondary?: boolean }[] = [
+  { to: '/carte', label: 'Carte', title: 'Carte live' },
   { to: '/signaler', label: 'Signaler' },
-  { to: '/comment', label: 'Comment ça marche' },
+  { to: '/comment', label: 'Mode d’emploi', title: 'Comment ça marche', secondary: true },
   { to: '/communes', label: 'Communes' },
-  { to: '/whatsapp', label: 'Alertes WhatsApp' },
+  { to: '/whatsapp', label: 'Alertes', title: 'Alertes WhatsApp', secondary: true },
 ];
 
 export function DataStatus({ compact }: { compact?: boolean }) {
@@ -89,12 +89,20 @@ function Header() {
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
       >
-        <Brand />
-        <nav className="hidden items-center gap-0.5 lg:flex" aria-label="Navigation principale">
+        <div className="shrink-0">
+          <Brand compact={solid} />
+        </div>
+        <nav className="site-header-nav hidden items-center gap-0.5 lg:flex" aria-label="Navigation principale">
           {mainLinks.map((link) => {
             const on = location.pathname.startsWith(link.to);
             return (
-              <NavLink key={link.to} to={link.to} className="nav-link isolate">
+              <NavLink
+                key={link.to}
+                to={link.to}
+                title={link.title ?? link.label}
+                aria-label={link.title ?? link.label}
+                className={`nav-link isolate${link.secondary ? ' nav-link-secondary' : ''}`}
+              >
                 {on && (
                   <motion.span
                     layoutId="nav-pill"
@@ -107,15 +115,10 @@ function Header() {
             );
           })}
         </nav>
-        <div className="flex items-center gap-1">
-          <span className="hidden xl:inline-flex"><DataStatus /></span>
+        <div className="site-header-actions flex shrink-0 items-center gap-1">
+          <span className="hidden xl:inline-flex"><DataStatus compact={solid} /></span>
           <ThemeToggle />
           <AccountButton />
-          {solid && (
-            <Button to="/signaler" variant="primary" size="sm" className="btn-header-cta hidden lg:inline-flex">
-              <Camera size={16} /> Signaler
-            </Button>
-          )}
         </div>
       </motion.div>
     </header>
