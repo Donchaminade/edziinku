@@ -1,7 +1,7 @@
 import { AnimatePresence, motion } from 'motion/react';
 import { Camera, Search, X } from 'lucide-react';
 import { useMemo, useState } from 'react';
-import { useSearchParams } from 'react-router';
+import { useLocation, useSearchParams } from 'react-router';
 import { PageHero } from '../../components/Hero';
 import { useDocumentTitle } from '../../components/layout/common';
 import { PublicPage } from '../../components/layout/PublicLayout';
@@ -33,9 +33,15 @@ export function MapPage() {
   useDocumentTitle('Carte live');
   const live = useLive();
   const [params] = useSearchParams();
-  const focus = useMemo(() => parseFocus(params), [params]);
+  const location = useLocation();
+  const focus = useMemo(
+    () => parseFocus(new URLSearchParams(location.search)),
+    [location.search],
+  );
   const [filter, setFilter] = useState<Filter>('ALL');
-  const [query, setQuery] = useState(() => params.get('quartier') ?? '');
+  const [query, setQuery] = useState(
+    () => params.get('quartier') || new URLSearchParams(location.search).get('quartier') || '',
+  );
   const [selected, setSelected] = useState<string | null>(null);
 
   const count = (level: WaterLevel) => live.reports.filter((report) => report.waterLevel === level).length;

@@ -78,16 +78,11 @@ function HotspotZoneBlock({ zone, onNavigate }: { zone: HotspotZone; onNavigate:
   const mapTo = mapFocusPath(zone.lat, zone.lng, 15, zone.label);
   return (
     <section className="hotspot-zone">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-        <div className="min-w-0">
-          <h3 className="t-h3 text-[17px]">{zone.label}</h3>
-          <p className="mt-0.5 text-sm text-muted">
-            {formatInt(zone.count)} signalement{zone.count > 1 ? 's' : ''}
-          </p>
-        </div>
-        <Button to={mapTo} size="sm" className="shrink-0" onClick={onNavigate} aria-label={`Voir ${zone.label} sur la carte`}>
-          <MapPinned size={16} /> Voir sur la carte
-        </Button>
+      <div className="min-w-0">
+        <h3 className="t-h3 text-[17px]">{zone.label}</h3>
+        <p className="mt-0.5 text-sm text-muted">
+          {formatInt(zone.count)} signalement{zone.count > 1 ? 's' : ''}
+        </p>
       </div>
       {zone.reports.length === 0 ? (
         <p className="mt-3 text-sm text-muted">Aucun aperçu pour cette zone.</p>
@@ -120,6 +115,9 @@ function HotspotZoneBlock({ zone, onNavigate }: { zone: HotspotZone; onNavigate:
           })}
         </ul>
       )}
+      <Button to={mapTo} variant="primary" className="mt-3" block onClick={onNavigate} aria-label={`Voir ${zone.label} sur la carte`}>
+        <MapPinned size={16} /> Voir sur la carte
+      </Button>
     </section>
   );
 }
