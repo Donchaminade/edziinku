@@ -138,6 +138,22 @@ public final class Dtos {
     public record PageResponse<T>(List<T> items, int page, int size, long total) {
     }
 
+    public record HotspotReport(UUID id, String photoUrl, Instant createdAt, String quartier) {
+    }
+
+    public record HotspotZone(
+            String id,
+            String label,
+            long count,
+            double lat,
+            double lng,
+            List<HotspotReport> reports
+    ) {
+    }
+
+    public record HotspotResponse(int days, List<HotspotZone> zones) {
+    }
+
     public record BasinCard(
             UUID id,
             String name,

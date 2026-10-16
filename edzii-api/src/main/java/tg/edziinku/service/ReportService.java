@@ -17,6 +17,8 @@ import tg.edziinku.repo.ReportRepository;
 import tg.edziinku.repo.UserRepository;
 import tg.edziinku.web.ApiException;
 
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
@@ -107,6 +109,14 @@ public class ReportService {
         String query = q == null || q.isBlank() ? "" : q.trim();
         var result = reports.search(status, level, neighborhoodId, query, PageRequest.of(page, size));
         return new Dtos.PageResponse<>(result.map(mapper::report).getContent(), page, size, result.getTotalElements());
+    }
+
+    @Transactional(readOnly = true)
+    public Dtos.HotspotResponse publicHotspots(int days, int limit) {
+        int window = Math.min(31, Math.max(1, days));
+        Instant since = Instant.now().minus(window, ChronoUnit.DAYS);
+        List<Report> recent = reports.findPublicSince(ReportStatus.VALIDE, since);
+        return HotspotAggregator.aggregate(recent, window, limit);
     }
 
     @Transactional(readOnly = true)

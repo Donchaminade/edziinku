@@ -94,6 +94,17 @@ export function formatInt(value: number) {
   return new Intl.NumberFormat('fr-FR').format(value);
 }
 
+/** Lien vers la carte, centré sur un point (Leaflet setView via query). */
+export function mapFocusPath(lat: number, lng: number, zoom = 15, quartier?: string) {
+  const params = new URLSearchParams({
+    lat: String(lat),
+    lng: String(lng),
+    zoom: String(zoom),
+  });
+  if (quartier) params.set('quartier', quartier);
+  return `/carte?${params.toString()}`;
+}
+
 export function maskPhone(phone: string | null) {
   if (!phone) return 'numéro masqué';
   const digits = phone.replace(/\D/g, '');

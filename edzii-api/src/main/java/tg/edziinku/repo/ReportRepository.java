@@ -9,6 +9,7 @@ import tg.edziinku.domain.Report;
 import tg.edziinku.domain.ReportStatus;
 import tg.edziinku.domain.WaterLevel;
 
+import java.time.Instant;
 import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
@@ -57,4 +58,13 @@ public interface ReportRepository extends JpaRepository<Report, UUID> {
     );
 
     long countByStatus(ReportStatus status);
+
+    @Query("""
+            SELECT r FROM Report r
+            LEFT JOIN FETCH r.neighborhood
+            WHERE r.status = :status
+              AND r.createdAt >= :since
+            ORDER BY r.createdAt DESC
+            """)
+    List<Report> findPublicSince(@Param("status") ReportStatus status, @Param("since") Instant since);
 }

@@ -36,7 +36,7 @@ export function HomePage() {
   return (
     <>
       <HeroCarousel>
-        {(slide) => <HeroText credit={slide} />}
+        {() => <HeroText />}
       </HeroCarousel>
       <Stats />
       <Problem />
@@ -51,7 +51,7 @@ export function HomePage() {
   );
 }
 
-function HeroText({ credit }: { credit: Parameters<typeof PhotoCredit>[0]['photo'] }) {
+function HeroText() {
   const item = { hidden: { opacity: 0, y: 22 }, show: { opacity: 1, y: 0, transition: { duration: 0.8, ease } } };
   return (
     <motion.div
@@ -96,7 +96,6 @@ function HeroText({ credit }: { credit: Parameters<typeof PhotoCredit>[0]['photo
           );
         })}
       </motion.div>
-      <motion.div variants={item}><PhotoCredit photo={credit} /></motion.div>
     </motion.div>
   );
 }
