@@ -19,6 +19,7 @@ import tg.edziinku.domain.ReportChannel;
 import tg.edziinku.domain.WhatsAppContact;
 import tg.edziinku.dto.Dtos;
 import tg.edziinku.geo.GeoRepository;
+import tg.edziinku.geo.NeighborhoodMatcher;
 import tg.edziinku.repo.AlertRepository;
 import tg.edziinku.repo.NeighborhoodRepository;
 import tg.edziinku.repo.OutboundMessageRepository;
@@ -125,10 +126,22 @@ public class WhatsAppBotService {
         if (alert == null) {
             return;
         }
-        List<WhatsAppContact> targets = alert.getNeighborhood() == null
-                ? contacts.findAll().stream().filter(WhatsAppContact::isActive).toList()
-                : contacts.findByActiveTrueAndNeighborhood_Id(alert.getNeighborhood().getId());
-        String place = alert.getNeighborhood() == null ? "Grand Lomé" : alert.getNeighborhood().getName();
+        List<WhatsAppContact> targets;
+        if (alert.getNeighborhood() == null && alert.getCity() == null) {
+            targets = contacts.findAll().stream().filter(WhatsAppContact::isActive).toList();
+        } else {
+            List<UUID> reached = NeighborhoodMatcher.sectorAndNeighbors(
+                            alert.getNeighborhood(),
+                            alert.getCity() == null ? null : alert.getCity().getId(),
+                            neighborhoods.findPublicCatalog()
+                    ).stream().map(Neighborhood::getId).toList();
+            targets = reached.isEmpty()
+                    ? List.of()
+                    : contacts.findByActiveTrueAndNeighborhood_IdIn(reached);
+        }
+        String place = alert.getNeighborhood() != null
+                ? alert.getNeighborhood().getName()
+                : alert.getCity() != null ? alert.getCity().getName() : "Grand Lomé";
         String window = "ce soir";
         if (alert.getStartsAt() != null && alert.getEndsAt() != null) {
             window = "de " + alert.getStartsAt().atZone(java.time.ZoneId.of("Africa/Lome")).toLocalTime().withSecond(0).withNano(0)

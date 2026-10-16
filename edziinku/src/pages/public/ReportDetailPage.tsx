@@ -1,6 +1,7 @@
 import { ArrowLeft, MapPinned } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router';
+import { MapView } from '../../components/MapView';
 import { ReportSummary } from '../../components/ReportDetail';
 import { useDocumentTitle } from '../../components/layout/common';
 import { PublicPage } from '../../components/layout/PublicLayout';
@@ -8,7 +9,7 @@ import { Button } from '../../components/ui/Button';
 import { EmptyState } from '../../components/ui/Decor';
 import { Skeleton } from '../../components/ui/motion';
 import { ApiError, api } from '../../lib/api';
-import { mapFocusPath } from '../../lib/format';
+import { mapFocusPath, waterTone } from '../../lib/format';
 import type { ReportItem } from '../../types';
 
 export function ReportDetailPage() {
@@ -77,6 +78,15 @@ export function ReportDetailPage() {
               </p>
             </header>
             <ReportSummary report={report} withPhoto />
+            <div className="overflow-hidden rounded-[22px] border border-line">
+              <MapView
+                className="h-56"
+                pins={[{ id: report.id, lat: report.latitude, lng: report.longitude, label: report.placeLabel, tone: waterTone(report.waterLevel) }]}
+                selectedId={report.id}
+                fit={false}
+                focus={{ lat: report.latitude, lng: report.longitude, zoom: 17 }}
+              />
+            </div>
             <Button
               to={mapFocusPath(report.latitude, report.longitude, 16, report.neighborhoodName ?? report.placeLabel)}
               variant="primary"

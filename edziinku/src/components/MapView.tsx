@@ -1,9 +1,11 @@
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import L from 'leaflet';
 import { MapContainer, Marker, TileLayer, Tooltip, useMap, useMapEvents, ZoomControl } from 'react-leaflet';
 import { useReducedMotion } from 'motion/react';
 import { useTheme } from '../theme/ThemeProvider';
 import type { Tone } from '../types';
+
+export type Basemap = 'satellite' | 'plan';
 
 export interface MapPin {
   id: string;
@@ -16,12 +18,24 @@ export interface MapPin {
 
 const LOME: [number, number] = [6.1725, 1.2314];
 
-const ESRI = 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas';
-const tiles: Record<'dark' | 'light', { base: string; labels: string | null }> = {
-  dark: { base: `${ESRI}/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}`, labels: `${ESRI}/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}` },
-  light: { base: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}', labels: null },
+const ESRI = 'https://server.arcgisonline.com/ArcGIS/rest/services';
+const tiles = {
+  satellite: {
+    base: `${ESRI}/World_Imagery/MapServer/tile/{z}/{y}/{x}`,
+    labels: `${ESRI}/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}`,
+    attribution: 'Imagerie &copy; Esri, Maxar, Earthstar Geographics',
+  },
+  planLight: {
+    base: `${ESRI}/World_Street_Map/MapServer/tile/{z}/{y}/{x}`,
+    labels: null as string | null,
+    attribution: 'Fond &copy; Esri, HERE, Garmin &middot; &copy; contributeurs OpenStreetMap',
+  },
+  planDark: {
+    base: `${ESRI}/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}`,
+    labels: `${ESRI}/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}`,
+    attribution: 'Fond &copy; Esri, HERE, Garmin &middot; &copy; contributeurs OpenStreetMap',
+  },
 };
-const attribution = 'Fond &copy; Esri, HERE, Garmin &middot; &copy; contributeurs OpenStreetMap';
 
 function icon(pin: MapPin, selected: boolean) {
   return L.divIcon({
@@ -69,7 +83,6 @@ function Focus({ pin, pins, fit, focus }: { pin: MapPin | null; pins: MapPin[]; 
   useEffect(() => {
     if (focus || !fit || pin || pins.length < 2) return;
     map.fitBounds(L.latLngBounds(pins.map((item) => [item.lat, item.lng])), { padding: [40, 40], maxZoom: 14, animate: !reduce });
-    // Recentrage seulement quand le nombre de points change.
   }, [map, fit, pins.length, focus]);
 
   useEffect(() => {
@@ -95,6 +108,8 @@ export function MapView({
   interactive = true,
   onPick,
   focus,
+  defaultBasemap = 'satellite',
+  showBasemapControl = true,
 }: {
   pins: MapPin[];
   selectedId?: string | null;
@@ -105,17 +120,24 @@ export function MapView({
   interactive?: boolean;
   onPick?: (lat: number, lng: number) => void;
   focus?: MapFocus | null;
+  defaultBasemap?: Basemap;
+  showBasemapControl?: boolean;
 }) {
   const { theme } = useTheme();
+  const [basemap, setBasemap] = useState<Basemap>(defaultBasemap);
   const selected = pins.find((pin) => pin.id === selectedId) ?? null;
   const markers = useMemo(
     () => pins.map((pin) => ({ pin, icon: icon(pin, pin.id === selectedId) })),
     [pins, selectedId],
   );
+  const layer = basemap === 'satellite'
+    ? tiles.satellite
+    : theme === 'dark' ? tiles.planDark : tiles.planLight;
 
   return (
     <div
       className={`map-frame ${className ?? ''}`}
+      data-basemap={basemap}
       data-focus={focus ? `${focus.lat},${focus.lng},${focus.zoom ?? zoom}` : undefined}
     >
       <MapContainer
@@ -128,8 +150,23 @@ export function MapView({
         className="h-full w-full"
         attributionControl
       >
-        <TileLayer key={`${theme}-base`} className="map-base" attribution={attribution} url={tiles[theme].base} maxNativeZoom={theme === 'dark' ? 16 : 19} maxZoom={19} />
-        {tiles[theme].labels && <TileLayer key={`${theme}-labels`} className="map-labels" url={tiles[theme].labels} maxNativeZoom={16} maxZoom={19} />}
+        <TileLayer
+          key={`${basemap}-${theme}-base`}
+          className={basemap === 'satellite' ? 'map-sat' : 'map-base'}
+          attribution={layer.attribution}
+          url={layer.base}
+          maxNativeZoom={basemap === 'satellite' ? 19 : theme === 'dark' ? 16 : 19}
+          maxZoom={19}
+        />
+        {layer.labels && (
+          <TileLayer
+            key={`${basemap}-${theme}-labels`}
+            className="map-labels"
+            url={layer.labels}
+            maxNativeZoom={basemap === 'satellite' ? 19 : 16}
+            maxZoom={19}
+          />
+        )}
         {interactive && <ZoomControl position="bottomright" />}
         <Focus pin={selected} pins={pins} fit={fit} focus={focus} />
         {onPick && <ClickToPlace onPick={onPick} />}
@@ -147,6 +184,26 @@ export function MapView({
           </Marker>
         ))}
       </MapContainer>
+      {showBasemapControl && (
+        <div className="map-basemap" role="group" aria-label="Fond de carte">
+          <button
+            type="button"
+            data-on={basemap === 'satellite'}
+            aria-pressed={basemap === 'satellite'}
+            onClick={() => setBasemap('satellite')}
+          >
+            Satellite
+          </button>
+          <button
+            type="button"
+            data-on={basemap === 'plan'}
+            aria-pressed={basemap === 'plan'}
+            onClick={() => setBasemap('plan')}
+          >
+            Plan
+          </button>
+        </div>
+      )}
     </div>
   );
 }

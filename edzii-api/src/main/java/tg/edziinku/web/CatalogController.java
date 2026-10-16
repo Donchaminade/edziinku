@@ -1,7 +1,10 @@
 package tg.edziinku.web;
 
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -65,6 +68,20 @@ public class CatalogController {
     @GetMapping("/geo/locate")
     Dtos.LocateResponse locate(@RequestParam double lat, @RequestParam double lng) {
         return catalog.locate(lat, lng);
+    }
+
+    @GetMapping("/geo/risk")
+    Dtos.LocalRiskResponse risk(
+            @RequestParam(required = false) Double lat,
+            @RequestParam(required = false) Double lng,
+            @RequestParam(required = false) UUID neighborhoodId
+    ) {
+        return catalog.risk(lat, lng, neighborhoodId);
+    }
+
+    @PostMapping("/geo/parse-link")
+    Dtos.ParseLinkResponse parseLink(@Valid @RequestBody Dtos.ParseLinkRequest request) {
+        return catalog.parseLink(request);
     }
 
     @GetMapping("/weather/daily")

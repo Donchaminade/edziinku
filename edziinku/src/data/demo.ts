@@ -1,7 +1,9 @@
 import type { AlertItem, Basin, Dashboard, Neighborhood, Outbound, ReportItem, Team, TimelineItem, WeatherResponse } from '../types';
 
 export const demoNeighborhoods: Neighborhood[] = [
-  { id: 'be', slug: 'be', name: 'Bè', commune: 'Golfe 1', riskLevel: 'ELEVE', riskLabel: 'Risque élevé', latitude: 6.1315, longitude: 1.232, approximate: false },
+  { id: 'be', slug: 'be', name: 'Bè', commune: 'Golfe 1', riskLevel: 'ELEVE', riskLabel: 'Risque élevé', latitude: 6.1315, longitude: 1.232, approximate: false, cityId: 'lome', cityName: 'Lomé', urgencyLabel: 'Critique', urgencyColor: '#D21034', urgencyRank: 1 },
+  { id: 'be-kpota', slug: 'be-kpota', name: 'Bè-Kpota', commune: 'Golfe 1', riskLevel: 'ELEVE', riskLabel: 'Risque élevé', latitude: 6.136, longitude: 1.229, approximate: true, cityId: 'lome', cityName: 'Lomé', urgencyLabel: 'Critique', urgencyColor: '#D21034', urgencyRank: 1 },
+  { id: 'be-ahligo', slug: 'be-ahligo', name: 'Bè-Ahligo', commune: 'Golfe 1', riskLevel: 'ELEVE', riskLabel: 'Risque élevé', latitude: 6.1328, longitude: 1.2342, approximate: true, cityId: 'lome', cityName: 'Lomé', urgencyLabel: 'Critique', urgencyColor: '#D21034', urgencyRank: 1 },
   { id: 'agoe', slug: 'agoe-nyive', name: 'Agoè-Nyivé', commune: 'Agoè-Nyivé 1', riskLevel: 'ELEVE', riskLabel: 'Risque élevé', latitude: 6.228, longitude: 1.178, approximate: false },
   { id: 'zogbedji', slug: 'zogbedji', name: 'Zogbédji', commune: 'Agoè-Nyivé', riskLevel: 'A_SURVEILLER', riskLabel: 'À surveiller', latitude: 6.205, longitude: 1.165, approximate: true },
   { id: 'adakpame', slug: 'adakpame', name: 'Adakpamé', commune: 'Golfe 4', riskLevel: 'A_SURVEILLER', riskLabel: 'À surveiller', latitude: 6.148, longitude: 1.218, approximate: false },
