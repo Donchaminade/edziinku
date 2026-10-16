@@ -6,6 +6,7 @@ import tg.edziinku.domain.Report;
 import tg.edziinku.domain.ReportChannel;
 import tg.edziinku.domain.ReportStatus;
 import tg.edziinku.domain.RiskLevel;
+import tg.edziinku.domain.UrgencyLevel;
 import tg.edziinku.domain.WaterLevel;
 import tg.edziinku.dto.Dtos;
 
@@ -77,6 +78,35 @@ class HotspotAggregatorTest {
     }
 
     @Test
+    void trieParUrgencePuisVolumeEtGardeLesUrgentsSansSignalement() {
+        Neighborhood critique = neighborhood("be", "Bè", 6.13, 1.24);
+        critique.setUrgencyLevel(urgency(1, "Critique", "#D21034"));
+        Neighborhood eleve = neighborhood("baguida", "Baguida", 6.16, 1.32);
+        eleve.setUrgencyLevel(urgency(2, "Élevé", "#C8891A"));
+        Neighborhood calme = neighborhood("tokoin", "Tokoin", 6.15, 1.21);
+        calme.setUrgencyLevel(urgency(4, "Calme", "#059669"));
+        Instant now = Instant.parse("2026-10-16T12:00:00Z");
+        List<Report> reports = List.of(
+                report(calme, 6.15, 1.21, null, now),
+                report(calme, 6.15, 1.21, null, now.minusSeconds(5)),
+                report(calme, 6.15, 1.21, null, now.minusSeconds(10))
+        );
+        Dtos.HotspotResponse response = HotspotAggregator.aggregate(
+                reports,
+                List.of(critique, eleve, calme),
+                7,
+                200
+        );
+        assertEquals(3, response.zones().size());
+        assertEquals("be", response.zones().get(0).id());
+        assertEquals(0, response.zones().get(0).count());
+        assertEquals("Critique", response.zones().get(0).urgencyLabel());
+        assertEquals("baguida", response.zones().get(1).id());
+        assertEquals("tokoin", response.zones().get(2).id());
+        assertEquals(3, response.zones().get(2).count());
+    }
+
+    @Test
     void listeLesPlusRecentsSiAucunePhoto() {
         Neighborhood be = neighborhood("be", "Bè", 6.13, 1.24);
         Instant now = Instant.parse("2026-10-16T12:00:00Z");
@@ -86,6 +116,17 @@ class HotspotAggregatorTest {
         assertEquals(2, response.zones().get(0).reports().size());
         assertEquals(recent.getId(), response.zones().get(0).reports().get(0).id());
         assertNull(response.zones().get(0).reports().get(0).photoUrl());
+    }
+
+    private UrgencyLevel urgency(int rank, String label, String color) {
+        UrgencyLevel level = new UrgencyLevel();
+        level.setId(UUID.nameUUIDFromBytes(label.getBytes()));
+        level.setSlug(label.toLowerCase());
+        level.setLabel(label);
+        level.setColor(color);
+        level.setRank(rank);
+        level.setActive(true);
+        return level;
     }
 
     private Neighborhood neighborhood(String slug, String name, double lat, double lng) {

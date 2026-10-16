@@ -110,3 +110,14 @@ export function maskPhone(phone: string | null) {
   const digits = phone.replace(/\D/g, '');
   return `+${digits.slice(0, 3)} •• •• ${digits.slice(-4, -2)} ${digits.slice(-2)}`;
 }
+
+/** Texte lisible sur un aplat hex (#RRGGBB), sans dégradé. */
+export function contrastOn(hex: string | null | undefined) {
+  const raw = (hex ?? '').replace('#', '');
+  if (!/^[0-9a-fA-F]{6}$/.test(raw)) return '#0f172a';
+  const r = parseInt(raw.slice(0, 2), 16);
+  const g = parseInt(raw.slice(2, 4), 16);
+  const b = parseInt(raw.slice(4, 6), 16);
+  const luma = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+  return luma > 0.62 ? '#0f172a' : '#ffffff';
+}

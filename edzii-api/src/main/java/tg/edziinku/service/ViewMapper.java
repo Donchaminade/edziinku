@@ -5,12 +5,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.stereotype.Component;
 import tg.edziinku.domain.Alert;
 import tg.edziinku.domain.Basin;
+import tg.edziinku.domain.City;
 import tg.edziinku.domain.FieldTeam;
 import tg.edziinku.domain.Neighborhood;
 import tg.edziinku.domain.NotificationPreference;
 import tg.edziinku.domain.OutboundMessage;
 import tg.edziinku.domain.Report;
 import tg.edziinku.domain.TimelineEvent;
+import tg.edziinku.domain.UrgencyLevel;
 import tg.edziinku.domain.UserAccount;
 import tg.edziinku.dto.Dtos;
 
@@ -40,6 +42,8 @@ public class ViewMapper {
     }
 
     public Dtos.NeighborhoodCard neighborhood(Neighborhood n) {
+        City city = n.getCity();
+        UrgencyLevel urgency = n.getUrgencyLevel();
         return new Dtos.NeighborhoodCard(
                 n.getId(),
                 n.getSlug(),
@@ -49,7 +53,42 @@ public class ViewMapper {
                 n.getRiskLevel().getLabel(),
                 n.getLatitude(),
                 n.getLongitude(),
-                n.isApproximate()
+                n.isApproximate(),
+                city == null ? null : city.getId(),
+                city == null ? null : city.getName(),
+                city == null ? null : city.getRegion(),
+                urgency == null ? null : urgency.getId(),
+                urgency == null ? null : urgency.getLabel(),
+                urgency == null ? null : urgency.getColor(),
+                urgency == null ? null : urgency.getRank(),
+                n.getAliases(),
+                n.isActive()
+        );
+    }
+
+    public Dtos.CityCard city(City city, long neighborhoodCount) {
+        return new Dtos.CityCard(
+                city.getId(),
+                city.getSlug(),
+                city.getName(),
+                city.getRegion(),
+                city.getCommune(),
+                city.getLatitude(),
+                city.getLongitude(),
+                city.isActive(),
+                neighborhoodCount
+        );
+    }
+
+    public Dtos.UrgencyLevelCard urgency(UrgencyLevel level, long neighborhoodCount) {
+        return new Dtos.UrgencyLevelCard(
+                level.getId(),
+                level.getSlug(),
+                level.getLabel(),
+                level.getColor(),
+                level.getRank(),
+                level.isActive(),
+                neighborhoodCount
         );
     }
 

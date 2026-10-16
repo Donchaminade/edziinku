@@ -8,4 +8,6 @@ import java.util.UUID;
 
 public interface AlertRepository extends JpaRepository<Alert, UUID> {
     List<Alert> findAllByOrderByCreatedAtDesc();
+
+    long countByNeighborhood_Id(UUID neighborhoodId);
 }

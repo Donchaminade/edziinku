@@ -21,6 +21,8 @@ public class GeoRepository {
                 """
                 SELECT id FROM neighborhoods
                 WHERE ST_Contains(geom, ST_SetSRID(ST_MakePoint(?, ?), 4326))
+                  AND active = TRUE
+                  AND slug <> 'non-localise'
                 ORDER BY ST_Area(geom::geography) ASC
                 LIMIT 1
                 """,

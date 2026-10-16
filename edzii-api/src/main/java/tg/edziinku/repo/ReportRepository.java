@@ -59,12 +59,18 @@ public interface ReportRepository extends JpaRepository<Report, UUID> {
 
     long countByStatus(ReportStatus status);
 
+    long countByNeighborhood_Id(UUID neighborhoodId);
+
     @Query("""
             SELECT r FROM Report r
-            LEFT JOIN FETCH r.neighborhood
+            LEFT JOIN FETCH r.neighborhood n
+            LEFT JOIN FETCH n.city
+            LEFT JOIN FETCH n.urgencyLevel
             WHERE r.status = :status
               AND r.createdAt >= :since
             ORDER BY r.createdAt DESC
             """)
     List<Report> findPublicSince(@Param("status") ReportStatus status, @Param("since") Instant since);
+
+    List<Report> findTop8ByNeighborhood_IdAndStatusOrderByCreatedAtDesc(UUID neighborhoodId, ReportStatus status);
 }
