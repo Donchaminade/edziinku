@@ -138,6 +138,8 @@ public final class Dtos {
             String kind,
             UUID neighborhoodId,
             String neighborhoodName,
+            UUID cityId,
+            String cityName,
             Instant startsAt,
             Instant endsAt,
             Integer rainMmMin,
@@ -155,11 +157,46 @@ public final class Dtos {
             @NotBlank String level,
             @NotBlank String kind,
             UUID neighborhoodId,
+            UUID cityId,
             Instant startsAt,
             Instant endsAt,
             Integer rainMmMin,
             Integer rainMmMax,
             @Size(max = 80) String source
+    ) {
+    }
+
+    public record LocalAlertCard(
+            AlertCard alert,
+            String scope,
+            List<String> neighborNames
+    ) {
+    }
+
+    public record LocalRiskResponse(
+            NeighborhoodCard neighborhood,
+            Double distanceM,
+            boolean outOfKnownZone,
+            String urgencyLabel,
+            String urgencyColor,
+            Integer urgencyRank,
+            String riskLevel,
+            List<LocalAlertCard> alerts,
+            List<String> neighborNames,
+            double neighborRadiusKm,
+            double matchMaxKm
+    ) {
+    }
+
+    public record ParseLinkRequest(@NotBlank @Size(max = 2000) String url) {
+    }
+
+    public record ParseLinkResponse(
+            Double latitude,
+            Double longitude,
+            String source,
+            boolean unresolvedShortlink,
+            String hint
     ) {
     }
 

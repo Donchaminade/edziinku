@@ -38,12 +38,16 @@ public class Alert {
     private AlertLevel level;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 20)
+    @Column(nullable = false, length = 32)
     private AlertKind kind;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "neighborhood_id")
     private Neighborhood neighborhood;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "city_id")
+    private City city;
 
     @Column(name = "starts_at")
     private Instant startsAt;
@@ -138,6 +142,14 @@ public class Alert {
 
     public void setNeighborhood(Neighborhood neighborhood) {
         this.neighborhood = neighborhood;
+    }
+
+    public City getCity() {
+        return city;
+    }
+
+    public void setCity(City city) {
+        this.city = city;
     }
 
     public Instant getStartsAt() {

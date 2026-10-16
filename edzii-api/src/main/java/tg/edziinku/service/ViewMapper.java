@@ -94,6 +94,10 @@ public class ViewMapper {
 
     public Dtos.AlertCard alert(Alert alert) {
         Neighborhood n = alert.getNeighborhood();
+        City city = alert.getCity();
+        if (city == null && n != null) {
+            city = n.getCity();
+        }
         return new Dtos.AlertCard(
                 alert.getId(),
                 alert.getTitle(),
@@ -104,6 +108,8 @@ public class ViewMapper {
                 alert.getKind().name(),
                 n == null ? null : n.getId(),
                 n == null ? null : n.getName(),
+                city == null ? null : city.getId(),
+                city == null ? null : city.getName(),
                 alert.getStartsAt(),
                 alert.getEndsAt(),
                 alert.getRainMmMin(),

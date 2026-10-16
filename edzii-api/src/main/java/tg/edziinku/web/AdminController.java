@@ -96,6 +96,11 @@ public class AdminController {
         whatsapp.broadcast(id);
     }
 
+    @PostMapping("/alerts/{id}/end")
+    Dtos.AlertCard endAlert(@PathVariable UUID id) {
+        return catalog.endAlert(id);
+    }
+
     @GetMapping("/whatsapp/outbox")
     List<Dtos.OutboundCard> outbox() {
         return whatsapp.outbox();

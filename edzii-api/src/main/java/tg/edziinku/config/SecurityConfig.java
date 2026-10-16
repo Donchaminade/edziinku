@@ -99,7 +99,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/api/reports").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/basins", "/api/basins/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/weather/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/geo/**").permitAll()
+                        .requestMatchers("/api/geo/**").permitAll()
                         .requestMatchers("/api/whatsapp/webhook").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/media/**").permitAll()
                         .requestMatchers("/api/admin/**").hasAnyRole("MAIRIE", "PROTECTION_CIVILE")
