@@ -22,6 +22,7 @@ const ModerationPage = lazy(() => import('./pages/admin/ModerationPage').then((m
 const OutboxPage = lazy(() => import('./pages/admin/OutboxPage').then((module) => ({ default: module.OutboxPage })));
 const OverviewPage = lazy(() => import('./pages/admin/OverviewPage').then((module) => ({ default: module.OverviewPage })));
 const TeamsPage = lazy(() => import('./pages/admin/TeamsPage').then((module) => ({ default: module.TeamsPage })));
+const TerritoryPage = lazy(() => import('./pages/admin/TerritoryPage').then((module) => ({ default: module.TerritoryPage })));
 
 export default function App() {
   return (
@@ -48,6 +49,7 @@ export default function App() {
           <Route path="admin/points-noirs" element={<BasinsPage />} />
           <Route path="admin/historique" element={<HistoryPage />} />
           <Route path="admin/equipes" element={<TeamsPage />} />
+          <Route path="admin/territoire" element={<TerritoryPage />} />
           <Route path="admin/whatsapp" element={<OutboxPage />} />
         </Route>
       </Routes>
