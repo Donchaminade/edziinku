@@ -10,6 +10,7 @@ import { HomePage } from './pages/public/HomePage';
 import { HowPage } from './pages/public/HowPage';
 import { MapPage } from './pages/public/MapPage';
 import { ProfilePage } from './pages/public/ProfilePage';
+import { ReportDetailPage } from './pages/public/ReportDetailPage';
 import { ReportPage } from './pages/public/ReportPage';
 import { WhatsAppPage } from './pages/public/WhatsAppPage';
 
@@ -36,6 +37,7 @@ export default function App() {
           <Route path="connexion" element={<AuthPage />} />
           <Route path="profil" element={<ProfilePage />} />
           <Route path="credits" element={<CreditsPage />} />
+          <Route path="signalement/:id" element={<ReportDetailPage />} />
           <Route path="*" element={<NotFoundPage />} />
         </Route>
         <Route element={<StaffGate />}>

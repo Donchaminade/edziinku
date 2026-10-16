@@ -33,7 +33,13 @@ function icon(pin: MapPin, selected: boolean) {
   });
 }
 
-function Focus({ pin, pins, fit }: { pin: MapPin | null; pins: MapPin[]; fit: boolean }) {
+export interface MapFocus {
+  lat: number;
+  lng: number;
+  zoom?: number;
+}
+
+function Focus({ pin, pins, fit, focus }: { pin: MapPin | null; pins: MapPin[]; fit: boolean; focus?: MapFocus | null }) {
   const map = useMap();
   const reduce = useReducedMotion();
 
@@ -44,10 +50,15 @@ function Focus({ pin, pins, fit }: { pin: MapPin | null; pins: MapPin[]; fit: bo
   }, [map]);
 
   useEffect(() => {
-    if (!fit || pin || pins.length < 2) return;
+    if (!focus) return;
+    map.setView([focus.lat, focus.lng], focus.zoom ?? 15, { animate: !reduce });
+  }, [map, focus?.lat, focus?.lng, focus?.zoom, reduce]);
+
+  useEffect(() => {
+    if (focus || !fit || pin || pins.length < 2) return;
     map.fitBounds(L.latLngBounds(pins.map((item) => [item.lat, item.lng])), { padding: [40, 40], maxZoom: 14, animate: !reduce });
     // Recentrage seulement quand le nombre de points change.
-  }, [map, fit, pins.length]);
+  }, [map, fit, pins.length, focus]);
 
   useEffect(() => {
     if (!pin) return;
@@ -71,6 +82,7 @@ export function MapView({
   fit = true,
   interactive = true,
   onPick,
+  focus,
 }: {
   pins: MapPin[];
   selectedId?: string | null;
@@ -80,6 +92,7 @@ export function MapView({
   fit?: boolean;
   interactive?: boolean;
   onPick?: (lat: number, lng: number) => void;
+  focus?: MapFocus | null;
 }) {
   const { theme } = useTheme();
   const selected = pins.find((pin) => pin.id === selectedId) ?? null;
@@ -91,8 +104,8 @@ export function MapView({
   return (
     <div className={`map-frame ${className ?? ''}`}>
       <MapContainer
-        center={LOME}
-        zoom={zoom}
+        center={focus ? [focus.lat, focus.lng] : LOME}
+        zoom={focus?.zoom ?? zoom}
         zoomControl={false}
         scrollWheelZoom={interactive}
         dragging={interactive}
@@ -102,7 +115,7 @@ export function MapView({
         <TileLayer key={`${theme}-base`} className="map-base" attribution={attribution} url={tiles[theme].base} maxNativeZoom={theme === 'dark' ? 16 : 19} maxZoom={19} />
         {tiles[theme].labels && <TileLayer key={`${theme}-labels`} className="map-labels" url={tiles[theme].labels} maxNativeZoom={16} maxZoom={19} />}
         {interactive && <ZoomControl position="bottomright" />}
-        <Focus pin={selected} pins={pins} fit={fit} />
+        <Focus pin={selected} pins={pins} fit={fit} focus={focus} />
         {onPick && <ClickToPlace onPick={onPick} />}
         {markers.map(({ pin, icon: markerIcon }) => (
           <Marker

@@ -119,6 +119,27 @@ export interface HourlyResponse {
   hours: RainPoint[];
 }
 
+export interface HotspotReport {
+  id: string;
+  photoUrl: string | null;
+  createdAt: string;
+  quartier: string;
+}
+
+export interface HotspotZone {
+  id: string;
+  label: string;
+  count: number;
+  lat: number;
+  lng: number;
+  reports: HotspotReport[];
+}
+
+export interface HotspotResponse {
+  days: number;
+  zones: HotspotZone[];
+}
+
 export interface Dashboard {
   demo: boolean;
   alertsSentToday: number;

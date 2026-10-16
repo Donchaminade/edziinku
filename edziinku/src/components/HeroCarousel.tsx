@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react'
 import { photos, type StockPhoto } from '../data/photos';
 import { alertTone } from '../lib/format';
 import { useLive } from '../lib/useCatalog';
+import { HeroHotspots } from './HeroHotspots';
 import { Photo, SMALL_PHOTO_MAX } from './Hero';
 import { ease } from './ui/motion';
 
@@ -114,7 +115,10 @@ export function HeroCarousel({ children }: { children: (slide: StockPhoto) => Re
         />
       </svg>
 
-      <div className="hero-content">{children(slide)}</div>
+      <div className="hero-content">
+        {children(slide)}
+        <HeroHotspots />
+      </div>
 
       {lead && (
         <motion.aside

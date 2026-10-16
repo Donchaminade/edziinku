@@ -32,6 +32,14 @@ public class ReportController {
         this.media = media;
     }
 
+    @GetMapping("/hotspots")
+    Dtos.HotspotResponse hotspots(
+            @RequestParam(defaultValue = "7") int days,
+            @RequestParam(defaultValue = "3") int limit
+    ) {
+        return reports.publicHotspots(days, limit);
+    }
+
     @GetMapping
     Dtos.PageResponse<Dtos.ReportCard> list(
             @RequestParam(required = false) UUID neighborhoodId,

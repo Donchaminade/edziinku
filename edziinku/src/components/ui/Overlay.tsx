@@ -120,6 +120,8 @@ export function Sheet({
   children,
   footer,
   width = 460,
+  solid = false,
+  id,
 }: {
   open: boolean;
   title: ReactNode;
@@ -128,6 +130,9 @@ export function Sheet({
   children: ReactNode;
   footer?: ReactNode;
   width?: number;
+  /** Aplat opaque (thème) plutôt que verre — pour les panneaux de contenu. */
+  solid?: boolean;
+  id?: string;
 }) {
   const reduce = useReducedMotion();
   const desktop = useIsDesktop();
@@ -142,10 +147,11 @@ export function Sheet({
           <Backdrop key="backdrop" onClose={onClose} />
           <motion.aside
             key="sheet"
+            id={id}
             role="dialog"
             aria-modal="true"
             aria-label={typeof title === 'string' ? title : undefined}
-            className="glass-strong fixed z-[71] flex flex-col overflow-hidden md:top-3 md:right-3 md:bottom-3 md:rounded-[28px] max-md:inset-x-0 max-md:bottom-0 max-md:max-h-[88svh] max-md:rounded-t-[28px]"
+            className={`${solid ? 'card-solid' : 'glass-strong'} fixed z-[71] flex flex-col overflow-hidden md:top-3 md:right-3 md:bottom-3 md:rounded-[28px] max-md:inset-x-0 max-md:bottom-0 max-md:max-h-[88svh] max-md:rounded-t-[28px]`}
             style={desktop ? { width: `min(${width}px, calc(100vw - 24px))` } : undefined}
             initial={hidden}
             animate={shown}
