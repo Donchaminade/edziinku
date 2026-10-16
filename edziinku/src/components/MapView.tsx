@@ -51,8 +51,20 @@ function Focus({ pin, pins, fit, focus }: { pin: MapPin | null; pins: MapPin[]; 
 
   useEffect(() => {
     if (!focus) return;
-    map.setView([focus.lat, focus.lng], focus.zoom ?? 15, { animate: !reduce });
-  }, [map, focus?.lat, focus?.lng, focus?.zoom, reduce]);
+    const apply = () => {
+      map.invalidateSize();
+      map.setView([focus.lat, focus.lng], focus.zoom ?? 15, { animate: false });
+      const host = map.getContainer().closest('.map-frame');
+      if (host instanceof HTMLElement) {
+        const center = map.getCenter();
+        host.dataset.center = `${center.lat.toFixed(4)},${center.lng.toFixed(4)},${map.getZoom()}`;
+      }
+    };
+    apply();
+    map.whenReady(apply);
+    const later = window.setTimeout(apply, 350);
+    return () => window.clearTimeout(later);
+  }, [map, focus, reduce]);
 
   useEffect(() => {
     if (focus || !fit || pin || pins.length < 2) return;
@@ -102,8 +114,12 @@ export function MapView({
   );
 
   return (
-    <div className={`map-frame ${className ?? ''}`}>
+    <div
+      className={`map-frame ${className ?? ''}`}
+      data-focus={focus ? `${focus.lat},${focus.lng},${focus.zoom ?? zoom}` : undefined}
+    >
       <MapContainer
+        key={focus ? `${focus.lat.toFixed(5)},${focus.lng.toFixed(5)},${focus.zoom ?? zoom}` : 'lome'}
         center={focus ? [focus.lat, focus.lng] : LOME}
         zoom={focus?.zoom ?? zoom}
         zoomControl={false}
