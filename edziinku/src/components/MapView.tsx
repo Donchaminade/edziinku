@@ -125,7 +125,7 @@ export function MapView({
 export function MapLegend({ className }: { className?: string }) {
   const items: [Tone, string][] = [['info', 'Cheville'], ['warn', 'Genou'], ['alert', 'Taille']];
   return (
-    <div className={`glass-strong flex items-center gap-3 rounded-2xl px-3 py-2 text-xs font-semibold ${className ?? ''}`}>
+    <div className={`overlay-panel flex items-center gap-3 rounded-2xl px-3 py-2 text-xs font-semibold ${className ?? ''}`}>
       {items.map(([tone, label]) => (
         <span key={tone} className="inline-flex items-center gap-1.5">
           <span

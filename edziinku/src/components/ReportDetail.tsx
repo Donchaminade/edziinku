@@ -28,8 +28,8 @@ export function ReportMeta({ report }: { report: ReportItem }) {
   return (
     <ul className="grid grid-cols-2 gap-2">
       {items.map((item) => (
-        <li key={item.label} className="flex min-w-0 items-center gap-2 rounded-xl border border-line px-2.5 py-2 text-xs text-text2">
-          <item.icon size={14} className="shrink-0 text-muted" />
+        <li key={item.label} className="flex min-h-11 min-w-0 items-center gap-2 rounded-xl border border-line bg-[var(--surface-2)] px-2.5 py-2 text-xs text-text2">
+          <item.icon size={14} className="meta-icon shrink-0" />
           <span className="truncate">{item.label}</span>
         </li>
       ))}

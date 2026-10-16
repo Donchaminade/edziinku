@@ -90,7 +90,7 @@ function Sidebar() {
   const pending = usePending();
 
   return (
-    <aside className="glass fixed inset-y-3 left-3 z-40 hidden w-[260px] flex-col rounded-[28px] lg:flex">
+    <aside className="overlay-panel fixed inset-y-3 left-3 z-40 hidden w-[260px] flex-col rounded-[28px] lg:flex">
       <div className="px-5 pt-5 pb-4"><Brand to="/admin" /></div>
       <nav className="scroll-thin flex-1 overflow-y-auto px-3" aria-label="Navigation de l’espace équipes">
         {groups.map((group) => (
@@ -144,7 +144,7 @@ function Topbar() {
   const today = new Intl.DateTimeFormat('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' }).format(new Date());
   return (
     <header className="sticky top-0 z-30 px-3 pt-[calc(12px+var(--safe-top))] lg:px-0 lg:pt-3">
-      <div className="glass flex h-14 items-center justify-between gap-3 rounded-[22px] px-3 lg:h-16 lg:px-5">
+      <div className="overlay-panel flex h-14 items-center justify-between gap-3 rounded-[22px] px-3 lg:h-16 lg:px-5">
         <div className="flex min-w-0 items-center gap-3">
           <span className="lg:hidden"><Brand to="/admin" compact /></span>
           <div className="hidden min-w-0 lg:block">

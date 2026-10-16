@@ -145,7 +145,7 @@ export function Sheet({
             role="dialog"
             aria-modal="true"
             aria-label={typeof title === 'string' ? title : undefined}
-            className="glass-strong fixed z-[71] flex flex-col overflow-hidden md:top-3 md:right-3 md:bottom-3 md:rounded-[28px] max-md:inset-x-0 max-md:bottom-0 max-md:max-h-[88svh] max-md:rounded-t-[28px]"
+            className="overlay-panel fixed z-[71] flex flex-col overflow-hidden md:top-3 md:right-3 md:bottom-3 md:rounded-[28px] max-md:inset-x-0 max-md:bottom-0 max-md:max-h-[88svh] max-md:rounded-t-[28px]"
             style={desktop ? { width: `min(${width}px, calc(100vw - 24px))` } : undefined}
             initial={hidden}
             animate={shown}
@@ -212,7 +212,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
                   key={toast.id}
                   layout={!reduce}
                   role="status"
-                  className="glass-strong pointer-events-auto flex max-w-md items-center gap-3 rounded-2xl px-4 py-3 text-sm shadow-[var(--shadow-lg)]"
+                  className="overlay-panel pointer-events-auto flex max-w-md items-center gap-3 rounded-2xl px-4 py-3 text-sm"
                   initial={reduce ? { opacity: 0 } : { opacity: 0, y: 24, scale: 0.95 }}
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   exit={reduce ? { opacity: 0 } : { opacity: 0, y: 12, scale: 0.96 }}

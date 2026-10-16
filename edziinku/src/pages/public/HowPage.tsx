@@ -55,7 +55,7 @@ export function HowPage() {
               <Lift className="card card-hover h-full overflow-hidden p-0">
                 <div className="relative aspect-[16/10] overflow-hidden">
                   <Photo photo={pillar.photo} className="h-full w-full object-cover" sizes="(min-width: 768px) 33vw, 100vw" />
-                  <span className="glass-strong t-num absolute top-3 left-3 rounded-xl px-2.5 py-1 text-sm font-semibold">0{index + 1}</span>
+                  <span className="overlay-panel t-num absolute top-3 left-3 rounded-xl px-2.5 py-1 text-sm font-semibold">0{index + 1}</span>
                 </div>
                 <div className="flex flex-col gap-2 p-5">
                   <h3 className="t-h3 text-lg">{pillar.title}</h3>
