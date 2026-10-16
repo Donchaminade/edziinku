@@ -17,6 +17,8 @@ import tg.edziinku.repo.ReportRepository;
 import tg.edziinku.repo.UserRepository;
 import tg.edziinku.web.ApiException;
 
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
@@ -59,7 +61,7 @@ public class ReportService {
         } catch (IllegalArgumentException ex) {
             throw new ApiException(400, "Niveau attendu : CHEVILLE, GENOU ou TAILLE");
         }
-        Neighborhood neighborhood = resolveNeighborhood(request.neighborhoodId(), request.latitude(), request.longitude());
+        Neighborhood neighborhood = resolveNeighborhood(request.neighborhoodId(), request.latitude(), request.longitude(), request.placeLabel());
         Report report = new Report();
         report.setReference(nextReference());
         if (authorId != null) {
@@ -110,6 +112,15 @@ public class ReportService {
     }
 
     @Transactional(readOnly = true)
+    public Dtos.HotspotResponse publicHotspots(int days, int limit) {
+        int window = Math.min(31, Math.max(1, days));
+        Instant since = Instant.now().minus(window, ChronoUnit.DAYS);
+        List<Report> recent = reports.findPublicSince(ReportStatus.VALIDE, since);
+        List<Neighborhood> catalog = neighborhoods.findPublicCatalog();
+        return HotspotAggregator.aggregate(recent, catalog, window, limit);
+    }
+
+    @Transactional(readOnly = true)
     public Dtos.ReportCard getPublic(UUID id) {
         Report report = reports.findById(id).orElseThrow(() -> new ApiException(404, "Signalement introuvable"));
         if (report.getStatus() != ReportStatus.VALIDE) {
@@ -150,13 +161,22 @@ public class ReportService {
         return csv.toString();
     }
 
-    private Neighborhood resolveNeighborhood(UUID id, double lat, double lng) {
+    private Neighborhood resolveNeighborhood(UUID id, double lat, double lng, String placeLabel) {
         if (id != null) {
-            return neighborhoods.findById(id).orElseThrow(() -> new ApiException(404, "Quartier introuvable"));
+            Neighborhood chosen = neighborhoods.findById(id).orElseThrow(() -> new ApiException(404, "Quartier introuvable"));
+            if (!chosen.isActive()) {
+                throw new ApiException(404, "Quartier introuvable");
+            }
+            return chosen;
         }
-        UUID found = geo.neighborhoodContaining(lat, lng)
+        UUID found = geo.neighborhoodContaining(lat, lng).orElse(null);
+        if (found != null) {
+            return neighborhoods.findById(found).orElseThrow(() -> new ApiException(404, "Quartier introuvable"));
+        }
+        List<Neighborhood> catalog = neighborhoods.findPublicCatalog();
+        return NeighborhoodMatcher.match(placeLabel, catalog)
+                .or(() -> NeighborhoodMatcher.unlocated(catalog))
                 .orElseThrow(() -> new ApiException(400, "Aucun quartier ne couvre cette position. Choisissez un quartier."));
-        return neighborhoods.findById(found).orElseThrow(() -> new ApiException(404, "Quartier introuvable"));
     }
 
     private String nextReference() {

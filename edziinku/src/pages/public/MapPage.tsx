@@ -1,6 +1,7 @@
 import { AnimatePresence, motion } from 'motion/react';
 import { Camera, Search, X } from 'lucide-react';
 import { useMemo, useState } from 'react';
+import { useLocation, useSearchParams } from 'react-router';
 import { PageHero } from '../../components/Hero';
 import { useDocumentTitle } from '../../components/layout/common';
 import { PublicPage } from '../../components/layout/PublicLayout';
@@ -18,11 +19,29 @@ import type { WaterLevel } from '../../types';
 
 type Filter = 'ALL' | WaterLevel;
 
+function parseFocus(params: URLSearchParams) {
+  const lat = Number(params.get('lat'));
+  const lng = Number(params.get('lng'));
+  const zoom = Number(params.get('zoom') || '15');
+  if (!Number.isFinite(lat) || !Number.isFinite(lng) || lat < -90 || lat > 90 || lng < -180 || lng > 180) {
+    return null;
+  }
+  return { lat, lng, zoom: Number.isFinite(zoom) ? Math.min(18, Math.max(10, zoom)) : 15 };
+}
+
 export function MapPage() {
   useDocumentTitle('Carte live');
   const live = useLive();
+  const [params] = useSearchParams();
+  const location = useLocation();
+  const focus = useMemo(
+    () => parseFocus(new URLSearchParams(location.search)),
+    [location.search],
+  );
   const [filter, setFilter] = useState<Filter>('ALL');
-  const [query, setQuery] = useState('');
+  const [query, setQuery] = useState(
+    () => params.get('quartier') || new URLSearchParams(location.search).get('quartier') || '',
+  );
   const [selected, setSelected] = useState<string | null>(null);
 
   const count = (level: WaterLevel) => live.reports.filter((report) => report.waterLevel === level).length;
@@ -117,7 +136,7 @@ export function MapPage() {
           </div>
 
           <div className="relative isolate order-1 lg:order-2">
-            <MapView pins={pins} selectedId={selected} onSelect={setSelected} className="h-[56svh] min-h-[320px] lg:h-[720px]" />
+            <MapView pins={pins} selectedId={selected} onSelect={setSelected} focus={focus} fit={!focus} className="h-[56svh] min-h-[320px] lg:h-[720px]" />
             <MapLegend className="absolute top-3 left-3 z-[500]" />
             <AnimatePresence>
               {current && wide && (

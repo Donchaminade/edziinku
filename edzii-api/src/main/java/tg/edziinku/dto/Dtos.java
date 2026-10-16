@@ -54,7 +54,74 @@ public final class Dtos {
             String riskLabel,
             double latitude,
             double longitude,
-            boolean approximate
+            boolean approximate,
+            UUID cityId,
+            String cityName,
+            String region,
+            UUID urgencyId,
+            String urgencyLabel,
+            String urgencyColor,
+            Integer urgencyRank,
+            String aliases,
+            boolean active
+    ) {
+    }
+
+    public record NeighborhoodDetail(NeighborhoodCard neighborhood, List<ReportCard> recentReports) {
+    }
+
+    public record CityCard(
+            UUID id,
+            String slug,
+            String name,
+            String region,
+            String commune,
+            Double latitude,
+            Double longitude,
+            boolean active,
+            long neighborhoodCount
+    ) {
+    }
+
+    public record UrgencyLevelCard(
+            UUID id,
+            String slug,
+            String label,
+            String color,
+            int rank,
+            boolean active,
+            long neighborhoodCount
+    ) {
+    }
+
+    public record CityRequest(
+            @NotBlank @Size(max = 120) String name,
+            @Size(max = 120) String region,
+            @Size(max = 120) String commune,
+            Double latitude,
+            Double longitude,
+            Boolean active
+    ) {
+    }
+
+    public record NeighborhoodRequest(
+            @NotBlank @Size(max = 120) String name,
+            UUID cityId,
+            UUID urgencyLevelId,
+            @Size(max = 120) String commune,
+            @Size(max = 400) String aliases,
+            Double latitude,
+            Double longitude,
+            Boolean approximate,
+            Boolean active
+    ) {
+    }
+
+    public record UrgencyLevelRequest(
+            @NotBlank @Size(max = 80) String label,
+            @NotBlank @Size(max = 7) String color,
+            @NotNull Integer rank,
+            Boolean active
     ) {
     }
 
@@ -136,6 +203,27 @@ public final class Dtos {
     }
 
     public record PageResponse<T>(List<T> items, int page, int size, long total) {
+    }
+
+    public record HotspotReport(UUID id, String photoUrl, Instant createdAt, String quartier) {
+    }
+
+    public record HotspotZone(
+            String id,
+            String label,
+            long count,
+            double lat,
+            double lng,
+            List<HotspotReport> reports,
+            UUID neighborhoodId,
+            String cityName,
+            String urgencyLabel,
+            String urgencyColor,
+            Integer urgencyRank
+    ) {
+    }
+
+    public record HotspotResponse(int days, List<HotspotZone> zones) {
     }
 
     public record BasinCard(

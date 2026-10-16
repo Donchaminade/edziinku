@@ -32,6 +32,37 @@ export interface Neighborhood {
   latitude: number;
   longitude: number;
   approximate: boolean;
+  cityId?: string | null;
+  cityName?: string | null;
+  region?: string | null;
+  urgencyId?: string | null;
+  urgencyLabel?: string | null;
+  urgencyColor?: string | null;
+  urgencyRank?: number | null;
+  aliases?: string | null;
+  active?: boolean;
+}
+
+export interface City {
+  id: string;
+  slug: string;
+  name: string;
+  region: string | null;
+  commune: string | null;
+  latitude: number | null;
+  longitude: number | null;
+  active: boolean;
+  neighborhoodCount: number;
+}
+
+export interface UrgencyLevel {
+  id: string;
+  slug: string;
+  label: string;
+  color: string;
+  rank: number;
+  active: boolean;
+  neighborhoodCount: number;
 }
 
 export interface RainPoint {
@@ -117,6 +148,32 @@ export interface HourlyResponse {
   source: string;
   demo: boolean;
   hours: RainPoint[];
+}
+
+export interface HotspotReport {
+  id: string;
+  photoUrl: string | null;
+  createdAt: string;
+  quartier: string;
+}
+
+export interface HotspotZone {
+  id: string;
+  label: string;
+  count: number;
+  lat: number;
+  lng: number;
+  reports: HotspotReport[];
+  neighborhoodId?: string | null;
+  cityName?: string | null;
+  urgencyLabel?: string | null;
+  urgencyColor?: string | null;
+  urgencyRank?: number | null;
+}
+
+export interface HotspotResponse {
+  days: number;
+  zones: HotspotZone[];
 }
 
 export interface Dashboard {

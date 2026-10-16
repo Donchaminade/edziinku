@@ -712,6 +712,9 @@ img { max-width: 100%; display: block; }
   left: 0;
   right: 0;
   bottom: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
   padding: 0 calc(20px + var(--safe-left)) calc(var(--bottom-nav-h) + 40px) calc(20px + var(--safe-right));
 }
 /* Texte du hero toujours clair : le voile est un aplat sombre dans les deux thèmes. */
@@ -910,6 +913,119 @@ img { max-width: 100%; display: block; }
 .hero-copy .photo-credit {
   background: #03132f;
   color: #ffffff;
+}
+
+/* Pastille « zones signalées » : même aplat opaque que l’ancien crédit photo. */
+.hotspot-pill {
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px 10px;
+  max-width: 100%;
+  min-height: 44px;
+  padding: 8px 14px;
+  border-radius: 9999px;
+  background: #03132f;
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, .14);
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.3;
+  text-align: left;
+  box-shadow: 0 1px 2px rgba(3, 11, 30, .35);
+  touch-action: manipulation;
+  width: fit-content;
+}
+.hotspot-pill:hover { background: #062047; color: #ffffff; }
+.hotspot-pill svg { flex: none; color: inherit; }
+.hotspot-pill-title { font-weight: 700; }
+.hotspot-pill-zones {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  max-width: 100%;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+.hotspot-pill-zones::-webkit-scrollbar { display: none; }
+.hotspot-pill-chip {
+  flex: none;
+  padding: 4px 8px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, .10);
+  color: #ffffff;
+  white-space: nowrap;
+  font-size: 11px;
+  font-weight: 600;
+}
+.hero-content .hotspot-pill {
+  background: #03132f;
+  color: #ffffff;
+}
+
+.hotspot-zone {
+  padding-bottom: 18px;
+  border-bottom: 1px solid var(--line);
+}
+.hotspot-zone:last-child { padding-bottom: 0; border-bottom: 0; }
+.hotspot-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 14px;
+}
+@media (min-width: 480px) {
+  .hotspot-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+.hotspot-thumb {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-height: 44px;
+  color: inherit;
+  text-align: left;
+  border-radius: 14px;
+}
+.hotspot-thumb-photo {
+  display: block;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  border-radius: 12px;
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+}
+.hotspot-thumb-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.hotspot-thumb-fallback {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: var(--surface-2);
+}
+
+.urgency-badge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+  padding: 2px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .01em;
+  line-height: 1.2;
+}
+.urgency-swatch {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  border: 1px solid var(--line);
+  flex: none;
 }
 
 .photo-frame {
