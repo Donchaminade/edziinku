@@ -24,11 +24,14 @@ export function useLocalRisk() {
         ? `Hors zone connue (plus de ${remote.matchMaxKm} km d’un quartier suivi).`
         : null);
     } catch {
-      const local = riskFromCatalog(live.neighborhoods, live.alerts, lat, lng, live.source === 'demo');
+      const hoods = live.neighborhoods;
+      const local = riskFromCatalog(hoods, live.alerts, lat, lng, live.source === 'demo');
       setRisk(local);
       setStatus('ready');
       setMessage(local.outOfKnownZone
-        ? `Hors zone connue (plus de ${local.matchMaxKm} km d’un quartier suivi).`
+        ? hoods.length === 0
+          ? 'Catalogue des quartiers encore en chargement. Réessayez dans un instant.'
+          : `Hors zone connue (plus de ${local.matchMaxKm} km d’un quartier suivi).`
         : null);
     }
   }, [live.alerts, live.neighborhoods, live.source]);

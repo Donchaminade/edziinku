@@ -87,7 +87,7 @@ export function LocalRiskBanner({ className }: { className?: string }) {
 
       {(status === 'prompt' || status === 'denied' || status === 'error') && (
         <div className="mt-3">
-          <Button variant="primary" onClick={request} className="min-h-11">
+          <Button variant="primary" onClick={request} className="btn-wrap w-full min-h-11 sm:w-auto">
             <MapPin size={16} /> Partager ma position pour voir le risque dans mon secteur
           </Button>
         </div>
