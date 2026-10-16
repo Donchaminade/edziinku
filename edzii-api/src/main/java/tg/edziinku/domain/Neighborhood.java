@@ -4,7 +4,11 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 
 import java.util.UUID;
@@ -12,6 +16,8 @@ import java.util.UUID;
 @Entity
 @Table(name = "neighborhoods")
 public class Neighborhood {
+
+    public static final String UNLOCATED_SLUG = "non-localise";
 
     @Id
     private UUID id;
@@ -25,6 +31,20 @@ public class Neighborhood {
     @Column(nullable = false, length = 120)
     private String commune;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "city_id")
+    private City city;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "urgency_level_id")
+    private UrgencyLevel urgencyLevel;
+
+    @Column(length = 400)
+    private String aliases;
+
+    @Column(nullable = false)
+    private boolean active = true;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "risk_level", nullable = false, length = 32)
     private RiskLevel riskLevel;
@@ -37,6 +57,17 @@ public class Neighborhood {
 
     @Column(nullable = false)
     private boolean approximate;
+
+    @PrePersist
+    void prePersist() {
+        if (id == null) {
+            id = UUID.randomUUID();
+        }
+    }
+
+    public boolean isUnlocated() {
+        return UNLOCATED_SLUG.equals(slug);
+    }
 
     public UUID getId() {
         return id;
@@ -68,6 +99,38 @@ public class Neighborhood {
 
     public void setCommune(String commune) {
         this.commune = commune;
+    }
+
+    public City getCity() {
+        return city;
+    }
+
+    public void setCity(City city) {
+        this.city = city;
+    }
+
+    public UrgencyLevel getUrgencyLevel() {
+        return urgencyLevel;
+    }
+
+    public void setUrgencyLevel(UrgencyLevel urgencyLevel) {
+        this.urgencyLevel = urgencyLevel;
+    }
+
+    public String getAliases() {
+        return aliases;
+    }
+
+    public void setAliases(String aliases) {
+        this.aliases = aliases;
+    }
+
+    public boolean isActive() {
+        return active;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
     }
 
     public RiskLevel getRiskLevel() {

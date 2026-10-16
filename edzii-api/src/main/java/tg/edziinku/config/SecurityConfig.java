@@ -92,6 +92,8 @@ public class SecurityConfig {
                         .requestMatchers("/v3/api-docs/**", "/swagger-ui.html", "/swagger-ui/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/auth/register", "/api/auth/login", "/api/auth/refresh", "/api/auth/google").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/neighborhoods", "/api/neighborhoods/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/cities", "/api/cities/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/urgency-levels", "/api/urgency-levels/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/alerts", "/api/alerts/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/reports", "/api/reports/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/reports").permitAll()

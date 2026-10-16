@@ -59,7 +59,10 @@ public class CatalogService {
 
     @Transactional(readOnly = true)
     public List<Dtos.NeighborhoodCard> neighborhoods() {
-        return neighborhoods.findAllByOrderByNameAsc().stream().map(mapper::neighborhood).toList();
+        return neighborhoods.findPublicCatalog().stream()
+                .filter(item -> !item.isUnlocated())
+                .map(mapper::neighborhood)
+                .toList();
     }
 
     @Transactional(readOnly = true)

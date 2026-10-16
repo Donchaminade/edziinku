@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import tg.edziinku.dto.Dtos;
 import tg.edziinku.service.CatalogService;
+import tg.edziinku.service.TerritoryService;
 import tg.edziinku.service.WeatherService;
 
 import java.util.List;
@@ -18,15 +19,32 @@ public class CatalogController {
 
     private final CatalogService catalog;
     private final WeatherService weather;
+    private final TerritoryService territory;
 
-    public CatalogController(CatalogService catalog, WeatherService weather) {
+    public CatalogController(CatalogService catalog, WeatherService weather, TerritoryService territory) {
         this.catalog = catalog;
         this.weather = weather;
+        this.territory = territory;
     }
 
     @GetMapping("/neighborhoods")
     List<Dtos.NeighborhoodCard> neighborhoods() {
         return catalog.neighborhoods();
+    }
+
+    @GetMapping("/neighborhoods/{id}")
+    Dtos.NeighborhoodDetail neighborhood(@PathVariable UUID id) {
+        return territory.neighborhoodDetail(id);
+    }
+
+    @GetMapping("/cities")
+    List<Dtos.CityCard> cities() {
+        return territory.publicCities();
+    }
+
+    @GetMapping("/urgency-levels")
+    List<Dtos.UrgencyLevelCard> urgencyLevels() {
+        return territory.publicUrgencies();
     }
 
     @GetMapping("/alerts")
