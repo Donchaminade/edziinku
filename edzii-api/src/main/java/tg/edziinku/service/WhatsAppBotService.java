@@ -142,25 +142,21 @@ public class WhatsAppBotService {
         String place = alert.getNeighborhood() != null
                 ? alert.getNeighborhood().getName()
                 : alert.getCity() != null ? alert.getCity().getName() : "Grand Lomé";
-        String window = "ce soir";
-        if (alert.getStartsAt() != null && alert.getEndsAt() != null) {
-            window = "de " + alert.getStartsAt().atZone(java.time.ZoneId.of("Africa/Lome")).toLocalTime().withSecond(0).withNano(0)
-                    + " à " + alert.getEndsAt().atZone(java.time.ZoneId.of("Africa/Lome")).toLocalTime().withSecond(0).withNano(0);
-        }
-        String mm = (alert.getRainMmMin() == null ? "?" : alert.getRainMmMin()) + " à "
-                + (alert.getRainMmMax() == null ? "?" : alert.getRainMmMax()) + " mm";
-        String source = alert.getSource() == null ? "Open-Meteo" : alert.getSource();
+        String source = alert.getSource() == null || alert.getSource().isBlank() ? "Edzii-Nku" : alert.getSource();
+        boolean hasEwe = alert.getBodyEwe() != null && !alert.getBodyEwe().isBlank();
         for (WhatsAppContact contact : targets) {
             boolean ewe = "ewe".equals(contact.getLanguage());
             boolean both = "both".equals(contact.getLanguage()) || contact.getLanguage() == null;
             if (ewe || both) {
-                if (alert.getBodyEwe() != null) {
+                if (hasEwe) {
                     log.info("Texte éwé diffusé, à relire par un locuteur natif (alerte {})", alert.getId());
+                    deliver(contact.getWaId(), BotEngine.bulletin(true, alert.getTitle(), place, alert.getBodyEwe(), source));
+                } else if (ewe) {
+                    deliver(contact.getWaId(), BotEngine.bulletin(false, alert.getTitle(), place, alert.getBody(), source));
                 }
-                deliver(contact.getWaId(), BotEngine.alert(true, place, window, mm, source));
             }
             if (!ewe || both) {
-                deliver(contact.getWaId(), BotEngine.alert(false, place, window, mm, source));
+                deliver(contact.getWaId(), BotEngine.bulletin(false, alert.getTitle(), place, alert.getBody(), source));
             }
         }
     }

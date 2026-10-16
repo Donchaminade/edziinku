@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -48,6 +49,18 @@ class BotEngineTest {
         assertNotNull(done.report());
         assertEquals(WaterLevel.GENOU, done.report().level());
         assertTrue(done.messages().get(0).body().contains("Merci"));
+    }
+
+    @Test
+    void bulletinReprendLeTitreEtLeCorps() {
+        BotEngine.Out calme = BotEngine.bulletin(
+                false, "Retour au calme", "Bè", "Plus de signe météo immédiat dans le secteur.", "Mairie");
+        assertTrue(calme.body().contains("Retour au calme"));
+        assertTrue(calme.body().contains("Plus de signe météo immédiat"));
+        assertTrue(calme.body().contains("BÈ"));
+        assertFalse(calme.body().contains("ALERTE FORTE PLUIE"));
+        assertFalse(calme.body().contains("ce soir"));
+        assertFalse(calme.body().contains("? à ?"));
     }
 
     @Test

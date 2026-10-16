@@ -26,6 +26,7 @@ import tg.edziinku.web.ApiException;
 
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -140,6 +141,7 @@ public class CatalogService {
                     .toList();
             localAlerts.add(new Dtos.LocalAlertCard(mapper.alert(alert), scope, others));
         }
+        localAlerts.sort(Comparator.comparingInt(CatalogService::alertRank).reversed());
         var urgency = sector.getUrgencyLevel();
         return new Dtos.LocalRiskResponse(
                 mapper.neighborhood(sector),
@@ -245,6 +247,32 @@ public class CatalogService {
                 .flatMap(neighborhoods::findDetailedById)
                 .filter(NeighborhoodMatcher::usable)
                 .map(n -> new NeighborhoodMatcher.Match(n, 0));
+    }
+
+    /**
+     * Un calme publié après une vigilance ne doit pas passer devant.
+     * Les signes dangereux restent au-dessus de {@code CALME}, quel que soit l’ordre de création.
+     */
+    private static int alertRank(Dtos.LocalAlertCard card) {
+        String kind = card.alert().kind();
+        int levelRank = switch (card.alert().level() == null ? "" : card.alert().level()) {
+            case "CRITIQUE" -> 4;
+            case "ELEVE" -> 3;
+            case "VIGILANCE" -> 2;
+            case "INFO" -> 1;
+            default -> 0;
+        };
+        if ("CALME".equals(kind)) {
+            return levelRank;
+        }
+        int kindRank = switch (kind == null ? "" : kind) {
+            case "VIGILANCE_INONDATION" -> 4;
+            case "ORAGE" -> 3;
+            case "FORTE_PLUIE" -> 2;
+            case "RAIN" -> 1;
+            default -> 0;
+        };
+        return kindRank * 100 + levelRank;
     }
 
     private static boolean isActive(Alert alert, Instant now) {

@@ -47,13 +47,81 @@ function alertActive(alert: AlertItem, now: number, treatAsLive: boolean) {
   return true;
 }
 
+const WEATHER_KINDS = new Set(['ORAGE', 'FORTE_PLUIE', 'VIGILANCE_INONDATION', 'CALME', 'RAIN']);
+
+const LEVEL_RANK: Record<string, number> = { CRITIQUE: 4, ELEVE: 3, VIGILANCE: 2, INFO: 1 };
+
+const KIND_RANK: Record<string, number> = {
+  VIGILANCE_INONDATION: 4,
+  ORAGE: 3,
+  FORTE_PLUIE: 2,
+  RAIN: 1,
+};
+
+function weatherRank(alert: AlertItem) {
+  const level = LEVEL_RANK[alert.level] ?? 0;
+  if (alert.kind === 'CALME') return level;
+  return (KIND_RANK[alert.kind] ?? 0) * 100 + level;
+}
+
+/** Signe météo le plus grave encore actif. Un calme plus récent ne masque pas une vigilance. */
+export function leadLocalAlert<T extends { alert: AlertItem }>(alerts: T[]): T | undefined {
+  const weather = alerts.filter((item) => WEATHER_KINDS.has(item.alert.kind));
+  const hazards = weather.filter((item) => item.alert.kind !== 'CALME');
+  const pool = hazards.length > 0 ? hazards : weather;
+  return pool.reduce<T | undefined>((best, item) => {
+    if (!best || weatherRank(item.alert) > weatherRank(best.alert)) return item;
+    return best;
+  }, undefined);
+}
+
 function alertScope(alert: AlertItem, here: Neighborhood, all: Neighborhood[]): 'SECTOR' | 'NEIGHBOR' | null {
   if (!alert.neighborhoodId && !alert.cityId) return 'SECTOR';
   if (alert.neighborhoodId === here.id) return 'SECTOR';
   if (alert.cityId && here.cityId && alert.cityId === here.cityId) return 'SECTOR';
   const origin = all.find((hood) => hood.id === alert.neighborhoodId);
   if (origin && neighborHoods(origin, all).some((hood) => hood.id === here.id)) return 'NEIGHBOR';
+  if (!alert.neighborhoodId && alert.cityId && cityReaches(alert.cityId, here, all)) return 'NEIGHBOR';
   return null;
+}
+
+/** Quartiers hors ville dont le centroïde est à moins de 2 km d’un quartier de la ville. */
+function cityReaches(cityId: string, here: Neighborhood, all: Neighborhood[]) {
+  return all.some((hood) => usable(hood) && hood.cityId === cityId
+    && neighborHoods(hood, all).some((near) => near.id === here.id));
+}
+
+/**
+ * Quartiers touchés par le signe (secteur, puis voisinages à 2 km), sauf le quartier de l’usager.
+ * Une ville sans quartier cible diffuse à tous ses quartiers, comme le serveur.
+ */
+function reachedNames(alert: AlertItem, here: Neighborhood, all: Neighborhood[]) {
+  const seen = new Set<string>();
+  const sector: Neighborhood[] = [];
+  const take = (hood: Neighborhood | undefined) => {
+    if (!hood || !usable(hood) || seen.has(hood.id)) return;
+    seen.add(hood.id);
+    sector.push(hood);
+  };
+  if (alert.neighborhoodId) {
+    take(all.find((hood) => hood.id === alert.neighborhoodId));
+  } else if (alert.cityId) {
+    for (const hood of all) {
+      if (hood.cityId === alert.cityId) take(hood);
+    }
+  }
+  const names: string[] = [];
+  const named = new Set<string>();
+  const push = (name: string) => {
+    if (!name || name === here.name || named.has(name)) return;
+    named.add(name);
+    names.push(name);
+  };
+  for (const hood of sector) push(hood.name);
+  for (const origin of sector) {
+    for (const neighbor of neighborHoods(origin, all)) push(neighbor.name);
+  }
+  return names;
 }
 
 export function riskFromCatalog(
@@ -89,7 +157,7 @@ export function riskFromCatalog(
     return [{
       alert,
       scope,
-      neighborNames: neighbors.map((hood) => hood.name),
+      neighborNames: reachedNames(alert, here, hoods),
     }];
   });
   return {

@@ -1,6 +1,6 @@
 import { CloudLightning, CloudRain, MapPin, ShieldAlert } from 'lucide-react';
 import { contrastOn } from '../lib/format';
-import { NEIGHBOR_RADIUS_KM } from '../lib/localRisk';
+import { leadLocalAlert, NEIGHBOR_RADIUS_KM } from '../lib/localRisk';
 import { useLocalRisk } from '../lib/useLocalRisk';
 import { Button } from './ui/Button';
 
@@ -12,11 +12,12 @@ function kindIcon(kind: string) {
 
 export function LocalRiskBanner({ className }: { className?: string }) {
   const { status, risk, message, request } = useLocalRisk();
-  const weather = risk?.alerts.filter((item) => (
-    ['ORAGE', 'FORTE_PLUIE', 'VIGILANCE_INONDATION', 'CALME', 'RAIN'].includes(item.alert.kind)
-  )) ?? [];
-  const neighborAlert = risk?.alerts.some((item) => item.scope === 'NEIGHBOR');
-  const lead = weather[0] ?? risk?.alerts[0];
+  const alerts = risk?.alerts ?? [];
+  const neighborAlert = alerts.some((item) => item.scope === 'NEIGHBOR');
+  const lead = leadLocalAlert(alerts) ?? alerts[0];
+  const alertingNames = [...new Set(
+    alerts.filter((item) => item.scope === 'NEIGHBOR').flatMap((item) => item.neighborNames),
+  )];
   const Icon = lead ? kindIcon(lead.alert.kind) : MapPin;
 
   return (
@@ -73,7 +74,7 @@ export function LocalRiskBanner({ className }: { className?: string }) {
           {neighborAlert && (
             <p className="text-sm text-muted">
               Un voisinage est aussi en alerte
-              {risk.neighborNames.length ? ` (${risk.neighborNames.slice(0, 3).join(', ')})` : ''}.
+              {alertingNames.length ? ` (${alertingNames.slice(0, 3).join(', ')})` : ''}.
             </p>
           )}
           {risk.neighborNames.length > 0 && !neighborAlert && (

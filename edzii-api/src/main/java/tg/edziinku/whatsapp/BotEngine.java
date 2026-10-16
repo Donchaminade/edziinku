@@ -84,6 +84,24 @@ public final class BotEngine {
         };
     }
 
+    /**
+     * Message de diffusion : titre et corps saisis, pas le modèle « forte pluie ».
+     */
+    public static Out bulletin(boolean ewe, String title, String place, String body, String source) {
+        if (ewe) {
+            return text("""
+                    ⚠️ %s · %s
+                    %s
+                    Tso: %s · Edzii-Nku
+                    """.formatted(title, place.toUpperCase(), body, source));
+        }
+        return text("""
+                ⚠️ %s · %s
+                %s
+                Source : %s · Edzii-Nku
+                """.formatted(title, place.toUpperCase(), body, source));
+    }
+
     public static Out alert(boolean ewe, String neighborhood, String window, String mm, String source) {
         if (ewe) {
             return text("""
