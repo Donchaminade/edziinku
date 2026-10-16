@@ -126,7 +126,7 @@ export function AlertsPage() {
               <AnimatePresence mode="wait">
                 <motion.article
                   key={`${preview}-${level}`}
-                  className="glass-strong rounded-[22px] p-4"
+                  className="overlay-panel rounded-[22px] p-4"
                   initial={{ opacity: 0, y: 12, scale: 0.98 }}
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   exit={{ opacity: 0, y: -8 }}

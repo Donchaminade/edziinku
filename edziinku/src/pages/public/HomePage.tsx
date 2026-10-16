@@ -147,7 +147,7 @@ function Problem() {
           </div>
           {lead && (
           <motion.div
-            className="glass-strong absolute -right-2 -bottom-6 hidden w-60 rounded-2xl p-4 sm:block md:-right-6"
+            className="overlay-panel absolute -right-2 -bottom-6 hidden w-60 rounded-2xl p-4 sm:block md:-right-6"
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
@@ -425,7 +425,7 @@ function ForTeams() {
           </div>
           {validated && (
           <motion.div
-            className="glass-strong absolute right-3 bottom-3 left-3 rounded-2xl p-4 sm:right-auto sm:-left-6 sm:w-72"
+            className="overlay-panel absolute right-3 bottom-3 left-3 rounded-2xl p-4 sm:right-auto sm:-left-6 sm:w-72"
             initial={{ opacity: 0, y: 16 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}

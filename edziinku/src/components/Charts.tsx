@@ -55,7 +55,7 @@ export function BarChart({ data, unit = 'mm', height = 180 }: { data: BarDatum[]
                 />
                 {on && (
                   <motion.span
-                    className="glass-strong t-num absolute left-1/2 z-10 -translate-x-1/2 rounded-lg px-2 py-1 text-xs font-semibold whitespace-nowrap"
+                    className="overlay-panel t-num absolute left-1/2 z-10 -translate-x-1/2 rounded-lg px-2 py-1 text-xs font-semibold whitespace-nowrap"
                     style={{ bottom: `calc(${pct}% + 6px)` }}
                     initial={{ opacity: 0, y: 4 }}
                     animate={{ opacity: 1, y: 0 }}

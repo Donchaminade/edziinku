@@ -245,8 +245,8 @@ export function ReportPage() {
                           transition={{ duration: 0.5, ease }}
                         />
                         <div className="absolute right-3 bottom-3 left-3 flex flex-wrap gap-2">
-                          <Button size="sm" className="glass" onClick={() => fileInput.current?.click()}><RotateCcw size={15} /> Changer</Button>
-                          <Button size="sm" variant="danger" className="glass" onClick={() => setPhoto(null)}><Trash2 size={15} /> Retirer</Button>
+                          <Button size="sm" className="overlay-panel" onClick={() => fileInput.current?.click()}><RotateCcw size={15} /> Changer</Button>
+                          <Button size="sm" variant="danger" className="overlay-panel" onClick={() => setPhoto(null)}><Trash2 size={15} /> Retirer</Button>
                         </div>
                       </div>
                     ) : (
@@ -311,7 +311,7 @@ export function ReportPage() {
                         onPick={(nextLat, nextLng) => { setLat(nextLat); setLng(nextLng); }}
                       />
                       <div className="absolute top-3 right-3 z-[500]">
-                        <Button size="sm" className="glass-strong" onClick={locate} loading={locating}>
+                        <Button size="sm" className="overlay-panel" onClick={locate} loading={locating}>
                           {!locating && <LocateFixed size={16} />} Ma position
                         </Button>
                       </div>
